@@ -1,6 +1,6 @@
 Visual-Tool For IITP GDBMS [Project 비트(ViT)]
 ======
-IITP-차세대 DBMS 과제 중 GDBMS를 위한 시각화 도구를 개발위한 것이다.  
+IITP-차세대 DBMS 과제 중 GDBMS를 위한 시각화 도구를 개발하기 위한 것이다.  
 시각화 도구는 DBeaver(https://github.com/dbeaver/dbeaver)를 Base (v21.2.2)로  
 Gephi 등 Open Source Lib를 사용하여 확장하여 개발하는 것을 목표로 한다.
 개발 관련 문서등은 Vit_docs 폴더에서 관리된다.
