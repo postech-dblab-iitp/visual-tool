@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg12"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="force_directed_layout.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview14"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.38885732"
+     inkscape:cx="374.17323"
+     inkscape:cy="765.0621"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="2552"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs9" />
+  <g
+     inkscape:label="레이어 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <ellipse
+       style="fill:none;stroke-width:0.264583"
+       id="path3375"
+       cx="116.01031"
+       cy="173.16495"
+       rx="238.48454"
+       ry="219.43298" />
+    <circle
+       style="fill:#000000;stroke-width:0.182368"
+       id="path3577"
+       cx="35.548122"
+       cy="58.399376"
+       r="35" />
+    <circle
+       style="fill:#000000;stroke-width:0.182368"
+       id="path3577-91"
+       cx="35.548107"
+       cy="236.61342"
+       r="35" />
+    <circle
+       style="fill:#000000;stroke-width:0.182368"
+       id="path3577-4"
+       cx="105.54811"
+       cy="147.50632"
+       r="35" />
+    <circle
+       style="fill:#000000;stroke-width:0.182368"
+       id="path3577-9"
+       cx="175.54813"
+       cy="58.399376"
+       r="35" />
+    <rect
+       style="fill:none;stroke-width:0.264583"
+       id="rect3895"
+       width="254.47423"
+       height="85.051544"
+       x="-293.25775"
+       y="194.59795" />
+    <circle
+       style="fill:#000000;stroke-width:0.182368"
+       id="path3577-9-3"
+       cx="175.54811"
+       cy="236.61342"
+       r="35" />
+    <circle
+       id="path4868"
+       style="fill:#000000;stroke:#000000;stroke-width:0.264583"
+       cx="-257.87628"
+       cy="185.75258"
+       r="0.090630263" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 36.742266,57.835051 105.46392,145.60824 179.62886,53.072164 31.29897,238.14433 l 74.84536,-92.53609 72.12371,91.17526"
+       id="path5381" />
+  </g>
+</svg>

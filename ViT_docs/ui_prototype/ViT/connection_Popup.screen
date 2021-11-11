@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore">
+  <widgets xsi:type="model:Window" id="1" width="497" height="321" text="연결 (Turbo Graph++)" measuredWidth="497" measuredHeight="321"/>
+  <widgets xsi:type="model:Label" id="2" x="16" y="65" width="89" text="host :" measuredWidth="89" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:TextField" id="3" x="54" y="64" width="169" text="192.168.1.1" measuredWidth="169" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Label" id="4" x="16" y="97" text="port" measuredWidth="28" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:TextField" id="5" x="54" y="97" width="169" text="8281" measuredWidth="169" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Button" id="6" x="152" y="263" width="89" height="33" text="연결 " measuredWidth="89" measuredHeight="33">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Button" id="7" x="264" y="264" width="97" height="33" text="연결 테스트" measuredWidth="97" measuredHeight="33" link="test_connection.screen">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="15" x="16" y="166" measuredWidth="441" measuredHeight="73">
+    <widgets xsi:type="model:Group" id="9" width="441" height="73" text="authProperties" measuredWidth="441" measuredHeight="73">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Label" id="10" x="10" y="18" width="89" text="user :" measuredWidth="89" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:TextField" id="11" x="48" y="17" width="169" text="dba" measuredWidth="169" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Label" id="12" x="10" y="45" text="password :" measuredWidth="63" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:TextField" id="13" x="70" y="46" width="169" text="****" measuredWidth="169" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Checkbox" id="14" x="248" y="46" text="Save password locally" measuredWidth="138" measuredHeight="23" selected="true">
+      <font/>
+    </widgets>
+  </widgets>
+  <widgets xsi:type="model:Checkbox" id="16" x="16" y="130" text="enable Ssl" measuredWidth="75" measuredHeight="23" selected="true">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Button" id="17" x="384" y="264" width="89" height="33" text="취소" measuredWidth="89" measuredHeight="33">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Label" id="18" x="16" y="37" width="89" text="name:" measuredWidth="89" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:TextField" id="19" x="54" y="36" width="169" text="Turbo Graph++" measuredWidth="169" measuredHeight="23">
+    <font/>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>

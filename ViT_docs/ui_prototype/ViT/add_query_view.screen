@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
+  <widgets xsi:type="model:WidgetGroup" id="7" x="32" y="48" measuredWidth="241" measuredHeight="121">
+    <widgets xsi:type="model:Window" id="1" width="241" height="121" text="Add QueryView" measuredWidth="241" measuredHeight="121"/>
+    <widgets xsi:type="model:Button" id="3" x="31" y="81" width="73" text="OK" measuredWidth="73" measuredHeight="25">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Button" id="4" x="128" y="80" width="73" text="Cancel" measuredWidth="73" measuredHeight="25">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Combo" id="5" x="95" y="40" width="129" text="TurboGraph++" measuredWidth="129" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Label" id="6" x="21" y="41" width="79" text="DataBase :" measuredWidth="79" measuredHeight="23">
+      <font/>
+    </widgets>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>

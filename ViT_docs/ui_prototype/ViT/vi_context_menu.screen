@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
+  <widgets xsi:type="model:Popup" id="1" width="217" text="{undo} &amp;Undo, Ctrl+Z&#xA;{redo} &amp;Redo, Ctrl+Y&#xA;---&#xA;v Show Rulers&#xA;Show Grid&#xA;~Disabled~&#xA;---&#xA;* Option 1&#xA;Option 2&#xA;---&#xA;Submenu, >" measuredWidth="217" measuredHeight="221">
+    <items x="0" y="2" width="217" height="23" text="{undo} &amp;Undo, Ctrl+Z"/>
+    <items x="0" y="25" width="217" height="23" text="{redo} &amp;Redo, Ctrl+Y"/>
+    <items x="0" y="48" width="217" height="11" text="---"/>
+    <items x="0" y="59" width="217" height="23" text="v Show Rulers"/>
+    <items x="0" y="82" width="217" height="23" text="Show Grid"/>
+    <items x="0" y="105" width="217" height="23" text="~Disabled~"/>
+    <items x="0" y="128" width="217" height="11" text="---"/>
+    <items x="0" y="139" width="217" height="23" text="* Option 1"/>
+    <items x="0" y="162" width="217" height="23" text="Option 2"/>
+    <items x="0" y="185" width="217" height="11" text="---"/>
+    <items x="0" y="196" width="217" height="23" text="Submenu, >"/>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>

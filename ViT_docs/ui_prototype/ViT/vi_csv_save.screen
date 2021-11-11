@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore">
+  <widgets xsi:type="model:Window" id="7" width="585" height="337" text="csv파일로 저장" measuredWidth="585" measuredHeight="337" minimizeButton="true" maximizeButton="true"/>
+  <widgets xsi:type="model:Label" id="11" x="40" y="264" width="121" text="파일이름 :" measuredWidth="121" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="23" x="12" y="28" measuredWidth="557" measuredHeight="301">
+    <widgets xsi:type="model:Panel" id="8" x="92" y="36" width="465" height="177" measuredWidth="465" measuredHeight="177" verticalScrollbar="true"/>
+    <widgets xsi:type="model:Button" id="9" x="340" y="268" width="97" height="33" text="저장" measuredWidth="97" measuredHeight="33">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Button" id="10" x="460" y="268" width="97" height="33" text="취소" measuredWidth="97" measuredHeight="33">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Combo" id="12" x="92" y="236" width="273" text="result_1.csv" measuredWidth="273" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Combo" id="13" x="380" y="236" width="177" text="*.csv&#xD;&#xA;" measuredWidth="177" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Tree" id="15" y="36" width="85" height="177" text="내 PC&#xA;-c:&#xA;-d:&#xA;" measuredWidth="85" measuredHeight="177">
+      <items x="0" y="5" width="85" height="21" text="내 PC"/>
+      <items x="0" y="26" width="85" height="21" text="-c:"/>
+      <items x="0" y="47" width="85" height="21" text="-d:"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Icon" id="16" y="1" width="29" height="28" measuredWidth="29" measuredHeight="28" icon="arrow-left (custom)"/>
+    <widgets xsi:type="model:Icon" id="17" x="41" width="29" height="28" measuredWidth="29" measuredHeight="28" icon="arrow-right (custom)"/>
+    <widgets xsi:type="model:Icon" id="18" x="84" y="1" width="29" height="28" measuredWidth="29" measuredHeight="28" icon="arrow-up (custom)"/>
+    <widgets xsi:type="model:Combo" id="19" x="116" y="3" width="441" text="내 PC" measuredWidth="441" measuredHeight="23">
+      <font/>
+    </widgets>
+  </widgets>
+  <widgets xsi:type="model:Label" id="21" x="125" y="81" width="33" text="c:" measuredWidth="33" measuredHeight="58" textAlignment="Center" icon="closed (large)" iconPosition="top">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Label" id="22" x="167" y="80" width="33" text="d:" measuredWidth="33" measuredHeight="58" textAlignment="Center" icon="closed (large)" iconPosition="top">
+    <font/>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>

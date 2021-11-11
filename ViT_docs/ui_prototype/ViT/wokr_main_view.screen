@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore">
+  <widgets xsi:type="model:WidgetGroup" id="98" x="-8" y="17" measuredWidth="272" measuredHeight="425">
+    <widgets xsi:type="model:Window" id="6" width="271" height="424" text="Database Navigator" measuredWidth="271" measuredHeight="424"/>
+    <widgets xsi:type="model:Tree" id="13" y="18" width="272" height="407" text="TouboGraph++&#xA;-192.168.56.2(connected)&#xA;Cubrid-GDBMS&#xA;-192.168.56.3(not conneted)&#xA;JanusGraph&#xA;-192.168.56.4(not conneted)" measuredWidth="272" measuredHeight="407" verticalScrollbar="true" selection="0">
+      <items x="0" y="5" width="255" height="21" text="TouboGraph++"/>
+      <items link="connection_Popup.screen" x="0" y="26" width="255" height="21" text="-192.168.56.2(connected)"/>
+      <items x="0" y="47" width="255" height="21" text="Cubrid-GDBMS"/>
+      <items x="0" y="68" width="255" height="21" text="-192.168.56.3(not conneted)"/>
+      <items x="0" y="89" width="255" height="21" text="JanusGraph"/>
+      <items x="0" y="110" width="255" height="21" text="-192.168.56.4(not conneted)"/>
+      <font/>
+    </widgets>
+  </widgets>
+  <widgets xsi:type="model:Menu" id="16" x="-8" y="-8" width="1241" text="~&amp;File~,~&amp;Edit~,~&amp;View~,~&amp;Window~,~&amp;Help~,&amp;Import" measuredWidth="1241" measuredHeight="27">
+    <items x="5" y="0" width="29" height="27" text="~&amp;File~"/>
+    <items x="34" y="0" width="31" height="27" text="~&amp;Edit~"/>
+    <items x="65" y="0" width="37" height="27" text="~&amp;View~"/>
+    <items x="102" y="0" width="55" height="27" text="~&amp;Window~"/>
+    <items x="157" y="0" width="36" height="27" text="~&amp;Help~"/>
+    <items x="193" y="0" width="47" height="27" text="&amp;Import"/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="89" x="264" y="376" measuredWidth="665" measuredHeight="387">
+    <widgets xsi:type="model:Panel" id="21" width="665" height="387" measuredWidth="665" measuredHeight="387"/>
+  </widgets>
+  <widgets xsi:type="model:Callout" id="3" x="384" y="564" width="73" height="57" text="movie" measuredWidth="73" measuredHeight="57" background="#00f">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:Arrow" id="4" x="456" y="589" width="105" height="8" measuredWidth="105" measuredHeight="8" left="false" right="true" direction="bottom"/>
+  <widgets xsi:type="model:Callout" id="5" x="560" y="561" width="81" height="57" text="actor" measuredWidth="81" measuredHeight="57" background="#00f">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:Panel" id="26" x="928" y="510" width="305" height="253" measuredWidth="305" measuredHeight="253"/>
+  <widgets xsi:type="model:Callout" id="27" x="944" y="608" width="36" height="13" measuredWidth="36" measuredHeight="13" background="#00f">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:Arrow" id="28" x="979" y="614" width="51" height="8" measuredWidth="51" measuredHeight="8" left="false" right="true" direction="bottom"/>
+  <widgets xsi:type="model:Callout" id="29" x="1031" y="608" width="40" height="13" measuredWidth="40" measuredHeight="13" background="#00f">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:TabbedPane" id="31" x="-2" y="440" width="268" height="323" text="propeties,chart view" measuredWidth="268" measuredHeight="323" selection="0">
+    <items x="10" y="0" width="70" height="27" text="propeties"/>
+    <items link="chart_view.screen" x="80" y="0" width="76" height="27" text="chart view"/>
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Table" id="44" x="-6" y="467" width="270" height="296" text="Type,Value&#xA;type,vertex&#xA;label,movie&#xA;[-] Properties&#xA;  [+] title, matrix&#xA;  [+] director, wachowdkis" measuredWidth="270" measuredHeight="296" alternative="#eee">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="77" x="928" y="22" measuredWidth="305" measuredHeight="235">
+    <widgets xsi:type="model:TabbedPane" id="9" width="305" height="235" text="Design" measuredWidth="305" measuredHeight="235" selection="1">
+      <items x="10" y="0" width="58" height="27" text="Design"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Table" id="46" y="27" width="305" height="208" text="Type,Value&#xA;색상&#xA;크기/두께, 30&#xA;" measuredWidth="305" measuredHeight="208" alternative="#eee">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:ColorPicker" id="47" x="186" y="46" width="49" measuredWidth="49" measuredHeight="23"/>
+  </widgets>
+  <widgets xsi:type="model:TabbedPane" id="48" x="928" y="256" width="305" height="255" text="Visualization Setting" measuredWidth="305" measuredHeight="255" selection="1">
+    <items x="10" y="0" width="131" height="27" text="Visualization Setting"/>
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Table" id="50" x="928" y="293" width="305" height="218" text="Type,Value&#xA;Maximum Item Number, 1000&#xA;Vertex Visible Text&#xA;Edge Visible Text" measuredWidth="305" measuredHeight="218" alternative="#eee">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="63" x="263" y="224" height="153" measuredWidth="667" measuredHeight="153">
+    <widgets xsi:type="model:TabbedPane" id="62" x="2" width="662" height="153" text="Log view, Table view, Plan view" measuredWidth="662" measuredHeight="153" selection="1">
+      <items x="10" y="0" width="69" height="27" text="Log view"/>
+      <items x="79" y="0" width="77" height="27" text="Table view"/>
+      <items x="156" y="0" width="72" height="27" text="Plan view"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:TextArea" id="54" y="22" width="667" height="130" measuredWidth="667" measuredHeight="130">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Table" id="129" x="12" y="37" width="630" height="100" text="Type,Label,Property(title),Property(name)&#xA;Vertex,movie,Top GUN&#xA;Edge,Actor-In&#xA;Vertex,actor,,Tom Cruise&#xA;" measuredWidth="630" measuredHeight="100" alternative="#eee">
+      <font/>
+    </widgets>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="64" x="720" y="928" width="153" text="{undo} ~&amp;Undo~, Ctrl+Z&#xA;{redo} ~&amp;Redo~, Ctrl+Y&#xA;---&#xA;~Highlight~&#xA;~Delete~&#xA;---&#xA;align, >&#xA;pettern, >" measuredWidth="153" measuredHeight="164">
+    <items x="0" y="2" width="153" height="23" text="{undo} ~&amp;Undo~, Ctrl+Z"/>
+    <items x="0" y="25" width="153" height="23" text="{redo} ~&amp;Redo~, Ctrl+Y"/>
+    <items x="0" y="48" width="153" height="11" text="---"/>
+    <items x="0" y="59" width="153" height="23" text="~Highlight~"/>
+    <items x="0" y="82" width="153" height="23" text="~Delete~"/>
+    <items x="0" y="105" width="153" height="11" text="---"/>
+    <items x="0" y="116" width="153" height="23" text="align, >"/>
+    <items x="0" y="139" width="153" height="23" text="pettern, >"/>
+  </widgets>
+  <widgets xsi:type="model:HScrollbar" id="73" x="268" y="744" width="661" measuredWidth="661" measuredHeight="17"/>
+  <widgets xsi:type="model:VScrollbar" id="74" x="912" y="376" height="369" measuredWidth="17" measuredHeight="369"/>
+  <widgets xsi:type="model:List" id="75" x="1162" y="336" width="71" height="25" text="Label&#xA;Properties&#xA;" measuredWidth="71" measuredHeight="25" selection="6">
+    <font/>
+    <items x="0" y="2" width="71" height="21" text="Label"/>
+    <items x="0" y="23" width="71" height="21" text="Properties"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="76" x="275" y="928" width="169" text="SQL 편집기&#xA;---&#xA;연결편집&#xA;재연결&#xA;연결/종료&#xA;---&#xA;추가&#xA;삭제&#xA;" measuredWidth="169" measuredHeight="164" selection="0">
+    <items x="0" y="2" width="169" height="23" text="SQL 편집기"/>
+    <items x="0" y="25" width="169" height="11" text="---"/>
+    <items x="0" y="36" width="169" height="23" text="연결편집"/>
+    <items x="0" y="59" width="169" height="23" text="재연결"/>
+    <items x="0" y="82" width="169" height="23" text="연결/종료"/>
+    <items x="0" y="105" width="169" height="11" text="---"/>
+    <items x="0" y="116" width="169" height="23" text="추가"/>
+    <items x="0" y="139" width="169" height="23" text="삭제"/>
+  </widgets>
+  <widgets xsi:type="model:List" id="78" x="1162" y="360" width="71" height="25" text="Label&#xA;true&#xA;false&#xA;&#xA;" measuredWidth="71" measuredHeight="25" selection="6">
+    <font/>
+    <items x="0" y="2" width="71" height="21" text="Label"/>
+    <items x="0" y="23" width="71" height="21" text="true"/>
+    <items x="0" y="44" width="71" height="21" text="false"/>
+    <items x="0" y="65" width="71" height="21"/>
+  </widgets>
+  <widgets xsi:type="model:Label" id="85" x="476" y="564" width="53" text="actor-in" measuredWidth="53" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Label" id="95" x="265" y="376" width="648" text=" {assets/horizontal-layout} {assets/vertical-layout} {assets/circle-layout} {assets/grid-layout} {assets/force-directed-layout} {assets/horizontal-tree-layout} {assets/vertical-tree-layout} {separator}          {assets/short-path}           {separator} {assets/fa-file-csv} {snapshot}" measuredWidth="648" measuredHeight="40">
+    <font size="24px"/>
+  </widgets>
+  <widgets xsi:type="model:Panel" id="96" x="265" y="437" width="648" height="41" measuredWidth="648" measuredHeight="41" alpha="0"/>
+  <widgets xsi:type="model:Panel" id="103" x="265" y="415" width="40" height="330" measuredWidth="40" measuredHeight="330"/>
+  <widgets xsi:type="model:Icon" id="123" x="168" y="18" width="17" height="17" measuredWidth="17" measuredHeight="17" icon="squared-plus (custom)"/>
+  <widgets xsi:type="model:Icon" id="124" x="185" y="18" width="17" height="17" measuredWidth="17" measuredHeight="17" icon="squared-minus (custom)"/>
+  <widgets xsi:type="model:Icon" id="125" x="203" y="19" width="17" height="17" measuredWidth="17" measuredHeight="17" icon="filter (custom)"/>
+  <widgets xsi:type="model:WidgetGroup" id="130" x="263" y="44" measuredWidth="664" measuredHeight="180">
+    <widgets xsi:type="model:TabbedPane" id="108" width="664" height="180" text="TouboGraph++" measuredWidth="664" measuredHeight="180" selection="0" alpha="0">
+      <items x="10" y="0" width="103" height="27" text="TouboGraph++"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:WidgetGroup" id="112" y="27" measuredWidth="663" measuredHeight="153">
+      <widgets xsi:type="model:TextArea" id="53" x="37" width="626" height="153" text="g.V.filter{it.name.matches(&quot;*Cruise*&quot;)}.name&#xA;g.V.&#xA;" measuredWidth="626" measuredHeight="153" verticalScrollbar="true" alpha="226">
+        <font/>
+      </widgets>
+      <widgets xsi:type="model:Panel" id="106" y="1" width="38" height="152" measuredWidth="38" measuredHeight="152" alpha="0"/>
+    </widgets>
+    <widgets xsi:type="model:Icon" id="119" x="8" y="34" width="27" height="25" measuredWidth="27" measuredHeight="25" icon="assets/fa-folder-open (custom)"/>
+    <widgets xsi:type="model:Icon" id="120" x="7" y="62" width="27" height="25" measuredWidth="27" measuredHeight="25" icon="assets/fa-file-download (custom)"/>
+    <widgets xsi:type="model:Icon" id="121" x="5" y="145" width="27" height="25" measuredWidth="27" measuredHeight="25" icon="assets/ic-play-circle-outline (custom)"/>
+    <widgets xsi:type="model:Icon" id="126" x="4" y="118" width="30" height="25" measuredWidth="30" measuredHeight="25" icon="assets/fa-parking (custom)"/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="131" x="268" y="22" measuredWidth="661" measuredHeight="24">
+    <widgets xsi:type="model:SearchField" id="17" width="661" text="Search" measuredWidth="661" measuredHeight="24">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Checkbox" id="18" x="340" y="1" text="Vertex" measuredWidth="55" measuredHeight="23" selected="true">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Checkbox" id="19" x="412" text="Edge" measuredWidth="47" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Checkbox" id="20" x="482" text="Properties" measuredWidth="74" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Icon" id="128" x="266" y="1" width="27" height="23" measuredWidth="27" measuredHeight="23" icon="assets/ic-play-circle-outline (custom)"/>
+  </widgets>
+  <hRuler>
+    <guides position="-12"/>
+    <guides position="1563"/>
+    <guides position="-69"/>
+  </hRuler>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>
