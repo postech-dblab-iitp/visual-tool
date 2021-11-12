@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore">
+  <widgets xsi:type="model:Popup" id="2" width="169" text="~SQL 편집기~&#xA;---&#xA;~연결편집~&#xA;~재연결~&#xA;~연결/종료~&#xA;---&#xA;추가&#xA;~삭제~&#xA;" measuredWidth="169" measuredHeight="164" selection="4">
+    <items x="0" y="2" width="169" height="23" text="~SQL 편집기~"/>
+    <items x="0" y="25" width="169" height="11" text="---"/>
+    <items x="0" y="36" width="169" height="23" text="~연결편집~"/>
+    <items x="0" y="59" width="169" height="23" text="~재연결~"/>
+    <items x="0" y="82" width="169" height="23" text="~연결/종료~"/>
+    <items x="0" y="105" width="169" height="11" text="---"/>
+    <items x="0" y="116" width="169" height="23" text="추가"/>
+    <items x="0" y="139" width="169" height="23" text="~삭제~"/>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>
