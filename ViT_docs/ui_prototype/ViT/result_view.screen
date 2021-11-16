@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore">
+  <widgets xsi:type="model:WidgetGroup" id="1" x="263" y="224" height="153" measuredWidth="667" measuredHeight="153">
+    <widgets xsi:type="model:TabbedPane" id="2" x="2" width="662" height="153" text="Log view, Table view, Plan view" measuredWidth="662" measuredHeight="153" selection="2">
+      <items x="10" y="0" width="69" height="27" text="Log view"/>
+      <items x="79" y="0" width="77" height="27" text="Table view"/>
+      <items x="156" y="0" width="72" height="27" text="Plan view"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:TextArea" id="3" y="22" width="667" height="130" text="===== Result ======&#xD;&#xA;g -> v ...." measuredWidth="667" measuredHeight="130">
+      <font/>
+    </widgets>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="4" x="263" y="56" measuredWidth="667" measuredHeight="153">
+    <widgets xsi:type="model:TabbedPane" id="5" x="2" width="662" height="153" text="Log view, Table view, Plan view" measuredWidth="662" measuredHeight="153" selection="2">
+      <items x="10" y="0" width="69" height="27" text="Log view"/>
+      <items x="79" y="0" width="77" height="27" text="Table view"/>
+      <items x="156" y="0" width="72" height="27" text="Plan view"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:TextArea" id="6" y="22" width="667" height="130" text="success (128ms)" measuredWidth="667" measuredHeight="130">
+      <font/>
+    </widgets>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="7" x="263" y="416" measuredWidth="667" measuredHeight="153">
+    <widgets xsi:type="model:TabbedPane" id="8" x="2" width="662" height="153" text="Log view, Table view, Plan view" measuredWidth="662" measuredHeight="153" selection="1">
+      <items x="10" y="0" width="69" height="27" text="Log view"/>
+      <items x="79" y="0" width="77" height="27" text="Table view"/>
+      <items x="156" y="0" width="72" height="27" text="Plan view"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:TextArea" id="9" y="22" width="667" height="130" measuredWidth="667" measuredHeight="130">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Table" id="10" x="12" y="37" width="630" height="100" text="Type,Label,Property(title),Property(name)&#xA;Vertex,movie,Top GUN&#xA;Edge,Actor-In&#xA;Vertex,actor,,Tom Cruise&#xA;" measuredWidth="630" measuredHeight="100" alternative="#eee">
+      <font/>
+    </widgets>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>

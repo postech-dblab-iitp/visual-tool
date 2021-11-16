@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
-  <widgets xsi:type="model:TextArea" id="1" width="289" height="109" text="has&#xA;out&#xA;value&#xA;filter&#xA;..." measuredWidth="289" measuredHeight="109">
-    <font/>
+  <widgets xsi:type="model:WidgetGroup" id="3" measuredWidth="289" measuredHeight="109">
+    <widgets xsi:type="model:TextArea" id="1" width="289" height="109" text="has&#xA;out&#xA;value&#xA;filter&#xA;..." measuredWidth="289" measuredHeight="109">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:VScrollbar" id="2" x="272" height="109" measuredWidth="17" measuredHeight="109"/>
   </widgets>
   <hRuler/>
   <vRuler/>
