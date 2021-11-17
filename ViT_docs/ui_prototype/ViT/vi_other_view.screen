@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
+  <widgets xsi:type="model:TabbedPane" id="7" x="196" y="181" width="268" height="323" text="propeties,chart view" measuredWidth="268" measuredHeight="323" selection="0">
+    <items x="10" y="0" width="70" height="27" text="propeties"/>
+    <items link="vi_chart_view.screen" x="80" y="0" width="76" height="27" text="chart view"/>
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Table" id="8" x="192" y="208" width="270" height="296" text="Type,Value&#xA;type,vertex&#xA;label,movie&#xA;[-] Propertie&#xA;title, matrix&#xA;director, wachowdkis" measuredWidth="270" measuredHeight="296" alternative="#eee">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:TabbedPane" id="9" x="536" y="179" width="268" height="323" text="propeties,chart view" measuredWidth="268" measuredHeight="323" selection="1">
+    <items x="10" y="0" width="70" height="27" text="propeties"/>
+    <items link="vi_chart_view.screen" x="80" y="0" width="76" height="27" text="chart view"/>
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Combo" id="12" x="536" y="208" width="268" measuredWidth="268" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="17" x="537" y="553" measuredWidth="268" measuredHeight="323">
+    <widgets xsi:type="model:TabbedPane" id="14" width="268" height="323" text="propeties,chart view" measuredWidth="268" measuredHeight="323" selection="1">
+      <items x="10" y="0" width="70" height="27" text="propeties"/>
+      <items link="vi_chart_view.screen" x="80" y="0" width="76" height="27" text="chart view"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Combo" id="15" y="29" width="268" text="Properties : born" measuredWidth="268" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Image" id="16" x="10" y="55" width="248" height="262" measuredWidth="248" measuredHeight="262" src="assets/vi_other_view_image.png"/>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>

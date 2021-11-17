@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore">
-  <widgets xsi:type="model:Window" id="1" width="609" height="337" text="Connection Test" measuredWidth="609" measuredHeight="337"/>
-  <widgets xsi:type="model:Label" id="4" x="67" y="56" width="361" text="Connected (74ms)" measuredWidth="361" measuredHeight="23">
-    <font/>
+  <widgets xsi:type="model:WidgetGroup" id="8" x="120" y="176" measuredWidth="609" measuredHeight="337">
+    <widgets xsi:type="model:Window" id="1" width="609" height="337" text="연결 테스트" measuredWidth="609" measuredHeight="337"/>
+    <widgets xsi:type="model:Label" id="4" x="67" y="56" width="361" text="Connected (74ms)" measuredWidth="361" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Label" id="5" x="24" y="120" width="337" text="Server : 192.168.1.1" measuredWidth="337" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Label" id="6" x="24" y="160" width="337" text="port : 8281" measuredWidth="337" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Icon" id="7" x="10" y="48" width="45" height="41" measuredWidth="45" measuredHeight="41" icon="info (custom)"/>
   </widgets>
-  <widgets xsi:type="model:Label" id="5" x="24" y="120" width="337" text="Server : 192.168.1.1" measuredWidth="337" measuredHeight="23">
-    <font/>
-  </widgets>
-  <widgets xsi:type="model:Label" id="6" x="24" y="160" width="337" text="port : 8281" measuredWidth="337" measuredHeight="23">
-    <font/>
-  </widgets>
-  <widgets xsi:type="model:Icon" id="7" x="10" y="48" width="45" height="41" measuredWidth="45" measuredHeight="41" icon="info (custom)"/>
   <hRuler/>
   <vRuler/>
   <font size="12px"/>

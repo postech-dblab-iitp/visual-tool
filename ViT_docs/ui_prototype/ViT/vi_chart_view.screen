@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
+  <widgets xsi:type="model:TabbedPane" id="5" x="56" y="48" width="268" height="323" text="Propeties,Chart view" measuredWidth="268" measuredHeight="323" selection="1">
+    <items x="10" y="0" width="70" height="27" text="Propeties"/>
+    <items x="80" y="0" width="78" height="27" text="Chart view"/>
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Combo" id="6" x="56" y="77" width="268" text="Properties : born" measuredWidth="268" measuredHeight="23">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Image" id="10" x="58" y="108" width="258" height="254" measuredWidth="258" measuredHeight="254" src="assets/vi_chart_view_image.png"/>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>

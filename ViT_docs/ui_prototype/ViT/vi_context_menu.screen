@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
-  <widgets xsi:type="model:Popup" id="1" width="217" text="{undo} &amp;Undo, Ctrl+Z&#xA;{redo} &amp;Redo, Ctrl+Y&#xA;---&#xA;v Show Rulers&#xA;Show Grid&#xA;~Disabled~&#xA;---&#xA;* Option 1&#xA;Option 2&#xA;---&#xA;Submenu, >" measuredWidth="217" measuredHeight="221">
-    <items x="0" y="2" width="217" height="23" text="{undo} &amp;Undo, Ctrl+Z"/>
-    <items x="0" y="25" width="217" height="23" text="{redo} &amp;Redo, Ctrl+Y"/>
-    <items x="0" y="48" width="217" height="11" text="---"/>
-    <items x="0" y="59" width="217" height="23" text="v Show Rulers"/>
-    <items x="0" y="82" width="217" height="23" text="Show Grid"/>
-    <items x="0" y="105" width="217" height="23" text="~Disabled~"/>
-    <items x="0" y="128" width="217" height="11" text="---"/>
-    <items x="0" y="139" width="217" height="23" text="* Option 1"/>
-    <items x="0" y="162" width="217" height="23" text="Option 2"/>
-    <items x="0" y="185" width="217" height="11" text="---"/>
-    <items x="0" y="196" width="217" height="23" text="Submenu, >"/>
+  <widgets xsi:type="model:Popup" id="2" x="576" y="408" width="153" text="{undo} ~&amp;되돌리기~, Ctrl+Z&#xA;{redo} ~&amp;다시하기~, Ctrl+Y&#xA;---&#xA;~하이라이트~&#xA;~삭제~&#xA;---&#xA;정렬, >&#xA;~유형검색~, >" measuredWidth="153" measuredHeight="164">
+    <items x="0" y="2" width="153" height="23" text="{undo} ~&amp;되돌리기~, Ctrl+Z"/>
+    <items x="0" y="25" width="153" height="23" text="{redo} ~&amp;다시하기~, Ctrl+Y"/>
+    <items x="0" y="48" width="153" height="11" text="---"/>
+    <items x="0" y="59" width="153" height="23" text="~하이라이트~"/>
+    <items x="0" y="82" width="153" height="23" text="~삭제~"/>
+    <items x="0" y="105" width="153" height="11" text="---"/>
+    <items x="0" y="116" width="153" height="23" text="정렬, >"/>
+    <items x="0" y="139" width="153" height="23" text="~유형검색~, >"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="3" x="726" y="520" width="153" text="horizontal&#xD;&#xA;vertical&#xD;&#xA;circle&#xD;&#xA;grid&#xD;&#xA;force-directed&#xD;&#xA;horizontal-tree&#xD;&#xA;vertical-tree" measuredWidth="153" measuredHeight="165">
+    <items x="0" y="2" width="153" height="23" text="horizontal"/>
+    <items x="0" y="25" width="153" height="23" text="vertical"/>
+    <items x="0" y="48" width="153" height="23" text="circle"/>
+    <items x="0" y="71" width="153" height="23" text="grid"/>
+    <items x="0" y="94" width="153" height="23" text="force-directed"/>
+    <items x="0" y="117" width="153" height="23" text="horizontal-tree"/>
+    <items x="0" y="140" width="153" height="23" text="vertical-tree"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="4" x="240" y="400" width="153" text="{undo} ~&amp;되돌리기~, Ctrl+Z&#xA;{redo} ~&amp;다시하기~, Ctrl+Y&#xA;---&#xA;~하이라이트~&#xA;~삭제~&#xA;---&#xA;~정렬~, >&#xA;유형검색, >" measuredWidth="153" measuredHeight="164">
+    <items x="0" y="2" width="153" height="23" text="{undo} ~&amp;되돌리기~, Ctrl+Z"/>
+    <items x="0" y="25" width="153" height="23" text="{redo} ~&amp;다시하기~, Ctrl+Y"/>
+    <items x="0" y="48" width="153" height="11" text="---"/>
+    <items x="0" y="59" width="153" height="23" text="~하이라이트~"/>
+    <items x="0" y="82" width="153" height="23" text="~삭제~"/>
+    <items x="0" y="105" width="153" height="11" text="---"/>
+    <items x="0" y="116" width="153" height="23" text="~정렬~, >"/>
+    <items x="0" y="139" width="153" height="23" text="유형검색, >"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="5" x="392" y="536" width="153" text="shortest path" measuredWidth="153" measuredHeight="27">
+    <items x="0" y="2" width="153" height="23" text="shortest path"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="6" x="240" y="96" width="153" text="{undo} &amp;되돌리기, Ctrl+Z&#xA;{redo} &amp;다시하기, Ctrl+Y&#xA;---&#xA;하이라이트&#xA;삭제&#xA;---&#xA;정렬, >&#xA;유형검색, >" measuredWidth="153" measuredHeight="164">
+    <items x="0" y="2" width="153" height="23" text="{undo} &amp;되돌리기, Ctrl+Z"/>
+    <items x="0" y="25" width="153" height="23" text="{redo} &amp;다시하기, Ctrl+Y"/>
+    <items x="0" y="48" width="153" height="11" text="---"/>
+    <items x="0" y="59" width="153" height="23" text="하이라이트"/>
+    <items x="0" y="82" width="153" height="23" text="삭제"/>
+    <items x="0" y="105" width="153" height="11" text="---"/>
+    <items x="0" y="116" width="153" height="23" text="정렬, >"/>
+    <items x="0" y="139" width="153" height="23" text="유형검색, >"/>
   </widgets>
   <hRuler/>
   <vRuler/>
