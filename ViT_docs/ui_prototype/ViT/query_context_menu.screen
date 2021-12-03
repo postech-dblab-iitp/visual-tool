@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
+  <widgets xsi:type="model:Popup" id="8" x="128" y="56" width="233" text="{assets/fa-play} 실행&#xA;파일,>&#xA;---&#xA;GQL Assist, Ctrl+Space&#xA;GQL Template, Ctrl+Alt+Space&#xA;---&#xA;잘라내기&#xA;복사&#xA;붙여넣기&#xA;---&#xA;입력 실행 취소&#xA;저장&#xA;" measuredWidth="233" measuredHeight="244" selection="1">
+    <items x="0" y="2" width="233" height="23" text="{assets/fa-play} 실행"/>
+    <items x="0" y="25" width="233" height="23" text="파일,>"/>
+    <items x="0" y="48" width="233" height="11" text="---"/>
+    <items x="0" y="59" width="233" height="23" text="GQL Assist, Ctrl+Space"/>
+    <items x="0" y="82" width="233" height="23" text="GQL Template, Ctrl+Alt+Space"/>
+    <items x="0" y="105" width="233" height="11" text="---"/>
+    <items x="0" y="116" width="233" height="23" text="잘라내기"/>
+    <items x="0" y="139" width="233" height="23" text="복사"/>
+    <items x="0" y="162" width="233" height="23" text="붙여넣기"/>
+    <items x="0" y="185" width="233" height="11" text="---"/>
+    <items x="0" y="196" width="233" height="23" text="입력 실행 취소"/>
+    <items x="0" y="219" width="233" height="23" text="저장"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="9" x="360" y="80" width="313" text="GQL 스크립트 이름변경,Ctrl+F2&#xD;&#xA;되돌리기&#xD;&#xA;GQL 스크립트 불러오기,Ctrl+Alt+Shift+O&#xD;&#xA;GQL 스크립트 저장" measuredWidth="313" measuredHeight="96" selection="2">
+    <items x="0" y="2" width="313" height="23" text="GQL 스크립트 이름변경,Ctrl+F2"/>
+    <items x="0" y="25" width="313" height="23" text="되돌리기"/>
+    <items x="0" y="48" width="313" height="23" text="GQL 스크립트 불러오기,Ctrl+Alt+Shift+O"/>
+    <items x="0" y="71" width="313" height="23" text="GQL 스크립트 저장"/>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="12px"/>
+</model:Screen>
