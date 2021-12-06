@@ -1,31 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore" theme="clean">
-  <widgets xsi:type="model:TabbedPane" id="7" x="196" y="181" width="268" height="323" text="propeties,chart view" measuredWidth="268" measuredHeight="323" selection="0">
-    <items x="10" y="0" width="70" height="27" text="propeties"/>
-    <items link="vi_chart_view.screen" x="80" y="0" width="76" height="27" text="chart view"/>
+  <widgets xsi:type="model:TabbedPane" id="5" x="56" y="48" width="268" height="323" text="Properties,Chart view,디자인,설정" measuredWidth="268" measuredHeight="323" selection="1">
+    <items x="10" y="0" width="74" height="27" text="Properties"/>
+    <items x="84" y="0" width="78" height="27" text="Chart view"/>
+    <items x="162" y="0" width="57" height="27" text="디자인"/>
+    <items x="219" y="0" width="45" height="27" text="설정"/>
     <font/>
   </widgets>
-  <widgets xsi:type="model:Table" id="8" x="192" y="208" width="270" height="296" text="Type,Value&#xA;type,vertex&#xA;label,movie&#xA;[-] Propertie&#xA;title, matrix&#xA;director, wachowdkis" measuredWidth="270" measuredHeight="296" alternative="#eee">
+  <widgets xsi:type="model:Combo" id="6" x="56" y="77" width="268" text="Properties : born" measuredWidth="268" measuredHeight="23">
     <font/>
   </widgets>
-  <widgets xsi:type="model:TabbedPane" id="9" x="536" y="179" width="268" height="323" text="propeties,chart view" measuredWidth="268" measuredHeight="323" selection="1">
-    <items x="10" y="0" width="70" height="27" text="propeties"/>
-    <items link="vi_chart_view.screen" x="80" y="0" width="76" height="27" text="chart view"/>
-    <font/>
-  </widgets>
-  <widgets xsi:type="model:Combo" id="12" x="536" y="208" width="268" measuredWidth="268" measuredHeight="23">
-    <font/>
-  </widgets>
-  <widgets xsi:type="model:WidgetGroup" id="17" x="537" y="553" measuredWidth="268" measuredHeight="323">
-    <widgets xsi:type="model:TabbedPane" id="14" width="268" height="323" text="propeties,chart view" measuredWidth="268" measuredHeight="323" selection="1">
-      <items x="10" y="0" width="70" height="27" text="propeties"/>
-      <items link="vi_chart_view.screen" x="80" y="0" width="76" height="27" text="chart view"/>
+  <widgets xsi:type="model:Image" id="10" x="58" y="108" width="258" height="254" measuredWidth="258" measuredHeight="254" src="assets/vi_chart_view_image.png"/>
+  <widgets xsi:type="model:WidgetGroup" id="12" x="54" y="448" measuredWidth="272" measuredHeight="323">
+    <widgets xsi:type="model:TabbedPane" id="13" x="4" width="268" height="323" text="Properties,Chart view,디자인,설정" measuredWidth="268" measuredHeight="323" selection="0">
+      <items x="10" y="0" width="74" height="27" text="Properties"/>
+      <items x="84" y="0" width="78" height="27" text="Chart view"/>
+      <items x="162" y="0" width="57" height="27" text="디자인"/>
+      <items x="219" y="0" width="45" height="27" text="설정"/>
       <font/>
     </widgets>
-    <widgets xsi:type="model:Combo" id="15" y="29" width="268" text="Properties : born" measuredWidth="268" measuredHeight="23">
+    <widgets xsi:type="model:Table" id="14" y="27" width="270" height="296" text="Type,Value&#xA;type,vertex&#xA;label,movie&#xA;[-] Properties&#xA;  [+] title, matrix&#xA;  [+] director, wachowdkis" measuredWidth="270" measuredHeight="296" alternative="#eee">
       <font/>
     </widgets>
-    <widgets xsi:type="model:Image" id="16" x="10" y="55" width="248" height="262" measuredWidth="248" measuredHeight="262" src="assets/vi_other_view_image.png"/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="15" x="408" y="482" measuredWidth="308" measuredHeight="255">
+    <widgets xsi:type="model:TabbedPane" id="16" x="3" width="305" height="255" text="Properties,Chart view,디자인,설정" measuredWidth="305" measuredHeight="255" selection="3">
+      <items x="10" y="0" width="74" height="27" text="Properties"/>
+      <items x="84" y="0" width="78" height="27" text="Chart view"/>
+      <items x="162" y="0" width="57" height="27" text="디자인"/>
+      <items x="219" y="0" width="45" height="27" text="설정"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Table" id="17" y="27" width="305" height="228" text="Type,    Value&#xA;최대 표현 개수&#xA;정점에서 보여줄 Text&#xA;간선에서 보여줄 Text" measuredWidth="305" measuredHeight="228" verticalScrollbar="true" rowHeight="20" alternative="#eee">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Combo" id="18" x="195" y="87" width="95" text="Label" measuredWidth="95" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Combo" id="19" x="195" y="66" width="95" text="Label" measuredWidth="95" measuredHeight="23">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Spinner" id="20" x="195" y="48" width="95" text="1000" measuredWidth="95" measuredHeight="23">
+      <font/>
+    </widgets>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="21" x="392" y="48" height="323" measuredWidth="305" measuredHeight="323">
+    <widgets xsi:type="model:TabbedPane" id="22" width="305" height="323" text="Properties,Chart view,디자인,설정" measuredWidth="305" measuredHeight="323" selection="2">
+      <items x="10" y="0" width="74" height="27" text="Properties"/>
+      <items x="84" y="0" width="78" height="27" text="Chart view"/>
+      <items x="162" y="0" width="57" height="27" text="디자인"/>
+      <items x="219" y="0" width="45" height="27" text="설정"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Table" id="23" y="37" width="305" height="285" text="구분,값&#xA;색상&#xA;크기/두께, 20&#xA;글씨 크기, 12&#xA;글씨 색상" measuredWidth="305" measuredHeight="285" alternative="#eee">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:ColorPicker" id="24" x="220" y="56" width="49" measuredWidth="49" measuredHeight="23"/>
+    <widgets xsi:type="model:ColorPicker" id="25" x="220" y="121" width="49" measuredWidth="49" measuredHeight="23" background="#000"/>
+  </widgets>
+  <widgets xsi:type="model:Combo" id="26" x="714" y="552" width="193" text="Label&#xD;&#xA;Label&#xD;&#xA;비활성화&#xD;&#xA;Label+ 첫번째 Property&#xD;&#xA;첫번째 Property" measuredWidth="193" measuredHeight="107">
+    <font/>
+    <items x="0" y="0" width="192" height="22" text="Label"/>
+    <items x="0" y="23" width="192" height="21" text="Label"/>
+    <items x="0" y="44" width="192" height="21" text="비활성화"/>
+    <items x="0" y="65" width="192" height="21" text="Label+ 첫번째 Property"/>
+    <items x="0" y="86" width="192" height="21" text="첫번째 Property"/>
+  </widgets>
+  <widgets xsi:type="model:WidgetGroup" id="32" x="800" y="56" measuredWidth="305" measuredHeight="323">
+    <widgets xsi:type="model:TabbedPane" id="33" width="305" height="323" text="Properties,Chart view,디자인,설정" measuredWidth="305" measuredHeight="323" selection="2">
+      <items x="10" y="0" width="74" height="27" text="Properties"/>
+      <items x="84" y="0" width="78" height="27" text="Chart view"/>
+      <items x="162" y="0" width="57" height="27" text="디자인"/>
+      <items x="219" y="0" width="45" height="27" text="설정"/>
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:Table" id="34" y="37" width="305" height="285" text="구분,값&#xA;색상&#xA;크기/두께, 20&#xA;글씨 크기, 12&#xA;글씨 색상" measuredWidth="305" measuredHeight="285" alternative="#eee">
+      <font/>
+    </widgets>
+    <widgets xsi:type="model:ColorPicker" id="35" x="220" y="56" width="49" measuredWidth="49" measuredHeight="23" background="#f90"/>
+    <widgets xsi:type="model:ColorPicker" id="36" x="220" y="121" width="49" measuredWidth="49" measuredHeight="23" background="#000"/>
+  </widgets>
+  <widgets xsi:type="model:TabbedPane" id="37" x="144" y="1008" width="268" height="323" text="Properties,Chart view,디자인,설정" measuredWidth="268" measuredHeight="323" selection="1">
+    <items x="10" y="0" width="74" height="27" text="Properties"/>
+    <items x="84" y="0" width="78" height="27" text="Chart view"/>
+    <items x="162" y="0" width="57" height="27" text="디자인"/>
+    <items x="219" y="0" width="45" height="27" text="설정"/>
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Combo" id="38" x="144" y="1037" width="268" text="Properties : born" measuredWidth="268" measuredHeight="23">
+    <font/>
   </widgets>
   <hRuler/>
   <vRuler/>

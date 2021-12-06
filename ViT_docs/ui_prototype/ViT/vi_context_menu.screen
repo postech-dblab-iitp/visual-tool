@@ -42,6 +42,48 @@
     <items x="0" y="116" width="153" height="23" text="정렬, >"/>
     <items x="0" y="139" width="153" height="23" text="유형검색, >"/>
   </widgets>
+  <widgets xsi:type="model:Popup" id="7" x="632" y="864" width="153" text="{undo} ~&amp;되돌리기~, Ctrl+Z&#xA;{redo} ~&amp;다시하기~, Ctrl+Y&#xA;---&#xA;~하이라이트~&#xA;~삭제~&#xA;---&#xA;정렬, >&#xA;~유형검색~, >" measuredWidth="153" measuredHeight="164">
+    <items x="0" y="2" width="153" height="23" text="{undo} ~&amp;되돌리기~, Ctrl+Z"/>
+    <items x="0" y="25" width="153" height="23" text="{redo} ~&amp;다시하기~, Ctrl+Y"/>
+    <items x="0" y="48" width="153" height="11" text="---"/>
+    <items x="0" y="59" width="153" height="23" text="~하이라이트~"/>
+    <items x="0" y="82" width="153" height="23" text="~삭제~"/>
+    <items x="0" y="105" width="153" height="11" text="---"/>
+    <items x="0" y="116" width="153" height="23" text="정렬, >"/>
+    <items x="0" y="139" width="153" height="23" text="~유형검색~, >"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="8" x="782" y="976" width="153" text="horizontal&#xD;&#xA;vertical&#xD;&#xA;circle&#xD;&#xA;grid&#xD;&#xA;force-directed&#xD;&#xA;horizontal-tree&#xD;&#xA;vertical-tree" measuredWidth="153" measuredHeight="165">
+    <items x="0" y="2" width="153" height="23" text="horizontal"/>
+    <items x="0" y="25" width="153" height="23" text="vertical"/>
+    <items x="0" y="48" width="153" height="23" text="circle"/>
+    <items x="0" y="71" width="153" height="23" text="grid"/>
+    <items x="0" y="94" width="153" height="23" text="force-directed"/>
+    <items x="0" y="117" width="153" height="23" text="horizontal-tree"/>
+    <items x="0" y="140" width="153" height="23" text="vertical-tree"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="9" x="296" y="856" width="153" text="{undo} ~&amp;되돌리기~, Ctrl+Z&#xA;{redo} ~&amp;다시하기~, Ctrl+Y&#xA;---&#xA;~하이라이트~&#xA;~삭제~&#xA;---&#xA;~정렬~, >&#xA;유형검색, >" measuredWidth="153" measuredHeight="164">
+    <items x="0" y="2" width="153" height="23" text="{undo} ~&amp;되돌리기~, Ctrl+Z"/>
+    <items x="0" y="25" width="153" height="23" text="{redo} ~&amp;다시하기~, Ctrl+Y"/>
+    <items x="0" y="48" width="153" height="11" text="---"/>
+    <items x="0" y="59" width="153" height="23" text="~하이라이트~"/>
+    <items x="0" y="82" width="153" height="23" text="~삭제~"/>
+    <items x="0" y="105" width="153" height="11" text="---"/>
+    <items x="0" y="116" width="153" height="23" text="~정렬~, >"/>
+    <items x="0" y="139" width="153" height="23" text="유형검색, >"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="10" x="448" y="992" width="153" text="shortest path" measuredWidth="153" measuredHeight="27">
+    <items x="0" y="2" width="153" height="23" text="shortest path"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="11" x="96" y="862" width="153" text="{undo} &amp;되돌리기, Ctrl+Z&#xA;{redo} &amp;다시하기, Ctrl+Y&#xA;---&#xA;하이라이트&#xA;삭제&#xA;---&#xA;정렬, >&#xA;유형검색, >" measuredWidth="153" measuredHeight="164">
+    <items x="0" y="2" width="153" height="23" text="{undo} &amp;되돌리기, Ctrl+Z"/>
+    <items x="0" y="25" width="153" height="23" text="{redo} &amp;다시하기, Ctrl+Y"/>
+    <items x="0" y="48" width="153" height="11" text="---"/>
+    <items x="0" y="59" width="153" height="23" text="하이라이트"/>
+    <items x="0" y="82" width="153" height="23" text="삭제"/>
+    <items x="0" y="105" width="153" height="11" text="---"/>
+    <items x="0" y="116" width="153" height="23" text="정렬, >"/>
+    <items x="0" y="139" width="153" height="23" text="유형검색, >"/>
+  </widgets>
   <hRuler/>
   <vRuler/>
   <font size="12px"/>

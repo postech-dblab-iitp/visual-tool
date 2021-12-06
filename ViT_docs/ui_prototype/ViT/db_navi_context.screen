@@ -20,6 +20,42 @@
     <items x="0" y="116" width="169" height="23" text="추가"/>
     <items x="0" y="139" width="169" height="23" text="삭제"/>
   </widgets>
+  <widgets xsi:type="model:Popup" id="8" x="296" y="24" width="169" text="GQL 편집기, F3&#xA;---&#xA;추가&#xA;연결편집,F4&#xA;Connect View, >&#xA;---&#xA;연결&#xA;검증/재연결&#xA;연결/종료&#xA;---&#xA;복사,Ctrl+C&#xA;붙여넣기,Ctrl+V&#xA;삭제&#xA;이름변경,F2&#xA;---&#xA;새로고침, F5" measuredWidth="169" measuredHeight="324" selection="0">
+    <items x="0" y="2" width="169" height="23" text="GQL 편집기, F3"/>
+    <items x="0" y="25" width="169" height="11" text="---"/>
+    <items x="0" y="36" width="169" height="23" text="추가"/>
+    <items x="0" y="59" width="169" height="23" text="연결편집,F4"/>
+    <items x="0" y="82" width="169" height="23" text="Connect View, >"/>
+    <items x="0" y="105" width="169" height="11" text="---"/>
+    <items x="0" y="116" width="169" height="23" text="연결"/>
+    <items x="0" y="139" width="169" height="23" text="검증/재연결"/>
+    <items x="0" y="162" width="169" height="23" text="연결/종료"/>
+    <items x="0" y="185" width="169" height="11" text="---"/>
+    <items x="0" y="196" width="169" height="23" text="복사,Ctrl+C"/>
+    <items x="0" y="219" width="169" height="23" text="붙여넣기,Ctrl+V"/>
+    <items x="0" y="242" width="169" height="23" text="삭제"/>
+    <items x="0" y="265" width="169" height="23" text="이름변경,F2"/>
+    <items x="0" y="288" width="169" height="11" text="---"/>
+    <items x="0" y="299" width="169" height="23" text="새로고침, F5"/>
+  </widgets>
+  <widgets xsi:type="model:Popup" id="9" x="504" y="24" width="169" text="~GQL 편집기~, ~F3~&#xA;---&#xA;추가&#xA;~연결편집~,~F4~&#xA;~Connect View~,~>~&#xA;---&#xA;~연결~&#xA;~검증/재연결~&#xA;~연결/종료~&#xA;---&#xA;~복사~,~Ctrl+C~&#xA;~붙여넣기~,~Ctrl+V~&#xA;~삭제~&#xA;~이름변경~,~F2~&#xA;---&#xA;~새로고침~,~F5~" measuredWidth="169" measuredHeight="324" selection="2">
+    <items x="0" y="2" width="169" height="23" text="~GQL 편집기~, ~F3~"/>
+    <items x="0" y="25" width="169" height="11" text="---"/>
+    <items x="0" y="36" width="169" height="23" text="추가"/>
+    <items x="0" y="59" width="169" height="23" text="~연결편집~,~F4~"/>
+    <items x="0" y="82" width="169" height="23" text="~Connect View~,~>~"/>
+    <items x="0" y="105" width="169" height="11" text="---"/>
+    <items x="0" y="116" width="169" height="23" text="~연결~"/>
+    <items x="0" y="139" width="169" height="23" text="~검증/재연결~"/>
+    <items x="0" y="162" width="169" height="23" text="~연결/종료~"/>
+    <items x="0" y="185" width="169" height="11" text="---"/>
+    <items x="0" y="196" width="169" height="23" text="~복사~,~Ctrl+C~"/>
+    <items x="0" y="219" width="169" height="23" text="~붙여넣기~,~Ctrl+V~"/>
+    <items x="0" y="242" width="169" height="23" text="~삭제~"/>
+    <items x="0" y="265" width="169" height="23" text="~이름변경~,~F2~"/>
+    <items x="0" y="288" width="169" height="11" text="---"/>
+    <items x="0" y="299" width="169" height="23" text="~새로고침~,~F5~"/>
+  </widgets>
   <hRuler/>
   <vRuler/>
   <font size="12px"/>
