@@ -259,7 +259,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/../../lib" />
-                                <copy file="${project.build.directory}/${project.build.finalName}-all.jar" tofile="${project.basedir}/../../lib/gephi-toolkit.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}-all.jar" tofile="${project.basedir}/../../plugins/org.jkiss.dbeaver.ext.turbographpp/lib/gephi-toolkit.jar" />
                             </target>
                         </configuration>
                         <goals>
