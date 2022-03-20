@@ -26,7 +26,7 @@ import org.osgi.framework.BundleContext;
 public class TurboGraphPPUIActivator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.jkiss.dbeaver.ext.turbograph.ui";
+	public static final String PLUGIN_ID = "org.jkiss.dbeaver.ext.turbographpp.ui";
 
 	// The shared instance
 	private static TurboGraphPPUIActivator plugin;
