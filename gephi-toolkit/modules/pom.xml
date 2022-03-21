@@ -215,6 +215,11 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${gephi.maven-assembly-plugin.version}</version>
                 </plugin>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-source-plugin</artifactId>
+                  <version>3.2.1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         
@@ -248,7 +253,24 @@
                     </descriptors>
                 </configuration>
             </plugin>
-			<plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>attach-sources</id>
+                  <goals>
+                    <goal>jar</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <includePom>true</includePom>
+              </configuration>
+            </plugin>
+
+			      <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
@@ -259,7 +281,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/../../lib" />
-                                <copy file="${project.build.directory}/${project.build.finalName}-all.jar" tofile="${project.basedir}/../../lib/gephi-toolkit.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}-all.jar" tofile="${project.basedir}/../../plugins/org.jkiss.dbeaver.ext.turbographpp/lib/gephi-toolkit.jar" />
                             </target>
                         </configuration>
                         <goals>
