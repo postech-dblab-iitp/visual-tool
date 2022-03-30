@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DBeaver TurboGraphPP Support
 Bundle-SymbolicName: org.jkiss.dbeaver.ext.turbographpp;singleton:=true
-Bundle-Version: 2.1.151.qualifier
-Bundle-Release-Date: 20211004
+Bundle-Version: 1.0.001.qualifier
+Bundle-Release-Date: 20220320
 Require-Bundle: org.eclipse.core.runtime,
  org.jkiss.dbeaver.model,
  org.jkiss.dbeaver.model.sql,
