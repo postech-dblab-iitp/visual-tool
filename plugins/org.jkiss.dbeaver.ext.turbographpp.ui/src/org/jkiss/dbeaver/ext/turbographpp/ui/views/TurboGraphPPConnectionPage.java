@@ -54,7 +54,7 @@ import java.util.*;
 /**
  * TurboGraphConnectionPage
  */
-public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth implements IDialogPageProvider
+public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth 
 {
     private static final Log log = Log.getLog(TurboGraphPPConnectionPage.class);
 
@@ -572,13 +572,4 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth implement
             k -> new ArrayList<>());
         controlList.add(control);
     }
-
-    @Override
-    public IDialogPage[] getDialogPages(boolean extrasOnly, boolean forceCreate)
-    {
-        return new IDialogPage[] {
-            new DriverPropertiesDialogPage(this)
-        };
-    }
-
 }
