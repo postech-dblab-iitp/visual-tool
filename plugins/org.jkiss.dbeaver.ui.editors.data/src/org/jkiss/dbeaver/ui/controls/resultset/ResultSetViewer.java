@@ -627,7 +627,8 @@ public class ResultSetViewer extends Viewer
                 refreshWithFilter(dataFilter);
             } else {
                 model.setDataFilter(dataFilter);
-                activePresentation.refreshData(true, false, true);
+				//'refreshData' is called duplicately in Presentation
+                //activePresentation.refreshData(true, false, true);
                 updateFiltersText();
             }
         }
