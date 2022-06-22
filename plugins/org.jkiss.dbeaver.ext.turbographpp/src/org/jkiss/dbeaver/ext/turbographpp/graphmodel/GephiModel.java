@@ -1,9 +1,8 @@
-package org.jkiss.dbeaver.ext.turbographpp.gephimodel;
+package org.jkiss.dbeaver.ext.turbographpp.graphmodel;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.core.widgets.GraphConnection;
@@ -72,7 +71,7 @@ public class GephiModel {
     
     private boolean addZestNode(Graph graph, String id, String label, Color color) {
         try {
-            GraphNode node = new GraphNode(graph, SWT.NONE, label, id);
+            GraphNode node = new GraphNode(graph, ZestStyles.NODES_FISHEYE, label, id);
             node.setBackgroundColor(color);
             graphNodesMap.put(id, node);
         } catch (Exception e) {
@@ -143,6 +142,7 @@ public class GephiModel {
                         graphNodesMap.get(e.getSource().getId()), graphNodesMap.get(e.getTarget().getId()));
                 connection.setData(id);
                 connection.setLineColor(new Color(0,0,0));
+                connection.setLineWidth(2);
                 connection.setText(label);
                 graphEdgesMap.put(e.getId().toString(), connection);
             }
@@ -174,7 +174,6 @@ public class GephiModel {
         return true;
     }
 
-    
     public void clear() {
         if (pc != null) {
             pc.closeCurrentWorkspace();
