@@ -18,4 +18,4 @@ Bundle-Vendor: JKISS
 Bundle-ClassPath: .,
  lib/gephi-toolkit.jar
 Automatic-Module-Name: org.jkiss.dbeaver.ext.turbographpp
-Export-Package: org.jkiss.dbeaver.ext.turbographpp.gephimodel
+Export-Package: org.jkiss.dbeaver.ext.turbographpp.graphmodel

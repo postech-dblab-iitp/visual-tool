@@ -19,24 +19,14 @@ package org.jkiss.dbeaver.ui.controls.resultset.visual;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.text.IFindReplaceTarget;
-import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.custom.StyledTextPrintOptions;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -45,30 +35,20 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.Printer;
-import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.core.widgets.GraphConnection;
 import org.eclipse.zest.core.widgets.GraphNode;
-import org.eclipse.zest.core.widgets.ZestStyles;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.GridLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
@@ -77,9 +57,8 @@ import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.ModelPreferences;
-import org.jkiss.dbeaver.ext.turbographpp.gephimodel.GephiModel;
+import org.jkiss.dbeaver.ext.turbographpp.graphmodel.GephiModel;
 import org.jkiss.dbeaver.model.DBConstants;
-import org.jkiss.dbeaver.model.DBPDataKind;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.data.DBDAttributeBinding;
 import org.jkiss.dbeaver.model.data.DBDDisplayFormat;
@@ -89,7 +68,6 @@ import org.jkiss.dbeaver.ui.DBeaverIcons;
 import org.jkiss.dbeaver.ui.UIIcon;
 import org.jkiss.dbeaver.ui.UIStyles;
 import org.jkiss.dbeaver.ui.UIUtils;
-import org.jkiss.dbeaver.ui.controls.StyledTextFindReplaceTarget;
 import org.jkiss.dbeaver.ui.controls.resultset.*;
 import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
@@ -129,6 +107,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     HashMap<String, String> displayStringNodeList = new HashMap<>();
     HashMap<String, String> displayStringEdgeList = new HashMap<>();
     
+    //ContextAction
+    MenuManager manager;
+    Action redoAction;
+    Action undoAction;
+    Action highlightAction;
+    Action deleteAction;
+    Action shortestPathAction;
+    
     @Override
     public void createPresentation(@NotNull final IResultSetController controller, @NotNull Composite parent) {
         super.createPresentation(controller, parent);
@@ -144,13 +130,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                 new Color(new RGB( 255, 153, 255 ) ),
                };
         composite = parent;
-        GridLayout layout = new GridLayout(8, true);
-        parent.setLayout(layout);
         
-        nodeLabel = new Label(parent, SWT.READ_ONLY);
+        Composite composite2 = new Composite(parent, SWT.NONE);
+        composite2.setLayout(new GridLayout(8, true));
+        
+        nodeLabel = new Label(composite2, SWT.READ_ONLY);
         nodeLabel.setText("Nodes Property");
-        nodePropertyListCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
-        nodePropertyListCombo.setEnabled(true);
+        nodePropertyListCombo = new Combo(composite2, SWT.DROP_DOWN | SWT.READ_ONLY);
+        nodePropertyListCombo.setEnabled(false);
         nodePropertyListCombo.addSelectionListener(new SelectionListener() {
             
             @Override
@@ -169,9 +156,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             }
         });
 
-        edgeLabel = new Label(parent, SWT.READ_ONLY);
+        edgeLabel = new Label(composite2, SWT.READ_ONLY);
         edgeLabel.setText("Edges Property");
-        edgePropertyListCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+        edgePropertyListCombo = new Combo(composite2, SWT.DROP_DOWN | SWT.READ_ONLY);
         edgePropertyListCombo.setEnabled(true);
         edgePropertyListCombo.addSelectionListener(new SelectionListener() {
             
@@ -188,12 +175,15 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             }
         });
         
-        createHorizontalLine(parent, 8, 0);
+        addMenuCoolbar(composite2, edgeLabel.getSize());
+        
+        createHorizontalLine(parent, 1, 0);
        
 		graph = new Graph(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		graph.setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
 		graph.setForeground(UIStyles.getDefaultTextForeground());
 		graph.setBackground(UIStyles.getDefaultTextBackground());
+		//graph.setConnectionStyle(ZestStyles.CONNECTIONS_DIRECTED);
 		graph.setFont(UIUtils.getMonospaceFont());
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 8;
@@ -233,7 +223,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     	                controller.setCurrentRow(resultSetRowEdgeList.get(id));
                         curAttribute = DBDAttributeEdgeList.get(id);
     	            }
-    	            
     	            fireSelectionChanged(new VisualizationSelectionImpl());
     	         
 	            }
@@ -249,6 +238,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         	activateTextKeyBindings(controller, graph);
         }
         trackPresentationControl();
+        registerContextMenu();
     }
 
     @Override
@@ -257,8 +247,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             UIUtils.dispose(monoFont);
             monoFont = null;
         }
-        GridLayout layout = new GridLayout(1, true);
-        composite.setLayout(layout);
         super.dispose();
     }
 
@@ -290,12 +278,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
     @Override
     public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
-        System.out.println("==== refreshMetadata :" + refreshMetadata + " append : " + append + "keepState : " + keepState);
+        //System.out.println("==== refreshMetadata :" + refreshMetadata + " append : " + append + "keepState : " + keepState);
         if (refreshMetadata) {
             gephiModel.clear();
-            graph.getNodes().clear();
-            graph.getConnections().clear();
-            setLayoutManager(2);
+            clearGraph(graph);
+            setLayoutManager(layoutAlgorithm);
             propertyList.clear();
             DBDAttributeNodeList.clear();
             DBDAttributeEdgeList.clear();
@@ -313,8 +300,87 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             ShowVisualizaion(append);
         }
     }
+    
+    private static void addMenuCoolbar(Composite parent, Point size) {
+        final CoolBar coolBar = new CoolBar(parent, SWT.NONE);
+        GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.horizontalSpan = 4;
+        coolBar.setLayoutData(gridData);
+        coolBar.setBackground(parent.getBackground());
 
-    public static Label createHorizontalLine(Composite parent, int hSpan, int vIndent) {
+        // cool item with a button.
+        CoolItem buttonItem1 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+
+        Composite composite1 = new Composite(coolBar, SWT.NONE);
+        composite1.setLayout(new GridLayout(7, true));
+
+        Button button1 = new Button(composite1, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE));
+        button1.pack();
+        
+        button1 = new Button(composite1, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_FORCE_DIRECTED));
+        button1.pack();
+        
+        button1 = new Button(composite1, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_GRID));
+        button1.pack();
+        
+        
+        button1 = new Button(composite1, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_HORIZONTAL));
+        button1.pack();
+        
+        button1 = new Button(composite1, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_HORIZONTAL));
+        button1.pack();
+
+        button1 = new Button(composite1, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_VERTICAL));
+        button1.pack();
+        
+        button1 = new Button(composite1, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_VERTICAL));
+        button1.pack();
+        composite1.pack();
+
+        size = composite1.getSize();
+        buttonItem1.setControl(composite1);
+        buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
+
+        Composite composite2 = new Composite(coolBar, SWT.NONE);
+        composite2.setLayout(new GridLayout(2, true));
+        
+        button1 = new Button(composite2, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
+        button1.pack();
+        composite2.pack();
+        
+        CoolItem buttonItem2 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        size = composite2.getSize();
+        buttonItem2.setControl(composite2);
+        buttonItem2.setSize(buttonItem2.computeSize(size.x, size.y));
+        
+        Composite composite3 = new Composite(coolBar, SWT.NONE);
+        composite3.setLayout(new GridLayout(2, true));
+        
+        button1 = new Button(composite3, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
+        button1.pack();
+    
+        button1 = new Button(composite3, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CSV_FILE));
+        button1.pack();
+        
+        composite3.pack();
+        
+        CoolItem buttonItem3 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        size = composite3.getSize();
+        buttonItem3.setControl(composite3);
+        buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
+    }
+    
+    private static Label createHorizontalLine(Composite parent, int hSpan, int vIndent) {
         Label horizontalLine = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
         GridData gd = new GridData(GridData.FILL, GridData.FILL, true, false, 1, 1);
         gd.horizontalSpan = hSpan;
@@ -361,6 +427,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         for (String key : propertyList) {
             nodePropertyListCombo.add(key);
+            
+        }
+        
+        if (!propertyList.isEmpty()) {
+            nodePropertyListCombo.setEnabled(true);
         }
     }
     
@@ -637,5 +708,81 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             layout = 1;
             break;
 	    }
+    }
+    
+    public void clearGraph( Graph graph )
+    {       
+        Object[] objects = graph.getConnections().toArray();
+        for (int i = 0 ; i < objects.length; i++)
+        {
+            GraphConnection graphCon = (GraphConnection) objects[i];
+            if(!graphCon.isDisposed()) {
+                graphCon.dispose();
+            }
+        }            
+
+        objects = graph.getNodes().toArray();       
+        for (int i = 0; i < objects.length; i++)
+        {
+            GraphNode graphNode = (GraphNode) objects[i];
+            if(!graphNode.isDisposed())
+                graphNode.dispose();
+        }
+    }
+    protected void createContextMenuAction() {
+        redoAction = new Action("&Redo", null) {
+            public void run() {
+            }
+        }; 
+        redoAction.setEnabled(false);
+        
+        undoAction = new Action("&Undo", null) {
+            public void run() {
+            }
+        }; 
+        undoAction.setEnabled(false);
+        
+        highlightAction = new Action("&Highlight", null) {
+            public void run() {
+            }
+        }; 
+        highlightAction.setEnabled(false);
+        
+        deleteAction = new Action("&Delete", null) {
+            public void run() {
+            }
+        }; 
+        deleteAction.setEnabled(false);
+        
+        shortestPathAction = new Action("&Shortest Path", null) {
+            public void run() {
+            }
+        }; 
+        shortestPathAction.setEnabled(false);
+    }
+    
+    protected void registerContextMenu() {
+        createContextMenuAction();
+        manager = new MenuManager();
+        getControl().setMenu(manager.createContextMenu(getControl()));
+        manager.setRemoveAllWhenShown(true);
+        manager.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager m) {
+                contextMenuAboutToShow(m);
+            }
+        });
+    }
+    
+    protected void contextMenuAboutToShow(IMenuManager m) {
+        highlightAction.setEnabled(highlightAction.isEnabled());
+        undoAction.setEnabled(undoAction.isEnabled());
+        redoAction.setEnabled(redoAction.isEnabled());
+        deleteAction.setEnabled(deleteAction.isEnabled());
+        shortestPathAction.setEnabled(shortestPathAction.isEnabled());
+        manager.add(undoAction);
+        manager.add(redoAction);
+        manager.add(highlightAction);
+        manager.add(deleteAction);
+        manager.add(shortestPathAction);
     }
 }
