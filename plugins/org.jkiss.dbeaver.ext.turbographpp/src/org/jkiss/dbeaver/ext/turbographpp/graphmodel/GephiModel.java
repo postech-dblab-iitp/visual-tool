@@ -1,7 +1,9 @@
 package org.jkiss.dbeaver.ext.turbographpp.graphmodel;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.zest.core.widgets.Graph;
@@ -27,6 +29,7 @@ public class GephiModel {
     private GraphModel graphModel;
     private HashMap<String, GraphNode> graphNodesMap;
     private HashMap<String, GraphConnection> graphEdgesMap;
+    private Set<Object> highlightedList;
     
     public GephiModel() {
         pc = Lookup.getDefault().lookup(ProjectController.class);
@@ -35,13 +38,20 @@ public class GephiModel {
         graphModel = Lookup.getDefault().lookup(GraphController.class).getGraphModel(workspace);
         graphNodesMap = new HashMap<>();
         graphEdgesMap = new HashMap<>();
+        highlightedList = new HashSet<>();
     }
     
     public void finalize() {
         pc.closeCurrentProject();
     }   
     
+    public GraphModel getGraphModel() {
+        return graphModel;
+    }
+    
     public boolean addNode(Graph graph, String id, String label, HashMap<String, Object> attr, Color color){
+        
+        highlightedList.clear();
         
         if (graph == null || id == null || label == null) {
             return false;
@@ -174,6 +184,76 @@ public class GephiModel {
         return true;
     }
 
+    public boolean setHighlight(Graph graph, GraphNode node) {
+        try {
+            Object[] objects = graph.getConnections().toArray() ;           
+            for (int i = 0 ; i < objects.length; i++)
+            {
+                GraphConnection graphCon = (GraphConnection) objects[i];
+                if (graphCon.getSource().equals(node)) {
+                    graphCon.highlight();
+                    graphCon.getSource().highlight();
+                    graphCon.getDestination().highlight();
+                    highlightedList.add(graphCon);
+                    highlightedList.add(graphCon.getSource());
+                    highlightedList.add(graphCon.getDestination());
+                }
+            }            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        
+        return true;
+    }
+
+    public boolean unHighlight() {
+        try {
+            if (highlightedList == null || highlightedList.isEmpty()) {
+                return false;
+            }
+            
+            GraphNode node;
+            GraphConnection edge;
+            for (Object obj : highlightedList) {
+                if (obj.getClass().equals(GraphNode.class)) {
+                    node = (GraphNode)obj;
+                    node.unhighlight();
+                } else if (obj.getClass().equals(GraphConnection.class)) {
+                    edge = (GraphConnection)obj;
+                    edge.unhighlight();
+                }
+            }
+            
+            highlightedList.clear();
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        
+        return true;
+    }
+
+    public void clearGraph(Graph graph)
+    {       
+        Object[] objects = graph.getConnections().toArray() ;           
+        for (int i = 0 ; i < objects.length; i++)
+        {
+            GraphConnection graCon = (GraphConnection) objects[i];
+            if(!graCon.isDisposed())
+                graCon.dispose();
+        }            
+
+        objects = graph.getNodes().toArray();       
+        for (int i = 0; i < objects.length; i++)
+        {
+            GraphNode graNode = (GraphNode) objects[i];
+            if(!graNode.isDisposed())
+                graNode.dispose();
+        }
+    }
+    
     public void clear() {
         if (pc != null) {
             pc.closeCurrentWorkspace();

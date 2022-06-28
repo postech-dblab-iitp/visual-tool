@@ -27,6 +27,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -35,6 +37,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -49,11 +52,22 @@ import org.eclipse.ui.themes.ITheme;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.core.widgets.GraphConnection;
 import org.eclipse.zest.core.widgets.GraphNode;
+import org.eclipse.zest.layouts.Filter;
+import org.eclipse.zest.layouts.InvalidLayoutConfiguration;
+import org.eclipse.zest.layouts.LayoutAlgorithm;
+import org.eclipse.zest.layouts.LayoutEntity;
+import org.eclipse.zest.layouts.LayoutRelationship;
 import org.eclipse.zest.layouts.LayoutStyles;
+import org.eclipse.zest.layouts.algorithms.DirectedGraphLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.GridLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.HorizontalLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.HorizontalShift;
+import org.eclipse.zest.layouts.algorithms.HorizontalTreeLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
-
+import org.eclipse.zest.layouts.algorithms.VerticalLayoutAlgorithm;
+import org.eclipse.zest.layouts.progress.ProgressListener;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.ModelPreferences;
@@ -73,6 +87,7 @@ import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -89,12 +104,13 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     private boolean showNulls;
     private Font monoFont;
     private GephiModel gephiModel = new GephiModel();
-    private Graph graph;
-    private int layoutAlgorithm = 2;
+    private static Graph graph;
     Label nodeLabel;
     Combo nodePropertyListCombo;
     Label edgeLabel;
     Combo edgePropertyListCombo;
+    static CoolBar coolBar;
+    static Label resultLabel;
     
     ToolBarManager toolBarManager;
     
@@ -107,6 +123,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     HashMap<String, String> displayStringNodeList = new HashMap<>();
     HashMap<String, String> displayStringEdgeList = new HashMap<>();
     
+    enum Layout { HORIZONTAL, HORIZONTAL_TREE, VERTICAL, VERTICAL_TREE, DIRECTED, GRID, HORIZONTAL_SHIFT, RADIAL, SPRING}
+    
+    static Layout defaultLayoutAlgorithm = Layout.SPRING;
+    
     //ContextAction
     MenuManager manager;
     Action redoAction;
@@ -115,9 +135,15 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     Action deleteAction;
     Action shortestPathAction;
     
+    Object seletedItem = null;
+    
+    Composite menuBarComposite;
+    int resultLabelwidth = 0;
+    
     @Override
     public void createPresentation(@NotNull final IResultSetController controller, @NotNull Composite parent) {
         super.createPresentation(controller, parent);
+        
         colors = new Color[] { new Color( new RGB( 158, 204, 255 ) ),
                 new Color(new RGB( 204, 178, 255 ) ),
                 new Color(new RGB( 204, 255, 255 ) ),
@@ -132,10 +158,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         composite = parent;
         
         Composite composite2 = new Composite(parent, SWT.NONE);
-        composite2.setLayout(new GridLayout(8, true));
+        menuBarComposite = composite2;
+        composite2.setLayout(new GridLayout(8, false));
         
         nodeLabel = new Label(composite2, SWT.READ_ONLY);
-        nodeLabel.setText("Nodes Property");
+        nodeLabel.setText("Nodes Property :");
         nodePropertyListCombo = new Combo(composite2, SWT.DROP_DOWN | SWT.READ_ONLY);
         nodePropertyListCombo.setEnabled(false);
         nodePropertyListCombo.addSelectionListener(new SelectionListener() {
@@ -156,26 +183,34 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             }
         });
 
-        edgeLabel = new Label(composite2, SWT.READ_ONLY);
-        edgeLabel.setText("Edges Property");
-        edgePropertyListCombo = new Combo(composite2, SWT.DROP_DOWN | SWT.READ_ONLY);
-        edgePropertyListCombo.setEnabled(true);
-        edgePropertyListCombo.addSelectionListener(new SelectionListener() {
-            
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
-                
-            }
-            
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // TODO Auto-generated method stub
-                
-            }
-        });
+        resultLabel = new Label(composite2, SWT.READ_ONLY | SWT.RIGHT);
+        resultLabel.setText("Node : " + 0 + " Edge : " + 0);
+//        GridData grid = new GridData(GridData.FILL_HORIZONTAL | GridData.HORIZONTAL_ALIGN_END);
+//        grid.grabExcessHorizontalSpace = true;
+//        grid.horizontalAlignment = SWT.END;
+//        grid.horizontalSpan = 3;
+//        resultLabel.setLayoutData(grid);
         
-        addMenuCoolbar(composite2, edgeLabel.getSize());
+//        edgeLabel = new Label(composite2, SWT.READ_ONLY);
+//        edgeLabel.setText("Edge Property :");
+//        edgePropertyListCombo = new Combo(composite2, SWT.DROP_DOWN | SWT.READ_ONLY);
+//        edgePropertyListCombo.setEnabled(true);
+//        edgePropertyListCombo.addSelectionListener(new SelectionListener() {
+//            
+//            @Override
+//            public void widgetSelected(SelectionEvent e) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//            
+//            @Override
+//            public void widgetDefaultSelected(SelectionEvent e) {
+//                // TODO Auto-generated method stub
+//                
+//            }
+//        });
+        
+        addMenuCoolbar(composite2, nodeLabel.getSize());
         
         createHorizontalLine(parent, 1, 0);
        
@@ -186,7 +221,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		//graph.setConnectionStyle(ZestStyles.CONNECTIONS_DIRECTED);
 		graph.setFont(UIUtils.getMonospaceFont());
 		GridData data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 8;
+		//data.horizontalSpan = 8;
 		graph.setLayoutData(data);
 		//graph.setPreferredSize(2048, 1440);
 		
@@ -197,12 +232,13 @@ public class VisualizationPresentation extends AbstractPresentation implements I
           }
 		});
         
-        setLayoutManager(layoutAlgorithm);
+        setLayoutManager(defaultLayoutAlgorithm);
 
         graph.addSelectionListener(new SelectionAdapter() {
 	        @Override
 	        public void widgetSelected(SelectionEvent e) {
 	            Object temp = null;
+	            gephiModel.unHighlight();
 	            
 	            if (graph.getSelection() != null && graph.getSelection().size() != 0) { 
 	                temp = graph.getSelection().get(0);
@@ -210,6 +246,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	            
 	            if (temp != null) {
 	                Object id = null;
+	                seletedItem  = temp;
     	            if (temp.getClass() == GraphNode.class) {
     	                GraphNode tNode = (GraphNode)temp;
     	                id = tNode.getData();
@@ -239,6 +276,31 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         }
         trackPresentationControl();
         registerContextMenu();
+        
+        composite.addControlListener(new ControlListener() {
+            
+            @Override
+            public void controlResized(ControlEvent e) {
+//                int usedMenuSpace = nodeLabel.getSize().x + nodePropertyListCombo.getSize().x
+//                        + edgeLabel.getSize().x + edgePropertyListCombo.getSize().x 
+//                        + coolBar.getSize().x;
+//                int shellSize = composite.getShell().getSize().x;
+//                System.out.println("usedMenuSpace : " + usedMenuSpace + " shellSize : " + shellSize);
+//                resultLabelwidth = shellSize - usedMenuSpace;
+//                if (resultLabelwidth < 100) {
+//                    resultLabel.setSize(resultLabelwidth, resultLabel.getSize().y);
+//                    resultLabel.pack();
+//                }
+                System.out.println("composite : " + composite.getShell().getSize() + " menuBarComposite : " + menuBarComposite.getShell().getSize());
+                menuBarComposite.setSize(composite.getSize());
+            }
+            
+            @Override
+            public void controlMoved(ControlEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+        });
     }
 
     @Override
@@ -280,9 +342,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
         //System.out.println("==== refreshMetadata :" + refreshMetadata + " append : " + append + "keepState : " + keepState);
         if (refreshMetadata) {
+            seletedItem = null;
             gephiModel.clear();
-            clearGraph(graph);
-            setLayoutManager(layoutAlgorithm);
+            gephiModel.clearGraph(graph);
+            setLayoutManager(defaultLayoutAlgorithm);
             propertyList.clear();
             DBDAttributeNodeList.clear();
             DBDAttributeEdgeList.clear();
@@ -291,21 +354,41 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             displayStringNodeList.clear();
             displayStringEdgeList.clear();
             
-            edgePropertyListCombo.removeAll();
-            edgePropertyListCombo.add("label");
-            edgePropertyListCombo.select(0);
-            nodePropertyListCombo.removeAll();
-            nodePropertyListCombo.add("label");
-            nodePropertyListCombo.select(0);
+            if (edgePropertyListCombo != null) {
+                edgePropertyListCombo.removeAll();
+                edgePropertyListCombo.add("label");
+                edgePropertyListCombo.select(0);
+            }
+            
+            if (nodePropertyListCombo != null) {
+                nodePropertyListCombo.removeAll();
+                nodePropertyListCombo.add("label");
+                nodePropertyListCombo.select(0);
+            }
+            
             ShowVisualizaion(append);
         }
     }
     
+    private static SelectionListener layoutChangeListener = new SelectionListener() {
+        
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            if (e.widget != null) {
+                setLayoutManager((Layout)e.widget.getData());
+            } 
+        }
+
+        @Override
+        public void widgetDefaultSelected(SelectionEvent e) {
+        }
+    };
+    
     private static void addMenuCoolbar(Composite parent, Point size) {
-        final CoolBar coolBar = new CoolBar(parent, SWT.NONE);
-        GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-        gridData.horizontalSpan = 4;
-        coolBar.setLayoutData(gridData);
+        coolBar = new CoolBar(parent, SWT.NONE);
+        //GridData gridData = new GridData();
+        //gridData.horizontalSpan = 15;
+        //coolBar.setLayoutData(gridData);
         coolBar.setBackground(parent.getBackground());
 
         // cool item with a button.
@@ -316,31 +399,52 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         Button button1 = new Button(composite1, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE));
+        button1.setToolTipText("Circle Layout");
+        button1.setData(Layout.RADIAL);
+        button1.addSelectionListener(layoutChangeListener);
         button1.pack();
         
         button1 = new Button(composite1, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_FORCE_DIRECTED));
+        button1.setToolTipText("Force-Directed Layout");
+        button1.setData(Layout.SPRING);
+        button1.addSelectionListener(layoutChangeListener);
         button1.pack();
         
         button1 = new Button(composite1, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_GRID));
+        button1.setToolTipText("Grid Layout");
+        button1.setData(Layout.GRID);
+        button1.addSelectionListener(layoutChangeListener);
         button1.pack();
         
         
         button1 = new Button(composite1, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_HORIZONTAL));
+        button1.setToolTipText("Horizontal Layout");
+        button1.setData(Layout.HORIZONTAL);
+        button1.addSelectionListener(layoutChangeListener);
         button1.pack();
         
         button1 = new Button(composite1, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_HORIZONTAL));
+        button1.setToolTipText("Horizontal-Tree Layout");
+        button1.setData(Layout.HORIZONTAL_TREE);
+        button1.addSelectionListener(layoutChangeListener);
         button1.pack();
 
         button1 = new Button(composite1, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_VERTICAL));
+        button1.setToolTipText("Vertical Layout");
+        button1.setData(Layout.VERTICAL);
+        button1.addSelectionListener(layoutChangeListener);
         button1.pack();
         
         button1 = new Button(composite1, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_VERTICAL));
+        button1.setToolTipText("Vertical-Tree Layout");
+        button1.setData(Layout.VERTICAL_TREE);
+        button1.addSelectionListener(layoutChangeListener);
         button1.pack();
         composite1.pack();
 
@@ -353,6 +457,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         button1 = new Button(composite2, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
+        button1.setToolTipText("Shortest Path");
         button1.pack();
         composite2.pack();
         
@@ -366,10 +471,12 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         button1 = new Button(composite3, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
+        button1.setToolTipText("Visualation Capture");
         button1.pack();
     
         button1 = new Button(composite3, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CSV_FILE));
+        button1.setToolTipText("To CSV File");
         button1.pack();
         
         composite3.pack();
@@ -432,6 +539,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         if (!propertyList.isEmpty()) {
             nodePropertyListCombo.setEnabled(true);
+        }
+        
+        if (graph != null) {
+            resultLabel.setText("Node : " + graph.getNodes().size() + " Edge : " + graph.getConnections().size());
+            //resultLabel.setSize(resultLabelwidth, resultLabel.getSize().y);
         }
     }
     
@@ -689,46 +801,50 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             return getController().getCurrentRow();
         }
     }
-
-    public void setLayoutManager(int layout) {
+    
+    private static void setLayoutManager(Layout layout) {
+        defaultLayoutAlgorithm = layout;
 	    switch (layout) {
-	    case 1:
-	        graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(
-	                LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
-	        layout++;
-	        break;
-	    case 2:
-	        graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(
-	                LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
-	        layout = 1;
-	        break;
-	    case 3:
+        case VERTICAL:
+            graph.setLayoutAlgorithm(new VerticalLayoutAlgorithm(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+            break;
+        
+        case HORIZONTAL_TREE:
+            graph.setLayoutAlgorithm(new HorizontalTreeLayoutAlgorithm(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+            break;
+        case VERTICAL_TREE:
+            graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+            break;
+        case HORIZONTAL:
+            graph.setLayoutAlgorithm(new HorizontalLayoutAlgorithm(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+            break;
+        case DIRECTED:
+            graph.setLayoutAlgorithm(new DirectedGraphLayoutAlgorithm(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+            break;
+        case GRID:
             graph.setLayoutAlgorithm(new GridLayoutAlgorithm(
                     LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
-            layout = 1;
+            break;
+        case SPRING:
+            graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+            break;
+        case HORIZONTAL_SHIFT:
+            graph.setLayoutAlgorithm(new HorizontalShift(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+            break;
+        case RADIAL:
+            graph.setLayoutAlgorithm(new RadialLayoutAlgorithm(
+                    LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
             break;
 	    }
     }
     
-    public void clearGraph( Graph graph )
-    {       
-        Object[] objects = graph.getConnections().toArray();
-        for (int i = 0 ; i < objects.length; i++)
-        {
-            GraphConnection graphCon = (GraphConnection) objects[i];
-            if(!graphCon.isDisposed()) {
-                graphCon.dispose();
-            }
-        }            
-
-        objects = graph.getNodes().toArray();       
-        for (int i = 0; i < objects.length; i++)
-        {
-            GraphNode graphNode = (GraphNode) objects[i];
-            if(!graphNode.isDisposed())
-                graphNode.dispose();
-        }
-    }
     protected void createContextMenuAction() {
         redoAction = new Action("&Redo", null) {
             public void run() {
@@ -744,9 +860,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         highlightAction = new Action("&Highlight", null) {
             public void run() {
+                if (gephiModel != null) {
+                    if (seletedItem.getClass().equals(GraphNode.class)) {
+                        gephiModel.setHighlight(graph, (GraphNode)seletedItem);
+                    }
+                }
             }
         }; 
-        highlightAction.setEnabled(false);
+        highlightAction.setEnabled(true);
         
         deleteAction = new Action("&Delete", null) {
             public void run() {
@@ -774,7 +895,12 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     }
     
     protected void contextMenuAboutToShow(IMenuManager m) {
-        highlightAction.setEnabled(highlightAction.isEnabled());
+        if (seletedItem != null && seletedItem.getClass().equals(GraphNode.class)) {
+            highlightAction.setEnabled(true);
+        } else {
+            highlightAction.setEnabled(false);
+        }
+        
         undoAction.setEnabled(undoAction.isEnabled());
         redoAction.setEnabled(redoAction.isEnabled());
         deleteAction.setEnabled(deleteAction.isEnabled());
