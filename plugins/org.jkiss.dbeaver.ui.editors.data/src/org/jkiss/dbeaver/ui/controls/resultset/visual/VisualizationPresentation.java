@@ -113,7 +113,13 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		HORIZONTAL, HORIZONTAL_TREE, VERTICAL, VERTICAL_TREE, DIRECTED, GRID, HORIZONTAL_SHIFT, RADIAL, SPRING
 	}
 
+	// for Other ImageButton
+	protected enum ImageButton {
+		SHORTEST, CAPTURE, TO_CSV
+	}
+	
 	Composite composite;
+	static Shell captureShell;
 
 	private DBDAttributeBinding curAttribute;
 	private String curSelection;
@@ -169,6 +175,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 				new Color(new RGB(204, 255, 102)), new Color(new RGB(255, 255, 153)), new Color(new RGB(255, 153, 153)),
 				new Color(new RGB(204, 255, 103)), new Color(new RGB(255, 153, 255)), };
 		composite = parent;
+		captureShell = parent.getShell();
 
 		Composite composite2 = new Composite(parent, SWT.NONE);
 		menuBarComposite = composite2;
@@ -347,6 +354,24 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		}
 	};
 	
+	private static SelectionListener imageButtonListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.widget != null && e.widget.getData() != null) {
+				switch((ImageButton) e.widget.getData()) {
+					case CAPTURE :
+						imageCapture();
+						break;
+					default :
+						break;
+				}
+			}
+		}
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+	};
+
 	private static void addMenuCoolbar(Composite parent, Point size) {
 		coolBar = new CoolBar(parent, SWT.NONE);
 		coolBar.setBackground(parent.getBackground());
@@ -430,6 +455,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
 		button1.setToolTipText("Visualation Capture");
+		button1.setData(ImageButton.CAPTURE);
+		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
 
 		button1 = new Button(composite3, SWT.PUSH);
@@ -917,5 +944,38 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			String zoomPercent = String.valueOf(zoomCount) + "%";
 			zoomManager.setZoomAsText(zoomPercent);
 		}	
+	}
+	
+	static protected void imageCapture() {
+		graph.getParent().setRedraw(false);
+        final Point originalSize = graph.getSize();
+        final Point size = graph.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+        Image image = new Image(graph.getDisplay(), size.x, size.y);
+        final GC gc = new GC(image);
+
+        graph.setSize(size);
+        graph.print(gc);
+        graph.setSize(originalSize);
+		
+        graph.getParent().setRedraw(true);
+        
+		if(image != null) {
+			FileDialog fileDialog = new FileDialog(captureShell, SWT.SAVE);
+			fileDialog.setFilterExtensions(new String[] {"*.jpg"});
+			fileDialog.setFilterNames(new String[] {"jpg Image File"});
+			String filename = fileDialog.open();
+			if (filename == null) {
+				return;
+			} else {
+				filename = filename + ".jpg";
+			}
+				
+			ImageData imageData = image.getImageData();
+			ImageLoader imageLoader = new ImageLoader();
+			imageLoader.data = new ImageData[] { imageData };
+			imageLoader.save(filename, SWT.IMAGE_JPEG);
+			image.dispose();
+			
+		}
 	}
 }
