@@ -321,6 +321,7 @@ public class ResultSetMessages extends NLS {
     public static String pref_page_database_general_use_column_names_tip;
 
     public static String dialog_text_check_box_record;
+    public static String dialog_text_check_box_minimap;
     
     public static String results_decorator_drag_and_drop_results_column;
     public static String results_decorator_error_cant_perform_grouping_query;

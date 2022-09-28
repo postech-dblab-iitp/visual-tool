@@ -53,7 +53,8 @@ public class ResultSetPresentationDescriptor extends AbstractContextDescriptor {
     private boolean supportsPanels;
     private boolean supportsNavigation;
     private boolean supportsEdit;
-
+    private boolean supportsMiniMap;
+    
     protected ResultSetPresentationDescriptor(IConfigurationElement config) {
         super(config);
 
@@ -68,6 +69,7 @@ public class ResultSetPresentationDescriptor extends AbstractContextDescriptor {
         this.supportsPanels = CommonUtils.getBoolean(config.getAttribute("supportsPanels"), true);
         this.supportsNavigation = CommonUtils.getBoolean(config.getAttribute("supportsNavigation"), true);
         this.supportsEdit = CommonUtils.getBoolean(config.getAttribute("supportsEdit"), true);
+        this.supportsMiniMap = CommonUtils.toBoolean(config.getAttribute("supportsMiniMap"));
 
         for (IConfigurationElement typeCfg : config.getChildren(CONTENT_TYPE)) {
             String type = typeCfg.getAttribute("type");
@@ -147,6 +149,10 @@ public class ResultSetPresentationDescriptor extends AbstractContextDescriptor {
 
     public boolean supportsEdit() {
         return supportsEdit;
+    }
+    
+    public boolean supportsMiniMap() {
+        return supportsMiniMap;
     }
 
     @Override

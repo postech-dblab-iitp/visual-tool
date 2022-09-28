@@ -18,17 +18,16 @@
 package org.jkiss.dbeaver.ui.controls.resultset.visual;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.draw2d.SWTGraphics;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -45,6 +44,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -57,7 +57,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.zest.core.viewers.internal.ZoomManager;
 import org.eclipse.zest.core.widgets.Graph;
@@ -88,6 +87,7 @@ import org.jkiss.dbeaver.ui.UIIcon;
 import org.jkiss.dbeaver.ui.UIStyles;
 import org.jkiss.dbeaver.ui.UIUtils;
 import org.jkiss.dbeaver.ui.controls.resultset.*;
+import org.jkiss.dbeaver.ui.controls.resultset.visual.RefreshThread.Refreshable;
 import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
 
@@ -98,73 +98,76 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class VisualizationPresentation extends AbstractPresentation implements IAdaptable {
+public class VisualizationPresentation extends AbstractPresentation implements IAdaptable, Refreshable {
 
-	static final int MOUSE_WHELL_UP = 5;
-	static final int MOUSE_WHELL_DOWN = -5;
+	public static final int MOUSE_WHELL_UP = 5;
+	public static final int MOUSE_WHELL_DOWN = -5;
 	
-	static final int ZOOM_MIN = 50;
-	static final int ZOOM_MAX = 500;
+	public static final int ZOOM_MIN = 50;
+	public static final int ZOOM_MAX = 500;
 	
-	static final int CTRL_KEYCODE = 0x40000;
+	public static final int CTRL_KEYCODE = 0x40000;
 	
 	// Zest Graph Layout
-	protected enum Layout {
+	private enum Layout {
 		HORIZONTAL, HORIZONTAL_TREE, VERTICAL, VERTICAL_TREE, DIRECTED, GRID, HORIZONTAL_SHIFT, RADIAL, SPRING
 	}
 
 	// for Other ImageButton
-	protected enum ImageButton {
+	private enum ImageButton {
 		SHORTEST, CAPTURE, TO_CSV
 	}
 	
-	Composite composite;
-	static Shell captureShell;
-
+	private Composite composite;
+	private Composite mainComposite;
+	private Composite menuBarComposite;
+	private Composite graphTopComposite;
+	private MiniMap miniMap;
+	
 	private DBDAttributeBinding curAttribute;
 	private String curSelection;
 	public boolean activated;
 	private boolean showNulls;
 	private Font monoFont;
 	private GephiModel gephiModel = new GephiModel();
-	private static Graph graph;
-	Label nodeLabel;
-	Combo nodePropertyListCombo;
-	Label edgeLabel;
-	Combo edgePropertyListCombo;
-	static CoolBar coolBar;
-	static Label resultLabel;
-
-	ToolBarManager toolBarManager;
-
-	Color[] colors;
-	HashSet<String> propertyList = new HashSet<>();
-	HashMap<String, DBDAttributeBinding> DBDAttributeNodeList = new HashMap<>();
-	HashMap<String, DBDAttributeBinding> DBDAttributeEdgeList = new HashMap<>();
-	HashMap<String, ResultSetRow> resultSetRowNodeList = new HashMap<>();
-	HashMap<String, ResultSetRow> resultSetRowEdgeList = new HashMap<>();
-	HashMap<String, String> displayStringNodeList = new HashMap<>();
-	HashMap<String, String> displayStringEdgeList = new HashMap<>();
 	
-	static Layout defaultLayoutAlgorithm = Layout.SPRING;
+	private Graph visualGraph;
+	
+	private Label nodeLabel;
+	private Combo nodePropertyListCombo;
+	private Label edgeLabel;
+	private Combo edgePropertyListCombo;
+	private CoolBar coolBar;
+	private Label resultLabel;
+
+	private Color[] colors;
+	private HashSet<String> propertyList = new HashSet<>();
+	private HashMap<String, DBDAttributeBinding> DBDAttributeNodeList = new HashMap<>();
+	private HashMap<String, DBDAttributeBinding> DBDAttributeEdgeList = new HashMap<>();
+	private HashMap<String, ResultSetRow> resultSetRowNodeList = new HashMap<>();
+	private HashMap<String, ResultSetRow> resultSetRowEdgeList = new HashMap<>();
+	private HashMap<String, String> displayStringNodeList = new HashMap<>();
+	private HashMap<String, String> displayStringEdgeList = new HashMap<>();
+	
+	private Layout defaultLayoutAlgorithm = Layout.SPRING;
 
 	// ContextAction
-	MenuManager manager;
-	Action redoAction;
-	Action undoAction;
-	Action highlightAction;
-	Action deleteAction;
-	Action shortestPathAction;
+	private MenuManager manager;
+	private Action redoAction;
+	private Action undoAction;
+	private Action highlightAction;
+	private Action deleteAction;
+	private Action shortestPathAction;
 
-	Object seletedItem = null;
+	private Object seletedItem = null;
 
-	Composite menuBarComposite;
-	int resultLabelwidth = 0;
-
-	static ZoomManager zoomManager;
-	static Combo zoomCombo;
-	static int zoomCount = 100;
-	static boolean zoomMode = false;
+	private ZoomManager zoomManager;
+	private int zoomCount = 100;
+	private boolean zoomMode = false;
+	
+	private boolean init = false;
+	
+	private RefreshThread miniMapThread = null;
 	
 	@Override
 	public void createPresentation(@NotNull final IResultSetController controller, @NotNull Composite parent) {
@@ -175,15 +178,26 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 				new Color(new RGB(204, 255, 102)), new Color(new RGB(255, 255, 153)), new Color(new RGB(255, 153, 153)),
 				new Color(new RGB(204, 255, 103)), new Color(new RGB(255, 153, 255)), };
 		composite = parent;
-		captureShell = parent.getShell();
-
-		Composite composite2 = new Composite(parent, SWT.NONE);
-		menuBarComposite = composite2;
-		composite2.setLayout(new GridLayout(8, false));
-
-		nodeLabel = new Label(composite2, SWT.READ_ONLY);
+		GridLayout layout = new GridLayout(1, false);
+        layout.marginHeight = 5;
+        layout.marginWidth = 5;
+        
+        GridData gd_MainComposite = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
+        
+		mainComposite = new Composite(composite, SWT.NONE);
+		mainComposite.setLayout(layout);
+		mainComposite.setLayoutData(gd_MainComposite);
+		
+		menuBarComposite = new Composite(mainComposite, SWT.NONE);
+		menuBarComposite.setLayout(new GridLayout(8, false));
+        
+		graphTopComposite = new Composite(mainComposite, SWT.NONE);
+		graphTopComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+        graphTopComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        
+		nodeLabel = new Label(menuBarComposite, SWT.READ_ONLY);
 		nodeLabel.setText("Nodes Property :");
-		nodePropertyListCombo = new Combo(composite2, SWT.DROP_DOWN | SWT.READ_ONLY);
+		nodePropertyListCombo = new Combo(menuBarComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		nodePropertyListCombo.setEnabled(false);
 		nodePropertyListCombo.addSelectionListener(new SelectionListener() {
 			@Override
@@ -191,7 +205,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 				// TODO Auto-generated method stub
 				if (gephiModel != null) {
 					String temp = nodePropertyListCombo.getText();
-					gephiModel.updateZestNode(graph, temp);
+					gephiModel.updateZestNode(visualGraph, temp);
 				}
 			}
 
@@ -202,34 +216,35 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			}
 		});
 
-		addMenuCoolbar(composite2, nodeLabel.getSize());
+		addMenuCoolbar(menuBarComposite, nodeLabel.getSize());
 
-		graph = new Graph(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-		graph.setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
-		graph.setForeground(UIStyles.getDefaultTextForeground());
-		graph.setBackground(UIStyles.getDefaultTextBackground());
-		// graph.setConnectionStyle(ZestStyles.CONNECTIONS_DIRECTED);
-		graph.setFont(UIUtils.getMonospaceFont());
-		GridData data = new GridData(GridData.FILL_BOTH);
-		// data.horizontalSpan = 8;
-		graph.setLayoutData(data);
-
-		zoomManager = new ZoomManager(graph.getRootLayer(), graph.getViewport());
+		visualGraph = new Graph(graphTopComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.DOUBLE_BUFFERED | SWT.NO_REDRAW_RESIZE);
+		visualGraph.setCursor(graphTopComposite.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
+		visualGraph.setForeground(UIStyles.getDefaultTextForeground());
+		visualGraph.setBackground(UIStyles.getDefaultTextBackground());
+		visualGraph.setFont(UIUtils.getMonospaceFont());
+		visualGraph.setLayout(new FillLayout(SWT.FILL));
+		visualGraph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		zoomManager = new ZoomManager(visualGraph.getRootLayer(), visualGraph.getViewport());
+		
+	    createMiniMap();
+		
 		createHorizontalLine(parent, 1, 0);
 
 		createZestListner();
 
-		TextEditorUtils.enableHostEditorKeyBindingsSupport(controller.getSite(), graph);
+		TextEditorUtils.enableHostEditorKeyBindingsSupport(controller.getSite(), visualGraph);
 
 		applyCurrentThemeSettings();
 
-		if (graph != null) {
-			activateTextKeyBindings(controller, graph);
+		if (visualGraph != null) {
+			activateTextKeyBindings(controller, visualGraph);
 		}
 		trackPresentationControl();
 		registerContextMenu();
 		
-		graph.addKeyListener(new KeyListener() {
+		visualGraph.addKeyListener(new KeyListener() {
 			
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -246,7 +261,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			}
 		});
 		
-		graph.addMouseWheelListener(new MouseWheelListener() {
+		visualGraph.addMouseWheelListener(new MouseWheelListener() {
 			
 			@Override
 			public void mouseScrolled(MouseEvent e) {
@@ -261,19 +276,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 					} 
 				}
 			}
-		});
-
-		composite.addControlListener(new ControlListener() {
-
-			@Override
-			public void controlResized(ControlEvent e) {
-				menuBarComposite.setSize(composite.getSize());
-			}
-
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
-			
 		});
 	}
 
@@ -297,7 +299,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			fontData[0].setHeight(fontHeight);
 			Font newFont = new Font(font.getDevice(), fontData[0]);
 
-			graph.setFont(newFont);
+			visualGraph.setFont(newFont);
 
 			if (monoFont != null) {
 				UIUtils.dispose(monoFont);
@@ -309,15 +311,20 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	@Override
 	public Control getControl() {
-		return graph;
+	    if (visualGraph != null) {
+	        return visualGraph;
+	    } 
+	    return graphTopComposite;
 	}
 
 	@Override
 	public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
 		if (refreshMetadata) {
 			seletedItem = null;
-			gephiModel.clear();
-			gephiModel.clearGraph(graph);
+			if (gephiModel != null) {
+    			gephiModel.clear();
+    			gephiModel.clearGraph(visualGraph);
+			}
 			setLayoutManager(defaultLayoutAlgorithm);
 			propertyList.clear();
 			DBDAttributeNodeList.clear();
@@ -342,37 +349,35 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		}
 	}
 	
-	private static SelectionListener layoutChangeListener = new SelectionListener() {
+	private final SelectionListener layoutChangeListener = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget != null) {
 				setLayoutManager((Layout) e.widget.getData());
 			}
 		}
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-		}
 	};
 	
-	private static SelectionListener imageButtonListener = new SelectionListener() {
+	private final SelectionListener imageButtonListener = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget != null && e.widget.getData() != null) {
 				switch((ImageButton) e.widget.getData()) {
 					case CAPTURE :
-						imageCapture();
+					    saveImage();
 						break;
+					case SHORTEST :
+					    break;
+					case TO_CSV :
+					    break;
 					default :
 						break;
 				}
 			}
 		}
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-		}
 	};
-
-	private static void addMenuCoolbar(Composite parent, Point size) {
+	
+	private void addMenuCoolbar(Composite parent, Point size) {
 		coolBar = new CoolBar(parent, SWT.NONE);
 		coolBar.setBackground(parent.getBackground());
 
@@ -383,14 +388,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 		Button button1 = new Button(composite1, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE));
-		button1.setToolTipText("Circle Layout");
+		button1.setToolTipText("Circle(Radial) Layout");
 		button1.setData(Layout.RADIAL);
 		button1.addSelectionListener(layoutChangeListener);
 		button1.pack();
 
 		button1 = new Button(composite1, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_FORCE_DIRECTED));
-		button1.setToolTipText("Force-Directed Layout");
+		button1.setToolTipText("Spring Layout");
 		button1.setData(Layout.SPRING);
 		button1.addSelectionListener(layoutChangeListener);
 		button1.pack();
@@ -441,6 +446,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		button1 = new Button(composite2, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
 		button1.setToolTipText("Shortest Path");
+		button1.setData(ImageButton.SHORTEST);
+		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
 		composite2.pack();
 
@@ -454,7 +461,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
-		button1.setToolTipText("Visualation Capture");
+		button1.setToolTipText("Visualization Capture");
 		button1.setData(ImageButton.CAPTURE);
 		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
@@ -462,6 +469,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CSV_FILE));
 		button1.setToolTipText("To CSV File");
+		button1.setData(ImageButton.TO_CSV);
+		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
 
 		composite3.pack();
@@ -539,10 +548,41 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			nodePropertyListCombo.setEnabled(true);
 		}
 
-		if (graph != null) {
-			resultLabel.setText("Node : " + graph.getNodes().size() + " Edge : " + graph.getConnections().size());
-			graph.setPreferredSize(graph.getNodes().size() * 50, graph.getNodes().size() * 40);
+		int compositeSizeX = composite.getSize().x;
+        int compositeSizeY = composite.getSize().y;
+		int drawSizeX = visualGraph.getNodes().size() * 50;
+		int drawSizeY =  visualGraph.getNodes().size() * 40;
+        
+        System.out.println("ShowVisualizaion composite x :" + compositeSizeX + " y : " + compositeSizeY);
+		
+		if (visualGraph != null) {
+			resultLabel.setText("Node : " + visualGraph.getNodes().size() + " Edge : " + visualGraph.getConnections().size());
+			
+			if ( compositeSizeX > drawSizeX){
+			    drawSizeX = compositeSizeX;
+			}
+			
+			if ( compositeSizeY > drawSizeY){
+			    drawSizeY = compositeSizeY;
+            }
+			
+			//Set zoom default value
+			zoomManager.setZoomAsText("100%");
+			
+			if (!init) {
+			    visualGraph.setPreferredSize(drawSizeX, drawSizeY);
+			    init = true;
+			} else {
+			    visualGraph.setPreferredSize(drawSizeX, drawSizeY);
+			    visualGraph.redraw();
+			}
 		}
+		
+		if (miniMapThread == null) {
+		    miniMapThread = new RefreshThread(this, 1500);
+		    miniMapThread.start();
+		}
+		
 	}
 
 	private boolean addNode(DBDAttributeBinding attrs, ResultSetRow row, String cellString, Color color) {
@@ -573,7 +613,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			resultSetRowNodeList.put(tempValue[0], row);
 			displayStringNodeList.put(tempValue[0], cellString);
 
-			return gephiModel.addNode(graph, tempValue[0], tempValue[1], attrList, color);
+			return gephiModel.addNode(visualGraph, tempValue[0], tempValue[1], attrList, color);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -616,7 +656,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		resultSetRowEdgeList.put(tempValue[0], row);
 		displayStringEdgeList.put(tempValue[0], cellString);
 
-		return gephiModel.addEdge(graph, tempValue[0], tempValue[1], tempValue[2], tempValue[3], attrList);
+		return gephiModel.addEdge(visualGraph, tempValue[0], tempValue[1], tempValue[2], tempValue[3], attrList);
 	}
 
 	StringBuilder fixBuffer = new StringBuilder();
@@ -786,36 +826,36 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		}
 	}
 
-	private static void setLayoutManager(Layout layout) {
+	private void setLayoutManager(Layout layout) {
 		defaultLayoutAlgorithm = layout;
 		switch (layout) {
 		case VERTICAL:
-			graph.setLayoutAlgorithm(new VerticalLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new VerticalLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 
 		case HORIZONTAL_TREE:
-			graph.setLayoutAlgorithm(new HorizontalTreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new HorizontalTreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		case VERTICAL_TREE:
-			graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		case HORIZONTAL:
-			graph.setLayoutAlgorithm(new HorizontalLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new HorizontalLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		case DIRECTED:
-			graph.setLayoutAlgorithm(new DirectedGraphLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new DirectedGraphLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		case GRID:
-			graph.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		case SPRING:
-			graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		case HORIZONTAL_SHIFT:
-			graph.setLayoutAlgorithm(new HorizontalShift(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new HorizontalShift(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		case RADIAL:
-			graph.setLayoutAlgorithm(new RadialLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+			visualGraph.setLayoutAlgorithm(new RadialLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 			break;
 		}
 	}
@@ -837,7 +877,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			public void run() {
 				if (gephiModel != null) {
 					if (seletedItem.getClass().equals(GraphNode.class)) {
-						gephiModel.setHighlight(graph, (GraphNode) seletedItem);
+						gephiModel.setHighlight(visualGraph, (GraphNode) seletedItem);
 					}
 				}
 			}
@@ -869,7 +909,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		});
 	}
 
-	protected void contextMenuAboutToShow(IMenuManager m) {
+	private void contextMenuAboutToShow(IMenuManager m) {
 		if (seletedItem != null && seletedItem.getClass().equals(GraphNode.class)) {
 			highlightAction.setEnabled(true);
 		} else {
@@ -887,8 +927,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		manager.add(shortestPathAction);
 	}
 
-	protected void createZestListner() {
-		final ScrollBar verticalBar = graph.getVerticalBar();
+	private void createZestListner() {
+		final ScrollBar verticalBar = visualGraph.getVerticalBar();
 		verticalBar.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -897,14 +937,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 		setLayoutManager(defaultLayoutAlgorithm);
 
-		graph.addSelectionListener(new SelectionAdapter() {
+		visualGraph.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Object temp = null;
 				gephiModel.unHighlight();
 
-				if (graph.getSelection() != null && graph.getSelection().size() != 0) {
-					temp = graph.getSelection().get(0);
+				if (visualGraph.getSelection() != null && visualGraph.getSelection().size() != 0) {
+					temp = visualGraph.getSelection().get(0);
 				}
 
 				if (temp != null) {
@@ -930,7 +970,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		});
 	}
 	
-	static protected void zoomIn() {
+	private void zoomIn() {
 		if (zoomCount > 50) {
 			zoomCount = zoomCount - 10;
 			String zoomPercent = String.valueOf(zoomCount) + "%";
@@ -938,7 +978,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		} 
 	}
 	
-	protected void zoomOut() {
+	private void zoomOut() {
 		if (zoomCount < 500) {
 			zoomCount = zoomCount + 10;
 			String zoomPercent = String.valueOf(zoomCount) + "%";
@@ -946,36 +986,96 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		}	
 	}
 	
-	static protected void imageCapture() {
-		graph.getParent().setRedraw(false);
-        final Point originalSize = graph.getSize();
-        final Point size = graph.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-        Image image = new Image(graph.getDisplay(), size.x, size.y);
-        final GC gc = new GC(image);
-
-        graph.setSize(size);
-        graph.print(gc);
-        graph.setSize(originalSize);
-		
-        graph.getParent().setRedraw(true);
+	private Image graphImageCapture() {
+	    Rectangle size = visualGraph.getContents().getBounds(); 
+	    final Image image = new Image(null, size.width, size.height); 
+	    GC gc = new GC(image); 
+	    SWTGraphics swtGraphics = new SWTGraphics(gc); 
+	    swtGraphics.translate(-1 * size.x, -1 * size.y); 
+	    visualGraph.getContents().paint(swtGraphics); 
+	    gc.dispose();
         
-		if(image != null) {
-			FileDialog fileDialog = new FileDialog(captureShell, SWT.SAVE);
+        return image;
+    }
+	
+	private void saveImage() {
+	    
+	    Image captureImage = graphImageCapture();
+	    
+		if(captureImage != null) {
+			FileDialog fileDialog = new FileDialog(visualGraph.getShell(), SWT.SAVE);
 			fileDialog.setFilterExtensions(new String[] {"*.jpg"});
 			fileDialog.setFilterNames(new String[] {"jpg Image File"});
 			String filename = fileDialog.open();
 			if (filename == null) {
 				return;
-			} else {
+			} else if (!filename.toLowerCase().contains(".jpg")){
 				filename = filename + ".jpg";
 			}
 				
-			ImageData imageData = image.getImageData();
+			ImageData imageData = captureImage.getImageData();
 			ImageLoader imageLoader = new ImageLoader();
 			imageLoader.data = new ImageData[] { imageData };
 			imageLoader.save(filename, SWT.IMAGE_JPEG);
-			image.dispose();
 			
+			captureImage.dispose();
 		}
 	}
+	
+    @Override
+    public void refreshWork() {
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                if (miniMap != null) {
+                    miniMap.setImage(graphImageCapture());
+                    miniMap.reDraw();
+                }
+            }
+        });
+    }
+    
+    private void createMiniMap() {
+        miniMap = new MiniMap(graphTopComposite);
+        miniMap.show();
+        miniMap.addZoominListner(new SelectionListener() {
+            
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                zoomIn();
+                
+            }
+            
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                
+            }
+        });
+        
+        miniMap.addZoomOutListner(new SelectionListener() {
+            
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                zoomOut();
+                
+            }
+            
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                
+            }
+        });
+    }
+    
+    public void setMiniMapVisible(boolean visible) {
+        if (miniMap != null) {
+            if (visible) {
+                miniMap.show();
+            } else {
+                miniMap.remove();
+            }
+        }
+    }
+    
+
 }
