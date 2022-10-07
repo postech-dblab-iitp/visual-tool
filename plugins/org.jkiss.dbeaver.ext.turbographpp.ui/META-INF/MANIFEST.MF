@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DBeaver TurboGraphPP UI Support
 Bundle-SymbolicName: org.jkiss.dbeaver.ext.turbographpp.ui;singleton:=true
-Bundle-Version: 1.0.001.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Release-Date: 20220320
 Bundle-Activator: org.jkiss.dbeaver.ext.turbographpp.ui.TurboGraphPPUIActivator
 Require-Bundle: org.eclipse.core.runtime,
