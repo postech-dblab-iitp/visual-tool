@@ -75,7 +75,7 @@ import org.eclipse.zest.layouts.algorithms.VerticalLayoutAlgorithm;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.ModelPreferences;
-import org.jkiss.dbeaver.ext.turbographpp.graphmodel.GephiModel;
+import org.jkiss.dbeaver.ext.turbographpp.graph.GephiModel;
 import org.jkiss.dbeaver.model.DBConstants;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.data.DBDAttributeBinding;
