@@ -25,8 +25,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.jkiss.dbeaver.ui.editors.base,
  org.jkiss.dbeaver.ui.navigator,
  com.google.gson,
- org.eclipse.zest.core,
- org.eclipse.zest.layouts,
  org.jkiss.dbeaver.ext.turbographpp.graph
 Bundle-ClassPath: .
 Export-Package: org.jkiss.dbeaver.registry.functions,

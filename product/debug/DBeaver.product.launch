@@ -15,6 +15,7 @@
     <setAttribute key="deselected_workspace_bundles"/>
     <booleanAttribute key="includeOptional" value="true"/>
     <stringAttribute key="location" value="${workspace_loc}/../runtime-DBeaver.product"/>
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
     <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
@@ -28,20 +29,16 @@
         <setEntry value="biz.aQute.bndlib@default:default"/>
         <setEntry value="ch.qos.logback.classic@default:default"/>
         <setEntry value="ch.qos.logback.core@default:default"/>
-        <setEntry value="ch.qos.logback.slf4j@default:default"/>
+        <setEntry value="ch.qos.logback.slf4j@default:false"/>
         <setEntry value="com.github.eclipsecolortheme@default:default"/>
         <setEntry value="com.github.jsqlparser@default:default"/>
         <setEntry value="com.google.gson@default:default"/>
-        <setEntry value="com.google.guava*27.1.0.v20190517-1946@default:default"/>
+        <setEntry value="com.google.guava@default:default"/>
         <setEntry value="com.ibm.icu@default:default"/>
         <setEntry value="com.jcraft.jsch@default:default"/>
-        <setEntry value="com.sun.jna*4.5.1.v20190425-1842@default:default"/>
-        <setEntry value="com.sun.jna*5.8.0.v20210503-0343@default:default"/>
         <setEntry value="com.sun.jna.platform*4.5.1.v20190425-1842@default:default"/>
-        <setEntry value="com.sun.jna.platform*5.8.0.v20210406-1004@default:default"/>
         <setEntry value="jakarta.servlet-api@default:default"/>
         <setEntry value="javaewah@default:default"/>
-        <setEntry value="javax.activation*1.2.2.v20201119-1642@default:default"/>
         <setEntry value="javax.annotation@default:default"/>
         <setEntry value="javax.inject@default:default"/>
         <setEntry value="javax.xml@default:default"/>
@@ -51,9 +48,8 @@
         <setEntry value="org.apache.batik.css@default:default"/>
         <setEntry value="org.apache.batik.i18n@default:default"/>
         <setEntry value="org.apache.batik.util@default:default"/>
-        <setEntry value="org.apache.commons.cli@default:default"/>
+        <setEntry value="org.apache.commons.cli*1.4.0.v20200417-1444@default:default"/>
         <setEntry value="org.apache.commons.codec@default:default"/>
-        <setEntry value="org.apache.commons.io@default:default"/>
         <setEntry value="org.apache.commons.jexl@default:default"/>
         <setEntry value="org.apache.commons.jxpath@default:default"/>
         <setEntry value="org.apache.commons.logging@default:default"/>
@@ -69,10 +65,9 @@
         <setEntry value="org.apache.xml.resolver@default:default"/>
         <setEntry value="org.apache.xml.serializer@default:default"/>
         <setEntry value="org.apache.xmlgraphics@default:default"/>
-        <setEntry value="org.apiguardian@default:default"/>
-        <setEntry value="org.bouncycastle.bcpg@default:default"/>
+        <setEntry value="org.bouncycastle.bcpg*1.71.0.v20220723-1943@default:default"/>
         <setEntry value="org.bouncycastle.bcpkix@default:default"/>
-        <setEntry value="org.bouncycastle.bcprov@default:default"/>
+        <setEntry value="org.bouncycastle.bcprov*1.71.0.v20220723-1943@default:default"/>
         <setEntry value="org.bouncycastle.bcutil@default:default"/>
         <setEntry value="org.eclipse.ant.core@default:default"/>
         <setEntry value="org.eclipse.compare.core@default:default"/>
@@ -85,12 +80,12 @@
         <setEntry value="org.eclipse.core.databinding@default:default"/>
         <setEntry value="org.eclipse.core.expressions@default:default"/>
         <setEntry value="org.eclipse.core.filebuffers@default:default"/>
-        <setEntry value="org.eclipse.core.filesystem.win32.x86_64@default:default"/>
+        <setEntry value="org.eclipse.core.filesystem.win32.x86_64@default:false"/>
         <setEntry value="org.eclipse.core.filesystem@default:default"/>
         <setEntry value="org.eclipse.core.jobs@default:default"/>
-        <setEntry value="org.eclipse.core.net.win32.x86_64@default:default"/>
+        <setEntry value="org.eclipse.core.net.win32.x86_64@default:false"/>
         <setEntry value="org.eclipse.core.net@default:default"/>
-        <setEntry value="org.eclipse.core.resources.win32.x86_64@default:default"/>
+        <setEntry value="org.eclipse.core.resources.win32.x86_64@default:false"/>
         <setEntry value="org.eclipse.core.resources@default:default"/>
         <setEntry value="org.eclipse.core.runtime@default:true"/>
         <setEntry value="org.eclipse.core.variables@default:default"/>
@@ -114,7 +109,7 @@
         <setEntry value="org.eclipse.e4.ui.ide@default:default"/>
         <setEntry value="org.eclipse.e4.ui.model.workbench@default:default"/>
         <setEntry value="org.eclipse.e4.ui.services@default:default"/>
-        <setEntry value="org.eclipse.e4.ui.swt.win32@default:default"/>
+        <setEntry value="org.eclipse.e4.ui.swt.win32@default:false"/>
         <setEntry value="org.eclipse.e4.ui.widgets@default:default"/>
         <setEntry value="org.eclipse.e4.ui.workbench.addons.swt@default:default"/>
         <setEntry value="org.eclipse.e4.ui.workbench.renderers.swt@default:default"/>
@@ -173,7 +168,7 @@
         <setEntry value="org.eclipse.equinox.preferences@default:default"/>
         <setEntry value="org.eclipse.equinox.registry@default:default"/>
         <setEntry value="org.eclipse.equinox.security.ui@default:default"/>
-        <setEntry value="org.eclipse.equinox.security.win32.x86_64@default:default"/>
+        <setEntry value="org.eclipse.equinox.security.win32.x86_64@default:false"/>
         <setEntry value="org.eclipse.equinox.security@default:default"/>
         <setEntry value="org.eclipse.equinox.simpleconfigurator.manipulator@default:default"/>
         <setEntry value="org.eclipse.equinox.simpleconfigurator@1:true"/>
@@ -181,7 +176,6 @@
         <setEntry value="org.eclipse.help.base@default:default"/>
         <setEntry value="org.eclipse.help.ui@default:default"/>
         <setEntry value="org.eclipse.help@default:default"/>
-        <setEntry value="org.eclipse.jdt.annotation*2.2.600.v20200408-1511@default:default"/>
         <setEntry value="org.eclipse.jem.util@default:default"/>
         <setEntry value="org.eclipse.jetty.http@default:default"/>
         <setEntry value="org.eclipse.jetty.io@default:default"/>
@@ -201,10 +195,10 @@
         <setEntry value="org.eclipse.m2e.archetype.common@default:default"/>
         <setEntry value="org.eclipse.m2e.core.ui@default:default"/>
         <setEntry value="org.eclipse.m2e.core@default:default"/>
-        <setEntry value="org.eclipse.m2e.logback.appender@default:default"/>
+        <setEntry value="org.eclipse.m2e.logback.appender@default:false"/>
         <setEntry value="org.eclipse.m2e.maven.indexer@default:default"/>
+        <setEntry value="org.eclipse.m2e.maven.runtime*3.8.601.20220820-1147@default:default"/>
         <setEntry value="org.eclipse.m2e.maven.runtime.slf4j.simple@default:default"/>
-        <setEntry value="org.eclipse.m2e.maven.runtime@default:default"/>
         <setEntry value="org.eclipse.m2e.model.edit@default:default"/>
         <setEntry value="org.eclipse.m2e.workspace.cli@default:default"/>
         <setEntry value="org.eclipse.osgi.compatibility.state@default:false"/>
@@ -235,7 +229,7 @@
         <setEntry value="org.eclipse.ui.views.log@default:default"/>
         <setEntry value="org.eclipse.ui.views.properties.tabbed@default:default"/>
         <setEntry value="org.eclipse.ui.views@default:default"/>
-        <setEntry value="org.eclipse.ui.win32@default:default"/>
+        <setEntry value="org.eclipse.ui.win32@default:false"/>
         <setEntry value="org.eclipse.ui.workbench.texteditor@default:default"/>
         <setEntry value="org.eclipse.ui.workbench@default:default"/>
         <setEntry value="org.eclipse.ui@default:default"/>
@@ -258,9 +252,6 @@
         <setEntry value="org.jkiss.bundle.gis@default:default"/>
         <setEntry value="org.jkiss.bundle.jfreechart@default:default"/>
         <setEntry value="org.jkiss.bundle.sshj@default:default"/>
-        <setEntry value="org.junit.platform.commons@default:default"/>
-        <setEntry value="org.junit.platform.engine@default:default"/>
-        <setEntry value="org.junit.platform.launcher@default:default"/>
         <setEntry value="org.junit@default:default"/>
         <setEntry value="org.mockito.mockito-all@default:default"/>
         <setEntry value="org.objectweb.asm@default:default"/>
@@ -306,7 +297,7 @@
         <setEntry value="org.jkiss.dbeaver.ext.format.sqlworkbenchj@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.generic.ui@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.generic@default:default"/>
-        <setEntry value="org.jkiss.dbeaver.ext.greenplum.test@default:default"/>
+        <setEntry value="org.jkiss.dbeaver.ext.greenplum.test@default:false"/>
         <setEntry value="org.jkiss.dbeaver.ext.greenplum@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.h2@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.h2gis@default:default"/>
@@ -325,13 +316,13 @@
         <setEntry value="org.jkiss.dbeaver.ext.oceanbase@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.ocient@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.opendistro@default:default"/>
-        <setEntry value="org.jkiss.dbeaver.ext.oracle.test@default:default"/>
+        <setEntry value="org.jkiss.dbeaver.ext.oracle.test@default:false"/>
         <setEntry value="org.jkiss.dbeaver.ext.oracle.ui@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.oracle@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.phoenix@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.postgresql.debug.core@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.postgresql.debug.ui@default:default"/>
-        <setEntry value="org.jkiss.dbeaver.ext.postgresql.test@default:default"/>
+        <setEntry value="org.jkiss.dbeaver.ext.postgresql.test@default:false"/>
         <setEntry value="org.jkiss.dbeaver.ext.postgresql.ui@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.postgresql@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.sample.database@default:default"/>

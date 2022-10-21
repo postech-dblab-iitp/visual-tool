@@ -6,10 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.zest.core.widgets.Graph;
-import org.eclipse.zest.core.widgets.GraphConnection;
-import org.eclipse.zest.core.widgets.GraphNode;
-import org.eclipse.zest.core.widgets.ZestStyles;
+import org.eclipse.swt.widgets.Composite;
 import org.gephi.graph.api.DirectedGraph;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.EdgeIterable;
@@ -18,6 +15,8 @@ import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.openide.util.Lookup;
 
 public class GephiModel {
@@ -27,8 +26,8 @@ public class GephiModel {
     private final ProjectController pc;
     private Workspace workspace;
     private GraphModel graphModel;
-    private HashMap<String, GraphNode> graphNodesMap;
-    private HashMap<String, GraphConnection> graphEdgesMap;
+    private HashMap<String, Object> graphNodesMap;
+    private HashMap<String, Object> graphEdgesMap;
     private Set<Object> highlightedList;
     
     public GephiModel() {
@@ -49,7 +48,7 @@ public class GephiModel {
         return graphModel;
     }
     
-    public boolean addNode(Graph graph, String id, String label, HashMap<String, Object> attr, Color color){
+    public boolean addNode(FXGraph graph, String id, String label, HashMap<String, Object> attr, Color color){
         
         highlightedList.clear();
         
@@ -69,7 +68,7 @@ public class GephiModel {
                 }
                 DirectedGraph directedGraph = graphModel.getDirectedGraph();
                 directedGraph.addNode(n);
-                addZestNode(graph, id, label, color);
+                addGraphNode(graph, id, label, color);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,10 +78,9 @@ public class GephiModel {
         return true;
     }
     
-    private boolean addZestNode(Graph graph, String id, String label, Color color) {
+    private boolean addGraphNode(FXGraph graph, String id, String label, Color color) {
         try {
-            GraphNode node = new GraphNode(graph, ZestStyles.NODES_FISHEYE, label, id);
-            node.setBackgroundColor(color);
+            Object node = graph.addNode(id, label, null, color);
             graphNodesMap.put(id, node);
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,47 +89,47 @@ public class GephiModel {
         return true;
     }
     
-    public boolean updateZestNode(Graph graph, String properyName){
+    public boolean updateGraphNode(FXGraph graph, String properyName){
         
-        if (graph == null || properyName == null) {
-            return false;
-        }
-        
-        GraphNode node;
-        String temp;
-        
-        try {
-            if (properyName == "label") {
-                for (String key : graphNodesMap.keySet()) {
-                    node = graphNodesMap.get(key);
-                    if (node != null) {
-                        node.setText(graphModel.getDirectedGraph().getNode(key).getLabel());
-                    }
-                }
-            } else {
-                for (String key : graphNodesMap.keySet()) {
-                    node = graphNodesMap.get(key);
-                    if (node != null) {
-                        if (graphModel.getDirectedGraph().getNode(key) != null 
-                                && graphModel.getDirectedGraph().getNode(key).getAttribute(properyName) != null ) {
-                            temp = graphModel.getDirectedGraph().getNode(key).getAttribute(properyName).toString();
-                            if (temp != null) {
-                                node.setText(temp);
-                            }
-                        }
-                        
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+//        if (graph == null || properyName == null) {
+//            return false;
+//        }
+//        
+//        GraphNode node;
+//        String temp;
+//        
+//        try {
+//            if (properyName == "label") {
+//                for (String key : graphNodesMap.keySet()) {
+//                    node = graphNodesMap.get(key);
+//                    if (node != null) {
+//                        node.setText(graphModel.getDirectedGraph().getNode(key).getLabel());
+//                    }
+//                }
+//            } else {
+//                for (String key : graphNodesMap.keySet()) {
+//                    node = graphNodesMap.get(key);
+//                    if (node != null) {
+//                        if (graphModel.getDirectedGraph().getNode(key) != null 
+//                                && graphModel.getDirectedGraph().getNode(key).getAttribute(properyName) != null ) {
+//                            temp = graphModel.getDirectedGraph().getNode(key).getAttribute(properyName).toString();
+//                            if (temp != null) {
+//                                node.setText(temp);
+//                            }
+//                        }
+//                        
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
         
         return true;
     }
     
-    public boolean addEdge(Graph graph, String id, String label, String startNodeID, String endNodeID, HashMap<String, String> attr) {
+    public boolean addEdge(FXGraph graph, String id, String label, String startNodeID, String endNodeID, HashMap<String, String> attr) {
         
         DirectedGraph directedGraph = graphModel.getDirectedGraph();
         
@@ -148,12 +146,7 @@ public class GephiModel {
                 	e.setAttribute(key, attr.get(key));
                 }
                 directedGraph.addEdge(e);
-                GraphConnection connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, 
-                        graphNodesMap.get(e.getSource().getId()), graphNodesMap.get(e.getTarget().getId()));
-                connection.setData(id);
-                connection.setLineColor(new Color(0,0,0));
-                connection.setLineWidth(2);
-                connection.setText(label);
+                Object connection = graph.addEdge(id, label, startNodeID, endNodeID, attr); 
                 graphEdgesMap.put(e.getId().toString(), connection);
             }
         } catch (Exception e) {
@@ -163,7 +156,7 @@ public class GephiModel {
         return true;
     }
     
-    public boolean gephiDataToZestEdge(Graph graph) {
+    public boolean gephiDataToZestEdge(FXGraph graph) {
         
         try {
             DirectedGraph directedGraph = graphModel.getDirectedGraph();
@@ -172,8 +165,8 @@ public class GephiModel {
             
             while (edges.hasNext()) {
                 Edge edge =  edges.next();
-                GraphConnection connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, 
-                        graphNodesMap.get(edge.getSource().getId()), graphNodesMap.get(edge.getTarget().getId()));
+                Object connection = graph.addEdge(edge.getId().toString(), null, 
+                        graphNodesMap.get(edge.getSource().getId()).toString(), graphNodesMap.get(edge.getTarget().getId()).toString(), null);
                 graphEdgesMap.put(edge.getId().toString(), connection);
             }
         } catch (Exception e) {
@@ -184,74 +177,62 @@ public class GephiModel {
         return true;
     }
 
-    public boolean setHighlight(Graph graph, GraphNode node) {
-        try {
-            Object[] objects = graph.getConnections().toArray() ;           
-            for (int i = 0 ; i < objects.length; i++)
-            {
-                GraphConnection graphCon = (GraphConnection) objects[i];
-                if (graphCon.getSource().equals(node)) {
-                    graphCon.highlight();
-                    graphCon.getSource().highlight();
-                    graphCon.getDestination().highlight();
-                    highlightedList.add(graphCon);
-                    highlightedList.add(graphCon.getSource());
-                    highlightedList.add(graphCon.getDestination());
-                }
-            }            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean setHighlight(FXGraph graph, Object node) {
+//        try {
+//            Object[] objects = graph.getConnections().toArray() ;           
+//            for (int i = 0 ; i < objects.length; i++)
+//            {
+//                GraphConnection graphCon = (GraphConnection) objects[i];
+//                if (graphCon.getSource().equals(node)) {
+//                    graphCon.highlight();
+//                    graphCon.getSource().highlight();
+//                    graphCon.getDestination().highlight();
+//                    highlightedList.add(graphCon);
+//                    highlightedList.add(graphCon.getSource());
+//                    highlightedList.add(graphCon.getDestination());
+//                }
+//            }            
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
         
         return true;
     }
 
     public boolean unHighlight() {
-        try {
-            if (highlightedList == null || highlightedList.isEmpty()) {
-                return false;
-            }
-            
-            GraphNode node;
-            GraphConnection edge;
-            for (Object obj : highlightedList) {
-                if (obj.getClass().equals(GraphNode.class)) {
-                    node = (GraphNode)obj;
-                    node.unhighlight();
-                } else if (obj.getClass().equals(GraphConnection.class)) {
-                    edge = (GraphConnection)obj;
-                    edge.unhighlight();
-                }
-            }
-            
-            highlightedList.clear();
-           
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+//        try {
+//            if (highlightedList == null || highlightedList.isEmpty()) {
+//                return false;
+//            }
+//            
+//            GraphNode node;
+//            GraphConnection edge;
+//            for (Object obj : highlightedList) {
+//                if (obj.getClass().equals(GraphNode.class)) {
+//                    node = (GraphNode)obj;
+//                    node.unhighlight();
+//                } else if (obj.getClass().equals(GraphConnection.class)) {
+//                    edge = (GraphConnection)obj;
+//                    edge.unhighlight();
+//                }
+//            }
+//            
+//            highlightedList.clear();
+//           
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
         
         return true;
     }
 
-    public void clearGraph(Graph graph)
+    public void clearGraph(FXGraph graph)
     {       
-        Object[] objects = graph.getConnections().toArray() ;           
-        for (int i = 0 ; i < objects.length; i++)
-        {
-            GraphConnection graCon = (GraphConnection) objects[i];
-            if(!graCon.isDisposed())
-                graCon.dispose();
-        }            
-
-        objects = graph.getNodes().toArray();       
-        for (int i = 0; i < objects.length; i++)
-        {
-            GraphNode graNode = (GraphNode) objects[i];
-            if(!graNode.isDisposed())
-                graNode.dispose();
-        }
+    	if (graph != null) {
+    		graph.clearGraph();
+    	}
     }
     
     public void clear() {
