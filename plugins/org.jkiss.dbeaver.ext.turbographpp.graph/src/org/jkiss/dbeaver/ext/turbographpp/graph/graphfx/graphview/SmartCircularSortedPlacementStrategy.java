@@ -43,7 +43,6 @@ public class SmartCircularSortedPlacementStrategy implements SmartPlacementStrat
 
     @Override
     public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
-    	System.out.println("SmartCircularSortedPlacementStrategy");
         Point2D center = new Point2D(width / 2, height / 2);
         int N = vertices.size();
         double angleIncrement = -360f / N;
@@ -51,11 +50,8 @@ public class SmartCircularSortedPlacementStrategy implements SmartPlacementStrat
         //place first vertice north position, others in clockwise manner
         boolean first = true;
         Point2D p = null;
-        System.out.println("SmartCircularSortedPlacementStrategy" + vertices.size());
-    	System.out.println("SmartCircularSortedPlacementStrategy" + vertices.toString());
-    	
         for (SmartGraphVertex<V> vertex : sort(vertices)) {
-        	System.out.println("SmartCircularSortedPlacementStrategy" + vertices.toString());    
+            
             if (first) {
                 //verifiy smaller width and height.
                 if(width > height) {
@@ -79,7 +75,6 @@ public class SmartCircularSortedPlacementStrategy implements SmartPlacementStrat
         
         List<SmartGraphVertex<V>> list = new ArrayList<>();
         list.addAll(vertices);
-        System.out.println("SmartCircularSortedPlacementStrategy 2");
         
         Collections.sort(list, new Comparator<SmartGraphVertex<V>>() {
             @Override

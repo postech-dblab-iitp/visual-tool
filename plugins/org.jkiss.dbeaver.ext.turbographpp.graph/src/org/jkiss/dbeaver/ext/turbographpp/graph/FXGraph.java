@@ -20,22 +20,32 @@ import org.eclipse.swt.widgets.Layout;
 import javafx.embed.swt.FXCanvas;
 import javafx.embed.swt.SWTFXUtils;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.WritableImage;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphProperties;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.GraphEdgeList;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphEdgeList;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartRandomPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.DigraphEdgeList;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartCircularSortedPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 
 public class FXGraph implements GraphBase {
     
     private FXCanvas canvas;
-    private Graph<String, String> graph;
-    private SmartGraphPanel<String, String> graphView;
+    private Graph<CyperNode, CyperEdge> graph;
+    private SmartGraphPanel<CyperNode, CyperEdge> graphView;
+    private ScrollPane scrollPane;
     private Control control;
     private Scene scene;
     private ZoomManager zoomManager;
+    private HashMap<String, CyperNode> Nodes = new HashMap<>();
+    private HashMap<String, CyperEdge> Edges = new HashMap<>();
     
     private static javafx.scene.paint.Color backgroundColor = javafx.scene.paint.Color.WHITE;
     
@@ -44,18 +54,31 @@ public class FXGraph implements GraphBase {
     	System.out.println("FXGraph size width : " + width + " height : " + height);
     	control = parent;
         canvas = new FXCanvas(parent, SWT.NONE);
-        graph = new GraphEdgeList<>();
+        graph = new TurboGraphEdgeList<>();
         
-        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
+        SmartPlacementStrategy strategy = new SmartRandomPlacementStrategy();
         graphView = new SmartGraphPanel<>(graph, strategy);
-        graphView.setStyle("-fx-background-color: transparent");
+        
+    	scrollPane = new ScrollPane();
+    	scrollPane.setContent(graphView);
+    	scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+    	scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setStyle("-fx-focus-color: transparent;");
+        //graphView.setMinSize(width, height);
+        graphView.setPrefSize(width, height);
+        //SmartGraphPanel<V, E> graphView = new SmartGraphPanel<>(graph, strategy);
+        
+        
+        //Scene scene = new Scene(new SmartGraphDemoContainer(graphView), 1024, 768);
         graphView.setAutomaticLayout(true);
-
-        scene = new Scene(graphView, 1024, 768);
+        //scene = new Scene(graphView);
+        scene = new Scene(scrollPane, 1024, 768);
 
         graphView.init();
         
-        graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
+        graphView.setVertexDoubleClickAction((SmartGraphVertex<CyperNode> graphVertex) -> {
             System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
             graphVertex.setStyle("-fx-fill: yellow;");
         });
@@ -118,20 +141,30 @@ public class FXGraph implements GraphBase {
     
     public void resize(double width, double height) {
     	System.out.println("graph resize width : " + width + " height : " + height);
+    	//graphView.setMinSize(width, height);
     	graphView.setPrefSize(width, height);
     	graphView.update();
+    	//graphView.setPrefSize(width, height);
     }
 
     @Override
     public Object addNode(String id, String label, HashMap<String, Object> attr, Color color) {
-    	Object v = graph.insertVertex(id);
+    	System.out.println("addNode id : " + id);
+    	//Object v = graph.insertVertex(id);
+    	CyperNode node = new CyperNode(id, label, attr);
+    	Nodes.put(id, node);
+    	Object v = graph.insertVertex(node);
         return v;
     }
 
     @Override
     public Object addEdge(String id, String label, String startNodeID, String endNodeID,
             HashMap<String, String> attr) {
-    	Object e = graph.insertEdge(startNodeID, endNodeID, id);
+    	System.out.println("addEdge id : " + id + " startNodeID : " + startNodeID + " endNodeID : " + endNodeID);
+    	//Object e = graph.insertEdge(startNodeID, endNodeID, id);
+    	CyperEdge edge = new CyperEdge(id, label, attr, startNodeID, endNodeID);
+    	Edges.put(id, edge);
+    	Object e = graph.insertEdge(Nodes.get(startNodeID), Nodes.get(endNodeID), edge);
         return e;
     }
 

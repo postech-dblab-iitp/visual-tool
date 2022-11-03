@@ -40,12 +40,9 @@ public class SmartRandomPlacementStrategy implements SmartPlacementStrategy {
     @Override
     public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
         
-    	System.out.println("SmartRandomPlacementStrategy" + vertices.size());
-    	System.out.println("SmartRandomPlacementStrategy" + vertices.toString());
         Random rand = new Random();
 
         for (SmartGraphVertex<V> vertex : vertices) {
-        	System.out.println("SmartRandomPlacementStrategy2");
             
             double x = rand.nextDouble() * width;
             double y = rand.nextDouble() * height;
