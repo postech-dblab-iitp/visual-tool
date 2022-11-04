@@ -53,6 +53,7 @@ import javafx.scene.text.Text;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
+import org.jkiss.dbeaver.ext.turbographpp.graph.CyperNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Digraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
@@ -110,6 +111,9 @@ public class SmartGraphPanel<V, E> extends Pane {
     private Consumer<SmartGraphVertex<V>> vertexClickConsumer = null;
     private Consumer<SmartGraphEdge<E, V>> edgeClickConsumer = null;
 
+    private Consumer<SmartGraphVertex<V>> vertexOneClickConsumer = null;
+    private Consumer<SmartGraphEdge<E, V>> edgeOneClickConsumer = null;
+    
     /*
     AUTOMATIC LAYOUT RELATED ATTRIBUTES
      */
@@ -121,6 +125,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     
     //This value was obtained experimentally
     private static final int AUTOMATIC_LAYOUT_ITERATIONS = 20;
+    
+    private String displayProperyName = null;
 
     /**
      * Constructs a visualization of the graph referenced by
@@ -193,12 +199,6 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.theGraph = theGraph;
         this.graphProperties = properties != null ? properties : new SmartGraphProperties();
         
-        if (placementStrategy == null) {
-        	System.out.println("SmartGraphPanel placementStrategy is null");
-        } else {
-        	System.out.println("SmartGraphPanel placementStrategy is not null");
-        }
-        
         this.placementStrategy = placementStrategy != null ? placementStrategy : new SmartRandomPlacementStrategy();
 
         this.edgesWithArrows = this.graphProperties.getUseEdgeArrow();
@@ -214,7 +214,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         //set stylesheet and class
         //loadStylesheet(cssFile);
 
-        initNodes();
+        //initNodes();
 
         enableDoubleClickListener();
 
@@ -261,16 +261,27 @@ public class SmartGraphPanel<V, E> extends Pane {
      * this method was already called.
      */
     public void init() throws IllegalStateException {
-    	if (this.initialized) {
-            throw new IllegalStateException("Already initialized. Use update() method instead.");
+//        if (this.getScene() == null) {
+//            throw new IllegalStateException("You must call this method after the instance was added to a scene.");
+//        } 
+//        else if (this.getWidth() == 0 || this.getHeight() == 0) {
+//            throw new IllegalStateException("The layout for this panel has zero width and/or height");
+//        } 
+        if (this.initialized) {
+        	System.out.println("\"Already initialized. Use update() method instead.");
+        	initialized = false;
+        	this.getChildren().clear();
+        	removeNodes();
+            //throw new IllegalStateException("Already initialized. Use update() method instead.");
         }
 
+        initNodes();
+        
         if (placementStrategy != null) {
-            // call strategy to place the vertices in their initial locations 
-            placementStrategy.place(this.widthProperty().doubleValue(),
-                    this.heightProperty().doubleValue(),
-                    this.theGraph,
-                    this.vertexNodes.values());
+			placementStrategy.place(this.getMinWidth(),
+									this.getMaxHeight(),
+									this.theGraph,
+									this.vertexNodes.values());
         } else {
             //apply random placement
             new SmartRandomPlacementStrategy().place(this.widthProperty().doubleValue(),
@@ -322,7 +333,8 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         if (!this.initialized) {
-            throw new IllegalStateException("You must call init() method before any updates.");
+        	return;
+            //throw new IllegalStateException("You must call init() method before any updates.");
         }
 
         //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
@@ -404,6 +416,15 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.edgeClickConsumer = action;
     }
 
+    
+    public void setVertexSelectAction(Consumer<SmartGraphVertex<V>> action) {
+        this.vertexOneClickConsumer = action;
+    }
+    
+    public void setEdgeSelectAction(Consumer<SmartGraphEdge<E, V>> action) {
+        this.edgeOneClickConsumer = action;
+    }
+    
     /*
     NODES CREATION/UPDATES
      */
@@ -411,9 +432,13 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         /* create vertex graphical representations */
         for (Vertex<V> vertex : listOfVertices()) {
-            SmartGraphVertexNode<V> vertexAnchor = new SmartGraphVertexNode(vertex, 0, 0,
+            SmartGraphVertexNode<V> vertexAnchor = new SmartGraphVertexNode<V>(vertex, 0, 0,
                     graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
-
+            if (vertex.element() instanceof CyperNode) {
+            	CyperNode node = (CyperNode) vertex.element();
+            	String fillColor = node.getFillColor();
+            	vertexAnchor.setStyle(fillColor);
+            }
             vertexNodes.put(vertex, vertexAnchor);
         }
 
@@ -732,7 +757,6 @@ public class SmartGraphPanel<V, E> extends Pane {
         } catch (SecurityException | IllegalAccessException  | IllegalArgumentException |InvocationTargetException ex) {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
         return vertex != null ? vertex.toString() : "<NULL>";
     }
     
@@ -750,7 +774,6 @@ public class SmartGraphPanel<V, E> extends Pane {
         } catch (SecurityException | IllegalAccessException  | IllegalArgumentException |InvocationTargetException ex) {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
         return edge != null ? edge.toString() : "<NULL>";
     }
     
@@ -1107,6 +1130,27 @@ public class SmartGraphPanel<V, E> extends Pane {
                     } else if (node instanceof SmartGraphEdge) {
                         SmartGraphEdge e = (SmartGraphEdge) node;
                         edgeClickConsumer.accept(e);
+                    }
+
+                }
+                
+                if (mouseEvent.getClickCount() == 1) {
+                    //no need to continue otherwise
+                    if (vertexOneClickConsumer == null && edgeOneClickConsumer == null) {
+                        return;
+                    }
+
+                    Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
+                    if (node == null) {
+                        return;
+                    }
+
+                    if (node instanceof SmartGraphVertex) {
+                        SmartGraphVertex v = (SmartGraphVertex) node;
+                        vertexOneClickConsumer.accept(v);
+                    } else if (node instanceof SmartGraphEdge) {
+                        SmartGraphEdge e = (SmartGraphEdge) node;
+                        edgeOneClickConsumer.accept(e);
                     }
 
                 }

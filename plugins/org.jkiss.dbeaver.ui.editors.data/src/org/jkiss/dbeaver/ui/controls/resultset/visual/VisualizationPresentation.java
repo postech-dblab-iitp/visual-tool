@@ -85,14 +85,6 @@ import java.util.Map;
 
 public class VisualizationPresentation extends AbstractPresentation implements IAdaptable, Refreshable {
 
-	public static final int MOUSE_WHELL_UP = 5;
-	public static final int MOUSE_WHELL_DOWN = -5;
-	
-	public static final int ZOOM_MIN = 50;
-	public static final int ZOOM_MAX = 500;
-	
-	public static final int CTRL_KEYCODE = 0x40000;
-	
 	// for Other ImageButton
 	private enum ImageButton {
 		SHORTEST, CAPTURE, TO_CSV
@@ -141,9 +133,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	private Object seletedItem = null;
 
-	private int zoomCount = 100;
-	private boolean zoomMode = false;
-	
 	private boolean init = false;
 	
 	private RefreshThread miniMapThread = null;
@@ -181,7 +170,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		nodePropertyListCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 				if (gephiModel != null) {
 					String temp = nodePropertyListCombo.getText();
 					gephiModel.updateGraphNode(visualGraph, temp);
@@ -190,8 +178,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 		});
 
@@ -204,15 +190,13 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		visualGraph.setFont(UIUtils.getMonospaceFont());
 		visualGraph.setLayout(new FillLayout(SWT.FILL));
 		visualGraph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		createGraphListner();
 		
 	    createMiniMap();
-		
+	    
 		createHorizontalLine(parent, 1, 0); 
 
-		createZestListner();
-
 		TextEditorUtils.enableHostEditorKeyBindingsSupport(controller.getSite(), visualGraph.getControl());
-
 		applyCurrentThemeSettings();
 
 		if (visualGraph != null) {
@@ -221,39 +205,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		trackPresentationControl();
 		registerContextMenu();
 		
-		visualGraph.addKeyListener(new KeyListener() {
-			
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == CTRL_KEYCODE) {
-					zoomMode = false;
-				}
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == CTRL_KEYCODE) {
-					zoomMode = true;
-				}
-			}
-		});
-		
-		visualGraph.addMouseWheelListener(new MouseWheelListener() {
-			
-			@Override
-			public void mouseScrolled(MouseEvent e) {
-				if (zoomMode) {
-					if (e != null) {
-						if (e.count == MOUSE_WHELL_UP) {
-							zoomOut();
-						} else if (e.count == MOUSE_WHELL_DOWN){
-							zoomIn();
-						}
-						
-					} 
-				}
-			}
-		});
 	}
 
 	@Override
@@ -322,6 +273,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 				nodePropertyListCombo.add("label");
 				nodePropertyListCombo.select(0);
 			}
+			
 			ShowVisualizaion(append);
 		}
 	}
@@ -527,8 +479,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 		int compositeSizeX = composite.getSize().x;
         int compositeSizeY = composite.getSize().y;
-		int drawSizeX = visualGraph.getNodes() * 50;
-		int drawSizeY =  visualGraph.getNodes() * 40;
+		int drawSizeX = visualGraph.getNodes() * 25;
+		int drawSizeY =  visualGraph.getNodes() * 20;
         
 		if (visualGraph != null) {
 			resultLabel.setText("Node : " + visualGraph.getNodes() + " Edge : " + visualGraph.getEdges());
@@ -541,16 +493,15 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			    drawSizeY = compositeSizeY;
             }
 			
-			//Set zoom default value
-			visualGraph.setDefaultZoom();
-			
 			if (!init) {
-			    visualGraph.resize(drawSizeX, drawSizeY);
+			    visualGraph.drawGraph(drawSizeX, drawSizeY);
 			    init = true;
 			} else {
-			    visualGraph.resize(drawSizeX, drawSizeY);
+			    visualGraph.drawGraph(drawSizeX, drawSizeY);
 			    //visualGraph.redraw();
 			}
+			
+			miniMap.show();
 		}
 		
 		if (miniMapThread == null) {
@@ -803,7 +754,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	private void setLayoutManager(LayoutStyle layoutStyle) {
 		defaultLayoutAlgorithm = layoutStyle;
-		visualGraph.setLayoutAlgorithm(layoutStyle);
+		//visualGraph.setLayoutAlgorithm(layoutStyle);
 	}
 
 	protected void createContextMenuAction() {
@@ -875,63 +826,22 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		manager.add(shortestPathAction);
 	}
 
-	private void createZestListner() {
-//		final ScrollBar verticalBar = visualGraph.getVerticalBar();
-//		verticalBar.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//			}
-//		});
-
-//		setLayoutManager(defaultLayoutAlgorithm);
-//
-//		visualGraph.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				Object temp = null;
-//				gephiModel.unHighlight();
-//
-//				if (visualGraph.getSelection() != null && visualGraph.getSelection().size() != 0) {
-//					temp = visualGraph.getSelection().get(0);
-//				}
-//
-//				if (temp != null) {
-//					Object id = null;
-//					seletedItem = temp;
-//					if (temp.getClass() == GraphNode.class) {
-//						GraphNode tNode = (GraphNode) temp;
-//						id = tNode.getData();
-//						curSelection = displayStringNodeList.get(id);
-//						controller.setCurrentRow(resultSetRowNodeList.get(id));
-//						curAttribute = DBDAttributeNodeList.get(id);
-//					} else if (temp.getClass() == GraphConnection.class) {
-//						GraphConnection tConnection = (GraphConnection) temp;
-//						id = tConnection.getData();
-//						curSelection = displayStringEdgeList.get(id);
-//						controller.setCurrentRow(resultSetRowEdgeList.get(id));
-//						curAttribute = DBDAttributeEdgeList.get(id);
-//					}
-//					fireSelectionChanged(new VisualizationSelectionImpl());
-//
-//				}
-//			}
-//		});
-	}
-	
-	private void zoomIn() {
-		if (zoomCount > 50) {
-			zoomCount = zoomCount - 10;
-			String zoomPercent = String.valueOf(zoomCount) + "%";
-			visualGraph.setZoomLevel(zoomCount);
-		} 
-	}
-	
-	private void zoomOut() {
-		if (zoomCount < 500) {
-			zoomCount = zoomCount + 10;
-			String zoomPercent = String.valueOf(zoomCount) + "%";
-			visualGraph.setZoomLevel(zoomCount);
-		}	
+	private void createGraphListner() {
+//		gephiModel.unHighlight();
+		
+		visualGraph.setVertexSelectAction((String id) -> {
+			curSelection = displayStringNodeList.get(id);
+			controller.setCurrentRow(resultSetRowNodeList.get(id));
+			curAttribute = DBDAttributeNodeList.get(id);
+			fireSelectionChanged(new VisualizationSelectionImpl());
+        });
+		
+		visualGraph.setEdgeSelectAction((String id) -> {
+            curSelection = displayStringEdgeList.get(id);
+			controller.setCurrentRow(resultSetRowEdgeList.get(id));
+			curAttribute = DBDAttributeEdgeList.get(id);
+			fireSelectionChanged(new VisualizationSelectionImpl());
+        });
 	}
 	
 	private Image graphImageCapture() {
@@ -974,7 +884,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         Display.getDefault().asyncExec(new Runnable() {
             @Override
             public void run() {
-                if (miniMap != null) {
+                if (miniMap != null && miniMap.isShowing()) {
                     miniMap.setImage(graphImageCapture());
                     miniMap.reDraw();
                 }
@@ -984,32 +894,33 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     
     private void createMiniMap() {
         miniMap = new MiniMap(graphTopComposite);
-        miniMap.show();
         miniMap.addZoominListner(new SelectionListener() {
             
             @Override
             public void widgetSelected(SelectionEvent e) {
-                zoomIn();
+            	if (visualGraph != null) {
+        			visualGraph.zoomIn();
+        		}
                 
             }
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
             
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                
-            }
         });
         
         miniMap.addZoomOutListner(new SelectionListener() {
             
             @Override
             public void widgetSelected(SelectionEvent e) {
-                zoomOut();
-                
+            	if (visualGraph != null) {
+        			visualGraph.zoomOut();
+        		}
             }
             
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
-                
             }
         });
     }
@@ -1024,5 +935,22 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         }
     }
     
-
+//    private final SelectionListener imageButtonListener = new SelectionAdapter() {
+//		@Override
+//		public void widgetSelected(SelectionEvent e) {
+//			if (e.widget != null && e.widget.getData() != null) {
+//				switch((ImageButton) e.widget.getData()) {
+//					case CAPTURE :
+//					    saveImage();
+//						break;
+//					case SHORTEST :
+//					    break;
+//					case TO_CSV :
+//					    break;
+//					default :
+//						break;
+//				}
+//			}
+//		}
+//	};
 }

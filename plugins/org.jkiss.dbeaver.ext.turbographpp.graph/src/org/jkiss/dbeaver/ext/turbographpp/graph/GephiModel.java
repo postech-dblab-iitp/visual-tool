@@ -68,7 +68,7 @@ public class GephiModel {
                 }
                 DirectedGraph directedGraph = graphModel.getDirectedGraph();
                 directedGraph.addNode(n);
-                addGraphNode(graph, id, label, color);
+                addGraphNode(graph, id, label, attr, color);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,9 +78,9 @@ public class GephiModel {
         return true;
     }
     
-    private boolean addGraphNode(FXGraph graph, String id, String label, Color color) {
+    private boolean addGraphNode(FXGraph graph, String id, String label, HashMap<String, Object> attr, Color color) {
         try {
-            Object node = graph.addNode(id, label, null, color);
+            Object node = graph.addNode(id, label, attr, color);
             graphNodesMap.put(id, node);
         } catch (Exception e) {
             e.printStackTrace();

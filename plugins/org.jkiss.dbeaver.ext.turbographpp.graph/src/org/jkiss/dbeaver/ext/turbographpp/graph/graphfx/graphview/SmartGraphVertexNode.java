@@ -323,8 +323,8 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        label.xProperty().bind(centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2.0));
-        label.yProperty().bind(centerYProperty().add(getRadius() + label.getLayoutBounds().getHeight()));
+        label.xProperty().bind(centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2.0 ));
+        label.yProperty().bind(centerYProperty().add(label.getLayoutBounds().getHeight() / 2.0));
     }
 
     @Override

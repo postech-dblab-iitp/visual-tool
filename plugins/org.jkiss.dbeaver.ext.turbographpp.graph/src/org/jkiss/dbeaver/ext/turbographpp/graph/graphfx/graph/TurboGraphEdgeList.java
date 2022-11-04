@@ -40,12 +40,12 @@ import java.util.Map;
  * 
  * @author brunomnsilva
  */
-public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
+public class TurboGraphEdgeList<V, E> implements Digraph<V, E> {
 
-    /* inner classes are defined at the end of the class, so are the auxiliary methods 
+     /* inner classes are defined at the end of the class, so are the auxiliary methods 
      */
-    private Map<V, Vertex<V>> vertices;
-    private Map<E, FxEdge<E, V>> edges;
+    private final Map<V, Vertex<V>> vertices;
+    private final Map<E, FxEdge<E, V>> edges;
 
     /**
      * Creates a empty graph.
@@ -53,6 +53,93 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
     public TurboGraphEdgeList() {
         this.vertices = new HashMap<>();
         this.edges = new HashMap<>();
+    }
+    
+    public Map<V, Vertex<V>> getVertices() {
+    	return vertices;
+    }
+    
+    
+    @Override
+    public synchronized Collection<FxEdge<E, V>> incidentEdges(Vertex<V> inbound) throws InvalidVertexException {
+        checkVertex(inbound);
+
+        List<FxEdge<E, V>> incidentEdges = new ArrayList<>();
+        for (FxEdge<E, V> edge : edges.values()) {
+
+            if (((MyEdge) edge).getInbound() == inbound) {
+                incidentEdges.add(edge);
+            }
+        }
+        return incidentEdges;
+    }
+    
+    @Override
+    public synchronized Collection<FxEdge<E, V>> outboundEdges(Vertex<V> outbound) throws InvalidVertexException {
+        checkVertex(outbound);
+
+        List<FxEdge<E, V>> outboundEdges = new ArrayList<>();
+        for (FxEdge<E, V> edge : edges.values()) {
+
+            if (((MyEdge) edge).getOutbound() == outbound) {
+                outboundEdges.add(edge);
+            }
+        }
+        return outboundEdges;
+    }
+
+    @Override
+    public boolean areAdjacent(Vertex<V> outbound, Vertex<V> inbound) throws InvalidVertexException {
+        //we allow loops, so we do not check if outbound == inbound
+        checkVertex(outbound);
+        checkVertex(inbound);
+
+        /* find and edge that goes outbound ---> inbound */
+        for (FxEdge<E, V> edge : edges.values()) {
+            if (((MyEdge) edge).getOutbound() == outbound && ((MyEdge) edge).getInbound() == inbound) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public synchronized FxEdge<E, V> insertEdge(Vertex<V> outbound, Vertex<V> inbound, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
+        if (existsEdgeWith(edgeElement)) {
+            throw new InvalidEdgeException("There's already an edge with this element.");
+        }
+
+        MyVertex outVertex = checkVertex(outbound);
+        MyVertex inVertex = checkVertex(inbound);
+
+        MyEdge newEdge = new MyEdge(edgeElement, outVertex, inVertex);
+
+        edges.put(edgeElement, newEdge);
+
+        return newEdge;
+    }
+
+    @Override
+    public synchronized FxEdge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
+        if (existsEdgeWith(edgeElement)) {
+            throw new InvalidEdgeException("There's already an edge with this element.");
+        }
+
+        if (!existsVertexWith(outboundElement)) {
+            throw new InvalidVertexException("No vertex contains " + outboundElement);
+        }
+        if (!existsVertexWith(inboundElement)) {
+            throw new InvalidVertexException("No vertex contains " + inboundElement);
+        }
+
+        MyVertex outVertex = vertexOf(outboundElement);
+        MyVertex inVertex = vertexOf(inboundElement);
+
+        MyEdge newEdge = new MyEdge(edgeElement, outVertex, inVertex);
+
+        edges.put(edgeElement, newEdge);
+
+        return newEdge;
     }
 
     @Override
@@ -66,43 +153,25 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public Collection<Vertex<V>> vertices() {
+    public synchronized Collection<Vertex<V>> vertices() {
         List<Vertex<V>> list = new ArrayList<>();
-        for (Vertex<V> v : vertices.values()) {
+        vertices.values().forEach((v) -> {
             list.add(v);
-        }
+        });
         return list;
     }
 
     @Override
-    public Collection<FxEdge<E, V>> edges() {
+    public synchronized Collection<FxEdge<E, V>> edges() {
         List<FxEdge<E, V>> list = new ArrayList<>();
-        for (FxEdge<E, V> e : edges.values()) {
+        edges.values().forEach((e) -> {
             list.add(e);
-        }
+        });
         return list;
     }
 
     @Override
-    public Collection<FxEdge<E, V>> incidentEdges(Vertex<V> v) throws InvalidVertexException {
-
-        checkVertex(v);
-
-        List<FxEdge<E, V>> incidentEdges = new ArrayList<>();
-        for (FxEdge<E, V> edge : edges.values()) {
-
-            if (((MyEdge) edge).contains(v)) {
-                /* edge.vertices()[0] == v || edge.vertices()[1] == v */
-                incidentEdges.add(edge);
-            }
-
-        }
-
-        return incidentEdges;
-    }
-
-    @Override
-    public Vertex<V> opposite(Vertex<V> v, FxEdge<E, V> e) throws InvalidVertexException, InvalidEdgeException {
+    public synchronized Vertex<V> opposite(Vertex<V> v, FxEdge<E, V> e) throws InvalidVertexException, InvalidEdgeException {
         checkVertex(v);
         MyEdge edge = checkEdge(e);
 
@@ -119,21 +188,6 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public synchronized boolean areAdjacent(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
-        //we allow loops, so we do not check if u == v
-        checkVertex(v);
-        checkVertex(u);
-
-        /* find and edge that contains both u and v */
-        for (FxEdge<E, V> edge : edges.values()) {
-            if (((MyEdge) edge).contains(u) && ((MyEdge) edge).contains(v)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public synchronized Vertex<V> insertVertex(V vElement) throws InvalidVertexException {
         if (existsVertexWith(vElement)) {
             throw new InvalidVertexException("There's already a vertex with this element.");
@@ -147,59 +201,16 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public synchronized FxEdge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E edgeElement) 
-            throws InvalidVertexException, InvalidEdgeException {
-
-        if (existsEdgeWith(edgeElement)) {
-            throw new InvalidEdgeException("There's already an edge with this element.");
-        }
-
-        MyVertex outVertex = checkVertex(u);
-        MyVertex inVertex = checkVertex(v);
-
-        MyEdge newEdge = new MyEdge(edgeElement, outVertex, inVertex);
-
-        edges.put(edgeElement, newEdge);
-
-        return newEdge;
-
-    }
-
-    @Override
-    public synchronized FxEdge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement) 
-            throws InvalidVertexException, InvalidEdgeException {
-        
-        if (existsEdgeWith(edgeElement)) {
-            throw new InvalidEdgeException("There's already an edge with this element.");
-        }
-
-        if (!existsVertexWith(vElement1)) {
-            throw new InvalidVertexException("No vertex contains " + vElement1);
-        }
-        if (!existsVertexWith(vElement2)) {
-            throw new InvalidVertexException("No vertex contains " + vElement2);
-        }
-
-        MyVertex outVertex = vertexOf(vElement1);
-        MyVertex inVertex = vertexOf(vElement2);
-
-        MyEdge newEdge = new MyEdge(edgeElement, outVertex, inVertex);
-
-        edges.put(edgeElement, newEdge);
-
-        return newEdge;
-
-    }
-
-    @Override
     public synchronized V removeVertex(Vertex<V> v) throws InvalidVertexException {
         checkVertex(v);
 
         V element = v.element();
 
         //remove incident edges
-        Iterable<FxEdge<E, V>> incidentEdges = incidentEdges(v);
-        for (FxEdge<E, V> edge : incidentEdges) {
+        Collection<FxEdge<E, V>> inOutEdges = incidentEdges(v);
+        inOutEdges.addAll(outboundEdges(v));
+        
+        for (FxEdge<E, V> edge : inOutEdges) {
             edges.remove(edge.element());
         }
 
@@ -246,6 +257,12 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
         return oldElement;
     }
 
+    @Override
+    public void clearElement() {
+        this.vertices.clear();
+        this.edges.clear();
+    }
+    
     private MyVertex vertexOf(V vElement) {
         for (Vertex<V> v : vertices.values()) {
             if (v.element().equals(vElement)) {
@@ -262,7 +279,7 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
     private boolean existsEdgeWith(E edgeElement) {
         return edges.containsKey(edgeElement);
     }
-
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(
@@ -279,8 +296,8 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
         }
         return sb.toString();
     }
-
-    class MyVertex implements Vertex<V> {
+    
+    private class MyVertex implements Vertex<V> {
 
         V element;
 
@@ -297,9 +314,10 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
         public String toString() {
             return "Vertex{" + element + '}';
         }
+
     }
 
-    class MyEdge implements FxEdge<E, V> {
+    private class MyEdge implements FxEdge<E, V> {
 
         E element;
         Vertex<V> vertexOutbound;
@@ -333,6 +351,14 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
         public String toString() {
             return "Edge{{" + element + "}, vertexOutbound=" + vertexOutbound.toString()
                     + ", vertexInbound=" + vertexInbound.toString() + '}';
+        }
+        
+        public Vertex<V> getOutbound() {
+            return vertexOutbound;
+        }
+        
+        public Vertex<V> getInbound() {
+            return vertexInbound;
         }
     }
 
@@ -376,10 +402,5 @@ public class TurboGraphEdgeList<V, E> implements Graph<V, E> {
 
         return edge;
     }
-
-	@Override
-	public void clearElement() {
-		// TODO Auto-generated method stub
-		
-	}
+    
 }

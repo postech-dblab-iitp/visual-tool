@@ -1578,7 +1578,7 @@ public class ResultSetViewer extends Viewer
      */
     private void updateToolbar()
     {
-        if (statusBar != null) statusBar.setRedraw(false);
+        if (statusBar != null && !statusBar.isDisposed()) statusBar.setRedraw(false);
         try {
             for (ToolBarManager tb : toolbarList) {
                 UIUtils.updateContributionItems(tb);
@@ -1586,9 +1586,9 @@ public class ResultSetViewer extends Viewer
             if (panelToolBar != null) {
                 UIUtils.updateContributionItems(panelToolBar);
             }
-            if (statusBar != null) statusBar.layout(true, true);
+            if (statusBar != null && !statusBar.isDisposed()) statusBar.layout(true, true);
         } finally {
-            if (statusBar != null) statusBar.setRedraw(true);
+            if (statusBar != null && !statusBar.isDisposed()) statusBar.setRedraw(true);
         }
     }
 

@@ -1,42 +1,36 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartLabelSource;
 
 public class CyperEdge {
 	private String id;
-	private String label;
+	private String type;
     private HashMap<String, String> property;
     private String startNodeID;
     private String endNodeID;
 
-    private String display;
-    
-    public CyperEdge(String id, String label, HashMap<String, String> property, String startNodeID, String endNodeID) {
+    public CyperEdge(String id, String type, HashMap<String, String> property, String startNodeID, String endNodeID) {
     	this.id = id;
-        this.label = label;
+        this.type = type;
         this.property = new HashMap<>();
         if (property != null) {
         	this.property.putAll(property);
         } 
         this.startNodeID = startNodeID;
         this.endNodeID = endNodeID;
-        this.display = label;
     }
 
     public String getID() {
         return this.id;
     }
     
-    public String label() {
-    	return this.label;
+    public String getType() {
+    	return this.type;
     }
     
-    public void setDisplay(String display) {
-        this.display = display;
-    }
-
     public HashMap<String, String> getProperties() {
         return this.property;
     }
@@ -54,6 +48,6 @@ public class CyperEdge {
     }
     
     public String toString() {
-    	return this.display;
+    	return type;
     }
 }

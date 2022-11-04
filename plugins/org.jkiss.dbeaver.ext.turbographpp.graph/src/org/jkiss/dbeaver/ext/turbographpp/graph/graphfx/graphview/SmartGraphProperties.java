@@ -46,7 +46,7 @@ public class SmartGraphProperties {
     private static final boolean DEFAULT_VERTEX_ALLOW_USER_MOVE = true;
     private static final String PROPERTY_VERTEX_ALLOW_USER_MOVE = "vertex.allow-user-move";
     
-    private static final double DEFAULT_VERTEX_RADIUS = 20;
+    private static final double DEFAULT_VERTEX_RADIUS = 30;
     private static final String PROPERTY_VERTEX_RADIUS = "vertex.radius";
 
     private static final boolean DEFAULT_VERTEX_USE_TOOLTIP = true;
@@ -73,7 +73,7 @@ public class SmartGraphProperties {
     private static final double DEFAULT_ATTRACTION_FORCE = 10;
     private static final String PROPERTY_ATTRACTION_FORCE = "layout.attraction-force";
 
-    private static final double DEFAULT_ATTRACTION_SCALE = 10;
+    private static final double DEFAULT_ATTRACTION_SCALE = 100;
     private static final String PROPERTY_ATTRACTION_SCALE = "layout.attraction-scale";
 
     private static final String DEFAULT_FILE = "smartgraph.properties";
@@ -250,7 +250,5 @@ public class SmartGraphProperties {
     
     public static void main(String[] args) {
         SmartGraphProperties props = new SmartGraphProperties();
-        System.out.println("Prop vertex radius: " + props.getVertexRadius());
-        System.out.println("Prop vertex use label: " + props.getUseVertexLabel());
     }
 }

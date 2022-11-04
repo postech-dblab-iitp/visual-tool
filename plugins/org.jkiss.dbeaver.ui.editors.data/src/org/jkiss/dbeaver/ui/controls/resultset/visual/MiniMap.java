@@ -110,6 +110,7 @@ public class MiniMap {
                     e.gc.drawImage(captureImage, 0, 0,
                             captureImage.getBounds().width, captureImage.getBounds().height,
                             0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+                    captureImage.dispose();
                 }
             }
         };
