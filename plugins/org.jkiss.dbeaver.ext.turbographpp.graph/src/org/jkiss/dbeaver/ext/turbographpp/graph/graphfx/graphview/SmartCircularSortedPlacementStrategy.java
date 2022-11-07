@@ -43,13 +43,14 @@ public class SmartCircularSortedPlacementStrategy implements SmartPlacementStrat
 
     @Override
     public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
-        Point2D center = new Point2D(width / 2, height / 2);
+        Point2D center = new Point2D(width / 2, height / 2.5);
         int N = vertices.size();
         double angleIncrement = -360f / N;
         
         //place first vertice north position, others in clockwise manner
         boolean first = true;
         Point2D p = null;
+    	
         for (SmartGraphVertex<V> vertex : sort(vertices)) {
             
             if (first) {

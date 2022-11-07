@@ -1,25 +1,62 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartLabelSource;
+import java.util.List;
 
 public class CyperNode {
+	
+	public static final int DEFAULT_DISPLAY_TYPE_ID = 0;
+	public static final int DEFAULT_DISPLAY_TYPE_LABLE = 1;
+	public static final int DEFAULT_DISPLAY_TYPE_PROPERTY = 2;
+	
 	private String display;
 	private String id;
 	private String label;
+	private String fillColor;
     private HashMap<String, Object> property;
+    
+    private int defaultDisplayType = DEFAULT_DISPLAY_TYPE_LABLE;
+    private String diplayPropertyName = null;
 
-    public CyperNode(String id, String label, HashMap<String, Object> property) {
+    public CyperNode(String id, String label, HashMap<String, Object> property, String fillColor) {
     	this.id = id;
         this.label = label;
         this.display = label;
+        this.fillColor = fillColor;
         this.property = new HashMap<>();
         if (property != null) {
         	this.property.putAll(property);
-        } 
+        }
+        List<String> keyList = new ArrayList<>(property.keySet());
+        Collections.sort(keyList);
+        String[] typeList = {null,null,null};
+        
+    	for (String key :keyList) {
+    		String type = key.toUpperCase();
+   			if (type.contains("NAME")) {
+   				typeList[0] = key;
+   			}
+   			
+   			if (type.contains("TITLE")) {
+   				typeList[1] = key;
+   			}
+   			
+   			if (type.contains("ID")) {
+   				typeList[2] = key;
+   			}
+        }
+    	
+    	for (int i= 0; i < typeList.length; i++) {
+    		if (typeList[i] != null) {
+    			diplayPropertyName = typeList[i];
+    			break;
+    		}
+    	}
+    	
     }
-
+    
     public String getID() {
         return this.id;
     }
@@ -27,9 +64,21 @@ public class CyperNode {
     public String getLabel() {
         return this.label;
     }
+    
+    public String getFillColor() {
+        return this.fillColor;
+    }
 
-    public void setDisplay(String display) {
-        this.display = display;
+    public String getDisplay() {
+   		display = String.valueOf(this.property.get(diplayPropertyName));
+   		if (display == null || display.isEmpty() || display.contains("null")) {
+   			if (defaultDisplayType == DEFAULT_DISPLAY_TYPE_ID) {
+   				display = id;
+   			} else {
+   				display = label;
+   			}
+   		}
+   		return display;
     }
 
     public HashMap<String, Object> getProperties() {
@@ -41,6 +90,14 @@ public class CyperNode {
     }
 
     public String toString() {
-        return display;
+    	return getDisplay();
+    }
+    
+    public void setDisplayName(String propertyName) {
+    	this.diplayPropertyName = propertyName;
+    }
+    
+    public void setDisplayType(int defaultType) {
+    	this.defaultDisplayType = defaultType;
     }
 }
