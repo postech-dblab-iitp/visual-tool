@@ -49,12 +49,14 @@
                     categories="vit_graph"
                     class="org.neo4j.jdbc.Driver"
                     defaultPort="7687"
+                    defaultDatabase="neo4j"
+                    defaultUser="neo4j"
                     description="TurboGraph++ JDBC driver"
                     icon="icons/turbo_plus_plus_icon_16.png"
                     iconBig="icons/turbo_plus_plus_icon_64.png"
                     id="turbograph_jdbc"
                     label="TurboGraph++"
-                    sampleURL="jdbc:neo4j:bolt://{host}[:{port}]/"
+                    sampleURL="jdbc:neo4j:bolt://{host}[:{port}]/?database={database}"
                     webURL="https://github.com/neo4j-contrib/neo4j-jdbc">
                     <file
                         path="maven:/org.neo4j:neo4j-jdbc-driver:RELEASE"
