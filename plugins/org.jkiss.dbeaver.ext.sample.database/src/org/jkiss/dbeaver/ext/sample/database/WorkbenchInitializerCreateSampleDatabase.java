@@ -63,16 +63,16 @@ public class WorkbenchInitializerCreateSampleDatabase implements IWorkbenchWindo
             // No active project
             return;
         }
-        DBPDataSourceRegistry registry = activeProject.getDataSourceRegistry();
-        if (isSampleDatabaseExists(registry)) {
-            // Already exist
-            return;
-        }
-        if (!showCreateSampleDatabasePrompt(window.getShell())) {
-            DBWorkbench.getPlatform().getPreferenceStore().setValue(PROP_SAMPLE_DB_CANCELED, true);
-            return;
-        }
-        createSampleDatabase(registry);
+//        DBPDataSourceRegistry registry = activeProject.getDataSourceRegistry();
+//        if (isSampleDatabaseExists(registry)) {
+//            // Already exist
+//            return;
+//        }
+//        if (!showCreateSampleDatabasePrompt(window.getShell())) {
+//            DBWorkbench.getPlatform().getPreferenceStore().setValue(PROP_SAMPLE_DB_CANCELED, true);
+//            return;
+//        }
+//        createSampleDatabase(registry);
     }
 
     static boolean isSampleDatabaseExists(DBPDataSourceRegistry registry) {

@@ -740,7 +740,8 @@ public class DBeaverApplication extends BaseApplicationImpl implements DBPApplic
             UIUtils.getActiveWorkbenchShell(),
             currentVersion,
             newVersion,
-            showSkip);
+            //showSkip);
+            false);
         dialog.open();
     }
 
