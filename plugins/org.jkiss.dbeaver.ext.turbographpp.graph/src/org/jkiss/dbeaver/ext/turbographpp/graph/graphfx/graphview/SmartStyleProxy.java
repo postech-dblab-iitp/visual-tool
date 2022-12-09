@@ -18,8 +18,31 @@ import javafx.scene.shape.Shape;
  * @author brunomnsilva
  */
 public class SmartStyleProxy implements SmartStylableNode {
+	
+	public static final String DEFAULT_VERTEX = "-fx-stroke-type: inside;";
+    
+	public static final String HIGHLIGHT_VERTEX = "-fx-stroke-width: 9;"
+    		+ "    -fx-stroke: #FF0000;"
+    		+ "    -fx-stroke-type: inside;";
 
+    public static final String DEFAULT_EDGE = "-fx-stroke-width: 2;"
+    		+ " -fx-stroke: #000000;"
+    		+ " -fx-stroke-dash-array: 2 5 2 5;"
+    		+ " -fx-fill: transparent;"
+    		+ " -fx-stroke-line-cap: round;"
+    		+ " -fx-opacity: 0.8;";
+	
+    public static final String HIGHLIGHT_EDGE = "-fx-stroke-width: 4;"
+    		+ " -fx-stroke: #FF6D66;"
+    		+ " -fx-stroke-dash-array: 2 5 2 5;"
+    		+ " -fx-fill: transparent;"
+    		+ " -fx-stroke-line-cap: round;"
+    		+ " -fx-opacity: 0.8;";
+    
     private final Shape client;
+    
+    
+    
     
     public SmartStyleProxy(Shape client) {
         this.client = client;

@@ -62,12 +62,7 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         
         styleProxy = new SmartStyleProxy(this);
         //styleProxy.addStyleClass("edge");
-        styleProxy.setStyle("-fx-stroke-width: 2;"
-        		+ " -fx-stroke: #FF6D66;"
-        		+ " -fx-stroke-dash-array: 2 5 2 5;"
-        		+ " -fx-fill: transparent;"
-        		+ " -fx-stroke-line-cap: round;"
-        		+ " -fx-opacity: 0.8;");
+        styleProxy.setStyle(SmartStyleProxy.DEFAULT_EDGE);
         
         //bind start and end positions to vertices centers through properties
         this.startXProperty().bind(outbound.centerXProperty());

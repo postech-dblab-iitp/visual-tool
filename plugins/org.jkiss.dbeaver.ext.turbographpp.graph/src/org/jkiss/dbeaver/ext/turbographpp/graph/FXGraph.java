@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.function.Consumer;
 
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -23,10 +24,15 @@ import org.eclipse.swt.widgets.Layout;
 
 import javafx.embed.swt.FXCanvas;
 import javafx.embed.swt.SWTFXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.ContextMenuEvent;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
@@ -39,6 +45,8 @@ public class FXGraph implements GraphBase {
     
 	public static final int MOUSE_WHELL_UP = 5;
 	public static final int MOUSE_WHELL_DOWN = -5;
+	
+	public static final int MOUSE_SECONDARY_BUTTON = 3;
 	
 	public static final int ZOOM_MIN = 50;
 	public static final int ZOOM_MAX = 500;
@@ -63,17 +71,24 @@ public class FXGraph implements GraphBase {
     private Consumer<String> nodeIDConsumer = null;
     private Consumer<String> edgeIDConsumer = null;
     
-    private boolean autoLayout = true;
-    
     private LayoutUpdateThread layoutUpdatethread;
     
-    private static javafx.scene.paint.Color backgroundColor = javafx.scene.paint.Color.WHITE;
+    private ContextMenu contextMenu;
+    private MenuItem redoMenu;
+    private MenuItem undoMenu;
+    private MenuItem highlightMenu;
+    private MenuItem unHighlightMenu;
+    private MenuItem deteleMenu;
+    private MenuItem shortestPathAction;
+    
+    private SmartGraphVertex<CyperNode> selectNode = null;
+    
+    private boolean statusCanvasFocus = false;
     
     public FXGraph(Composite parent, int style, int width, int height) {
         
     	control = parent;
         canvas = new FXCanvas(parent, SWT.NONE);
-        GridDataFactory.fillDefaults().grab(true, true).span(3, 1).applyTo(canvas);
         graph = new TurboGraphEdgeList<>();
         
         SmartPlacementStrategy strategy = new SmartRandomPlacementStrategy();
@@ -90,18 +105,34 @@ public class FXGraph implements GraphBase {
         
         scene = new Scene(scrollPane, 1024, 768);
 
+        zoomManager = new ZoomManager(graphView, scrollPane);
+        
+        registerContextMenu();
+        
         setCanvasListener();
         setGraphViewListener();
         setBaseListener();
         
         canvas.computeSize(1024, 768);
         canvas.setScene(scene);
-        
-        zoomManager = new ZoomManager(graphView, scrollPane);
-        
     }
 
     private void setCanvasListener() {
+    	
+    	canvas.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				statusCanvasFocus = false;
+				hideContextMenu();
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				statusCanvasFocus = true;
+			}
+		});
+    	
     	canvas.addMouseListener(new MouseListener() {
 			
 			@Override
@@ -114,6 +145,11 @@ public class FXGraph implements GraphBase {
 					graphView.setAutomaticLayout(false);
 				}
 				
+				hideContextMenu();
+				
+		        if (e.button != MOUSE_SECONDARY_BUTTON) {
+		        	clearSelectNode();
+		        }
 			}
 			
 			@Override
@@ -134,15 +170,17 @@ public class FXGraph implements GraphBase {
     
     private void setGraphViewListener() {
     	graphView.setVertexDoubleClickAction((SmartGraphVertex<CyperNode> graphVertex) -> {
-            System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
-            graphVertex.setStyle("-fx-fill: yellow;");
+    		if (selectNode != null) {
+        		graphView.doDefaultVertexStyle(selectNode);
+        	} else {
+        		setUnhighlight();
+        	}
+    		
+    		selectNode = graphVertex; 
+    		graphView.doHighlightVertexStyle(graphVertex);
         });
 
         graphView.setEdgeDoubleClickAction(graphEdge -> {
-            System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
-            graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
-            
-            graphEdge.getStylableArrow().setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
             
         });
         
@@ -167,6 +205,7 @@ public class FXGraph implements GraphBase {
             	edgeIDConsumer.accept(ID);
             }
         });
+        
     }
     
     private void setBaseListener() {
@@ -203,6 +242,8 @@ public class FXGraph implements GraphBase {
 				}
 			}
 		});
+		
+
     }
     
     public void finalize() {
@@ -273,6 +314,8 @@ public class FXGraph implements GraphBase {
     @Override
     public void clearGraph() {
         graph.clearElement();
+        graphView.clear();
+        
     }
 
     @Override
@@ -376,7 +419,7 @@ public class FXGraph implements GraphBase {
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(200);
+				Thread.sleep(300);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -388,9 +431,9 @@ public class FXGraph implements GraphBase {
 	private String ramdomColor() {
 		int r, g, b;
 		Random random = new Random();
-		r = random.nextInt(216) + 40;
-		g = random.nextInt(216) + 40;
-		b = random.nextInt(216) + 40;
+		r = random.nextInt(170) + 40;
+		g = random.nextInt(170) + 40;
+		b = random.nextInt(170) + 40;
 
 		return "-fx-fill: #" + Integer.toHexString(r) + Integer.toHexString(g) +  Integer.toHexString(b);
 	}
@@ -402,5 +445,92 @@ public class FXGraph implements GraphBase {
 	public void setEdgeSelectAction(Consumer<String> action) {
         this.edgeIDConsumer = action;
     }
+	
+	protected void registerContextMenu() {
+		contextMenu = new ContextMenu();
+		redoMenu = new MenuItem("Redo");
+		undoMenu = new MenuItem("Undo");
+		highlightMenu = new MenuItem("Highlight");
+		unHighlightMenu = new MenuItem("unHighlight");
+		deteleMenu = new MenuItem("Delete");
+		shortestPathAction = new MenuItem("Shortest Path");
+		
+		redoMenu.setDisable(true);
+		undoMenu.setDisable(true);
+		highlightMenu.setDisable(false);
+		deteleMenu.setDisable(true);
+		unHighlightMenu.setDisable(false);
+		shortestPathAction.setDisable(true);
+		
+		contextMenu.getItems().addAll(redoMenu, undoMenu, highlightMenu, unHighlightMenu, deteleMenu, shortestPathAction);
+		
+		contextMenuAction();
+		
+		graphView.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>()
+		{
+		  @Override
+		  public void handle(ContextMenuEvent event)
+		  {
+			if (selectNode != null && !graphView.isHighlighted()) {
+				highlightMenu.setVisible(true);
+			} else {
+				highlightMenu.setVisible(false);
+			}
+			
+			if (graphView.isHighlighted()) {
+				unHighlightMenu.setVisible(true);
+			} else {
+				unHighlightMenu.setVisible(false);
+			}
+			  
+			if (statusCanvasFocus) {
+				contextMenu.show(graphView, event.getScreenX(), event.getScreenY());
+			}
+		  }
+		});
+	}
+	
+	private void contextMenuAction() {
+		//ContextMenu
+		highlightMenu.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override
+		    public void handle(ActionEvent event) {
+		    	setHighlight();
+		    }
+		});
+		
+		unHighlightMenu.setOnAction(new EventHandler<ActionEvent>() {
+		    @Override
+		    public void handle(ActionEvent event) {
+		    	setUnhighlight();
+		    }
+		});
+	}
+	
+	private void hideContextMenu() {
+		if (contextMenu != null) {
+			contextMenu.hide();	
+		}
+		
+	}
+	
+	private void clearSelectNode() {
+		if (selectNode != null && !graphView.isHighlighted()) {
+        	graphView.doDefaultVertexStyle(selectNode);
+    	}
+		
+		selectNode = null;
+	}
+	
+	private void setHighlight() {
+		if (selectNode != null) {
+        	graphView.setHighlight(selectNode.getUnderlyingVertex());
+        }
+	}
+	
+	private void setUnhighlight() {
+		graphView.setUnHighlight();
+   		selectNode = null;
+	}
 }
 

@@ -83,6 +83,10 @@ public interface Graph<V, E> {
     public Collection<FxEdge<E, V>> incidentEdges(Vertex<V> v)
             throws InvalidVertexException;
 
+    
+    public Collection<FxEdge<E, V>> outboundEdges(Vertex<V> v) 
+    		throws InvalidVertexException;
+    
     /**
      * Given vertex <code>v</code>, return the opposite vertex at the other end
      * of edge <code>e</code>.

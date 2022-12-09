@@ -232,7 +232,7 @@ public class ResultSetViewer extends Viewer
 
         this.site = site;
         this.recordMode = false;
-        this.showMiniMap = true;
+        this.showMiniMap = false;
         this.container = container;
         this.labelProviderDefault = new ResultSetLabelProviderDefault(this);
         this.decorator = container.createResultSetDecorator();
