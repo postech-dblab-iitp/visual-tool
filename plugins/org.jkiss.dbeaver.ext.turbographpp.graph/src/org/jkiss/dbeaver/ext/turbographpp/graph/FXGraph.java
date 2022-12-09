@@ -457,9 +457,9 @@ public class FXGraph implements GraphBase {
 		
 		redoMenu.setDisable(true);
 		undoMenu.setDisable(true);
-		highlightMenu.setDisable(false);
+		highlightMenu.setDisable(true);
 		deteleMenu.setDisable(true);
-		unHighlightMenu.setDisable(false);
+		unHighlightMenu.setDisable(true);
 		shortestPathAction.setDisable(true);
 		
 		contextMenu.getItems().addAll(redoMenu, undoMenu, highlightMenu, unHighlightMenu, deteleMenu, shortestPathAction);
@@ -472,15 +472,15 @@ public class FXGraph implements GraphBase {
 		  public void handle(ContextMenuEvent event)
 		  {
 			if (selectNode != null && !graphView.isHighlighted()) {
-				highlightMenu.setVisible(true);
+				highlightMenu.setDisable(false);
 			} else {
-				highlightMenu.setVisible(false);
+				highlightMenu.setDisable(true);
 			}
 			
 			if (graphView.isHighlighted()) {
-				unHighlightMenu.setVisible(true);
+				unHighlightMenu.setDisable(false);
 			} else {
-				unHighlightMenu.setVisible(false);
+				unHighlightMenu.setDisable(true);
 			}
 			  
 			if (statusCanvasFocus) {

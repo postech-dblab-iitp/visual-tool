@@ -134,7 +134,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		mainComposite.setLayoutData(gd_MainComposite);
 		
 		menuBarComposite = new Composite(mainComposite, SWT.NONE);
-		menuBarComposite.setLayout(new GridLayout(7, false));
+		menuBarComposite.setLayout(new GridLayout(4, false));
 		menuBarComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         
 		graphTopComposite = new Composite(mainComposite, SWT.NONE);
@@ -358,6 +358,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 		Composite composite4 = new Composite(coolBar, SWT.NONE);
 		composite4.setLayout(new GridLayout(4, true));
+		composite4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
 		resultLabel = new Label(composite4, SWT.READ_ONLY | SWT.RIGHT);
 		resultLabel.setText("Node : " + 0 + " Edge : " + 0);

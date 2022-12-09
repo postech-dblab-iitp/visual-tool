@@ -132,9 +132,9 @@ public class DBeaverVersionChecker extends AbstractJob {
             return Status.CANCEL_STATUS;
         }
 
-        if (showAlways || (!isSuppressed(newVersion) && (SKIP_VERSION_CHECK || newVersion.getProgramVersion().compareTo(currentVersion) > 0))) {
-            showUpdaterDialog(currentVersion, newVersion);
-        }
+//        if (showAlways || (!isSuppressed(newVersion) && (SKIP_VERSION_CHECK || newVersion.getProgramVersion().compareTo(currentVersion) > 0))) {
+//            showUpdaterDialog(currentVersion, newVersion);
+//        }
 
         return Status.OK_STATUS;
     }
