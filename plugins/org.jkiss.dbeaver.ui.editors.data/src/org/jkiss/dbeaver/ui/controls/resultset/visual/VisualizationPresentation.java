@@ -18,25 +18,17 @@
 package org.jkiss.dbeaver.ui.controls.resultset.visual;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
@@ -46,7 +38,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.CoolBar;
@@ -105,10 +96,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	
 	private FXGraph visualGraph;
 	
-	private Label nodeLabel;
-	private Combo nodePropertyListCombo;
-	private Label edgeLabel;
-	private Combo edgePropertyListCombo;
 	private CoolBar coolBar;
 	private Label resultLabel;
 
@@ -122,16 +109,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	private HashMap<String, String> displayStringEdgeList = new HashMap<>();
 	
 	private LayoutStyle defaultLayoutAlgorithm = LayoutStyle.SPRING;
-
-	// ContextAction
-	private MenuManager manager;
-	private Action redoAction;
-	private Action undoAction;
-	private Action highlightAction;
-	private Action deleteAction;
-	private Action shortestPathAction;
-
-	private Object seletedItem = null;
 
 	private boolean init = false;
 	
@@ -157,31 +134,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		mainComposite.setLayoutData(gd_MainComposite);
 		
 		menuBarComposite = new Composite(mainComposite, SWT.NONE);
-		menuBarComposite.setLayout(new GridLayout(8, false));
+		menuBarComposite.setLayout(new GridLayout(7, false));
+		menuBarComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         
 		graphTopComposite = new Composite(mainComposite, SWT.NONE);
 		graphTopComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         graphTopComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         
-		nodeLabel = new Label(menuBarComposite, SWT.READ_ONLY);
-		nodeLabel.setText("Nodes Property :");
-		nodePropertyListCombo = new Combo(menuBarComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		nodePropertyListCombo.setEnabled(false);
-		nodePropertyListCombo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (gephiModel != null) {
-					String temp = nodePropertyListCombo.getText();
-					gephiModel.updateGraphNode(visualGraph, temp);
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
-		addMenuCoolbar(menuBarComposite, nodeLabel.getSize());
+        addMenuCoolbar(menuBarComposite);
 
 		visualGraph = new FXGraph(graphTopComposite, SWT.NONE, graphTopComposite.getBounds().width, graphTopComposite.getBounds().height);
 		visualGraph.setCursor(graphTopComposite.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
@@ -202,8 +162,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		if (visualGraph != null) {
 			activateTextKeyBindings(controller, visualGraph.getControl());
 		}
+		
 		trackPresentationControl();
-		registerContextMenu();
 		
 	}
 
@@ -248,7 +208,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	@Override
 	public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
 		if (refreshMetadata) {
-			seletedItem = null;
 			if (gephiModel != null) {
     			gephiModel.clear();
     			gephiModel.clearGraph(visualGraph);
@@ -262,18 +221,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			displayStringNodeList.clear();
 			displayStringEdgeList.clear();
 
-			if (edgePropertyListCombo != null) {
-				edgePropertyListCombo.removeAll();
-				edgePropertyListCombo.add("label");
-				edgePropertyListCombo.select(0);
-			}
-
-			if (nodePropertyListCombo != null) {
-				nodePropertyListCombo.removeAll();
-				nodePropertyListCombo.add("label");
-				nodePropertyListCombo.select(0);
-			}
-			
 			ShowVisualizaion(append);
 		}
 	}
@@ -306,7 +253,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		}
 	};
 	
-	private void addMenuCoolbar(Composite parent, Point size) {
+	private void addMenuCoolbar(Composite parent) {
 		coolBar = new CoolBar(parent, SWT.NONE);
 		coolBar.setBackground(parent.getBackground());
 
@@ -365,7 +312,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		button1.pack();
 		composite1.pack();
 
-		size = composite1.getSize();
+		Point size = composite1.getSize();
 		buttonItem1.setControl(composite1);
 		buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
 
@@ -410,7 +357,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
 
 		Composite composite4 = new Composite(coolBar, SWT.NONE);
-		composite4.setLayout(new GridLayout(2, true));
+		composite4.setLayout(new GridLayout(4, true));
 
 		resultLabel = new Label(composite4, SWT.READ_ONLY | SWT.RIGHT);
 		resultLabel.setText("Node : " + 0 + " Edge : " + 0);
@@ -468,19 +415,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			}
 		}
 
-		for (String key : propertyList) {
-			nodePropertyListCombo.add(key);
-
-		}
-
-		if (!propertyList.isEmpty()) {
-			nodePropertyListCombo.setEnabled(true);
-		}
-
 		int compositeSizeX = composite.getSize().x;
         int compositeSizeY = composite.getSize().y;
-		int drawSizeX = visualGraph.getNodes() * 25;
-		int drawSizeY =  visualGraph.getNodes() * 20;
+		int drawSizeX = visualGraph.getNodes() * 18;
+		int drawSizeY =  visualGraph.getNodes() * 12;
         
 		if (visualGraph != null) {
 			resultLabel.setText("Node : " + visualGraph.getNodes() + " Edge : " + visualGraph.getEdges());
@@ -501,7 +439,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			    //visualGraph.redraw();
 			}
 			
-			miniMap.show();
+			//miniMap.show();
 		}
 		
 		if (miniMapThread == null) {
@@ -757,78 +695,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		//visualGraph.setLayoutAlgorithm(layoutStyle);
 	}
 
-	protected void createContextMenuAction() {
-		redoAction = new Action("&Redo", null) {
-			public void run() {
-			}
-		};
-		redoAction.setEnabled(false);
-
-		undoAction = new Action("&Undo", null) {
-			public void run() {
-			}
-		};
-		undoAction.setEnabled(false);
-
-		highlightAction = new Action("&Highlight", null) {
-			public void run() {
-//				if (gephiModel != null) {
-//					if (seletedItem.getClass().equals(GraphNode.class)) {
-//						gephiModel.setHighlight(visualGraph, (GraphNode) seletedItem);
-//					}
-//				}
-			}
-		};
-		highlightAction.setEnabled(true);
-
-		deleteAction = new Action("&Delete", null) {
-			public void run() {
-			}
-		};
-		deleteAction.setEnabled(false);
-
-		shortestPathAction = new Action("&Shortest Path", null) {
-			public void run() {
-			}
-		};
-		shortestPathAction.setEnabled(false);
-	}
-
-	protected void registerContextMenu() {
-		createContextMenuAction();
-		manager = new MenuManager();
-		getControl().setMenu(manager.createContextMenu(getControl()));
-		manager.setRemoveAllWhenShown(true);
-		manager.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager m) {
-				contextMenuAboutToShow(m);
-			}
-		});
-	}
-
-	private void contextMenuAboutToShow(IMenuManager m) {
-//		if (seletedItem != null && seletedItem.getClass().equals(GraphNode.class)) {
-//			highlightAction.setEnabled(true);
-//		} else {
-//			highlightAction.setEnabled(false);
-//		}
-
-		highlightAction.setEnabled(false);
-		
-		undoAction.setEnabled(undoAction.isEnabled());
-		redoAction.setEnabled(redoAction.isEnabled());
-		deleteAction.setEnabled(deleteAction.isEnabled());
-		shortestPathAction.setEnabled(shortestPathAction.isEnabled());
-		manager.add(undoAction);
-		manager.add(redoAction);
-		manager.add(highlightAction);
-		manager.add(deleteAction);
-		manager.add(shortestPathAction);
-	}
-
 	private void createGraphListner() {
-//		gephiModel.unHighlight();
-		
 		visualGraph.setVertexSelectAction((String id) -> {
 			curSelection = displayStringNodeList.get(id);
 			controller.setCurrentRow(resultSetRowNodeList.get(id));

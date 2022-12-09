@@ -56,6 +56,7 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.CyperNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Digraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
+import org.openide.loaders.InstanceSupport.Instance;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import static org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.UtilitiesJavaFX.pick;
 import static org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.UtilitiesPoint2D.attractiveForce;
@@ -127,6 +128,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     private static final int AUTOMATIC_LAYOUT_ITERATIONS = 20;
     
     private String displayProperyName = null;
+    
+    private Vertex<V> highlighNode = null;
 
     /**
      * Constructs a visualization of the graph referenced by
@@ -1203,4 +1206,80 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
+    public void doDefaultVertexStyle(SmartGraphVertex<CyperNode> Node) {
+		Node.setStyle(Node.getUnderlyingVertex().element().getFillColor());
+	}
+	
+    public void doHighlightVertexStyle(SmartGraphVertex<CyperNode> Node) {
+		Node.setStyle(SmartStyleProxy.HIGHLIGHT_VERTEX + Node.getUnderlyingVertex().element().getFillColor());
+	}
+    
+    public void doDefaultEdgeStyle(SmartGraphEdgeBase edge) {
+		edge.setStyle(SmartStyleProxy.DEFAULT_EDGE);
+	}
+	
+    public void doHighlightEdgeStyle(SmartGraphEdgeBase edge) {
+    	edge.setStyle(SmartStyleProxy.HIGHLIGHT_EDGE);
+	}
+    
+    public void setHighlight(Vertex<V> vertex) {
+    	highlighNode = vertex;
+    	doHighlight(highlighNode, true);
+    }
+    
+    public void setUnHighlight() {
+    	if (highlighNode != null) {
+    		doHighlight(highlighNode, false);
+    		highlighNode = null;
+    	}
+    }
+    
+    public boolean isHighlighted() {
+    	if (highlighNode == null) {
+    		return false;
+    	}
+    	return true;
+    }
+    
+    private void doHighlight(Vertex<V> vertex, boolean highlight) {
+    	String vertexStyle, edgeStyle;
+    	if (highlight) {
+    		vertexStyle = SmartStyleProxy.HIGHLIGHT_VERTEX;
+    		edgeStyle = SmartStyleProxy.HIGHLIGHT_EDGE;
+    	} else {
+    		vertexStyle = SmartStyleProxy.DEFAULT_VERTEX;
+    		edgeStyle = SmartStyleProxy.DEFAULT_EDGE;
+    	}
+    	
+    	SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
+    	
+    	if (graphVertexIn.getUnderlyingVertex().element() instanceof CyperNode) {
+       	 CyperNode node = (CyperNode) graphVertexIn.getUnderlyingVertex().element();
+       	//Set Vertex Style
+       	 graphVertexIn.setStyle(vertexStyle + node.getFillColor());
+        }
+    	
+    	Iterable<FxEdge<E, V>> incidentEdges = theGraph.outboundEdges(vertex);
+    	 for (FxEdge<E, V> edge : incidentEdges) {
+    		 //Set Edge Style
+    		 getStylableEdge(edge).setStyle(edgeStyle);
+
+             Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
+
+             SmartGraphVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
+             
+             if (graphVertexOppositeOut.getUnderlyingVertex().element() instanceof CyperNode) {
+            	 CyperNode node = (CyperNode) graphVertexOppositeOut.getUnderlyingVertex().element();
+            	//Set Vertex Style
+            	 graphVertexOppositeOut.setStyle(vertexStyle + node.getFillColor());
+             }
+             
+             doHighlight(graphVertexOppositeOut.getUnderlyingVertex(), highlight);
+         }
+	}
+    
+    
+    public void clear() {
+    	highlighNode = null;
+    }
 }

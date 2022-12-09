@@ -100,6 +100,20 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 
         return incidentEdges;
     }
+    
+    @Override
+    public synchronized Collection<FxEdge<E, V>> outboundEdges(Vertex<V> outbound) throws InvalidVertexException {
+        checkVertex(outbound);
+
+        List<FxEdge<E, V>> outboundEdges = new ArrayList<>();
+        for (FxEdge<E, V> edge : edges.values()) {
+
+            if (((MyEdge) edge).getOutbound() == outbound) {
+                outboundEdges.add(edge);
+            }
+        }
+        return outboundEdges;
+    }
 
     @Override
     public Vertex<V> opposite(Vertex<V> v, FxEdge<E, V> e) throws InvalidVertexException, InvalidEdgeException {
@@ -333,6 +347,14 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
         public String toString() {
             return "Edge{{" + element + "}, vertexOutbound=" + vertexOutbound.toString()
                     + ", vertexInbound=" + vertexInbound.toString() + '}';
+        }
+        
+        public Vertex<V> getOutbound() {
+            return vertexOutbound;
+        }
+        
+        public Vertex<V> getInbound() {
+            return vertexInbound;
         }
     }
 
