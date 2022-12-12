@@ -140,8 +140,21 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="start.html">ViT 시작하기</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="start.html#id1">실행</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html#database">Database 추가</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html#vit-northwind-db-neo4j">ViT로 Northwind DB(Neo4j) 연결/시작</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="start.html#database">Database 추가</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#id1">연결 테스트</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#id2">DataBase 추가</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#sql-gql">SQL(GQL) 편집기</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#id3">데이터 결과창</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#value">Value 창으로 세부 정보 확인</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#highlight">HighLight 설정</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#id4">HighLight 해제</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#mini-map">Mini Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#id5">확대 축소 하기</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#capture">Capture 하기</a></li>
+<li class="toctree-l3"><a class="reference internal" href="start.html#id6">표시 데이터 개수 설정</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="release_note/index.html">릴리스 노트</a><ul>
@@ -235,11 +248,11 @@
 </div>
 <div class="section" id="id3">
 <h2>용어 정리<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>본 메뉴얼 에서 사용하는 주요 용어를 정리 하였다….</p>
+<p>본 메뉴얼 에서 사용하는 주요 용어를 정리 하였다.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="52%" />
-<col width="48%" />
+<col width="43%" />
+<col width="57%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>ViT</td>
@@ -249,7 +262,10 @@
 <td>Migration Tool</td>
 </tr>
 <tr class="row-odd"><td>TubroGraph++</td>
-<td>Visualization Tool</td>
+<td>포항공대에서 개발된 Graph용 Database</td>
+</tr>
+<tr class="row-even"><td>DB</td>
+<td>Database</td>
 </tr>
 </tbody>
 </table>
@@ -270,72 +286,13 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td><em>기울임꼴</em></td>
-<td>변수 이름, 예시로 사용하는 값(시스템, 데이터베이스,
-테이블 칼럼, 파일 등의 이름)을 나타낸다.</td>
-<td><em>persistent</em>
-:
-<em>stringVariableName</em></td>
-</tr>
-<tr class="row-odd"><td><strong>굵게</strong></td>
-<td>상수, 키워드 등 정해진 값을 나타낸다.</td>
-<td><strong>fetch</strong>
-( ) member function</td>
-</tr>
-<tr class="row-even"><td>고정폭 글꼴</td>
-<td>구문, 코드 예제 또는 명령어의 실행 및 결과를 나타낸다.</td>
-<td>database_name</td>
-</tr>
-<tr class="row-odd"><td>대문자</td>
-<td>키워드를 나타내는 데 사용된다(
-<strong>굵게</strong>
-참조).</td>
-<td><strong>SELECT</strong></td>
-</tr>
-<tr class="row-even"><td>작은 따옴표(‘ ‘)</td>
-<td>중괄호, 대괄호와 함께 사용되면 문법의 필요한 부분을
-나타낸다. 스트링을 감쌀 때도 사용된다.</td>
-<td>{‘{‘
-<em>const_list</em>
-‘}’}</td>
-</tr>
-<tr class="row-odd"><td>대괄호([ ])</td>
-<td>파라미터나 키워드가 선택적임을 나타낸다.</td>
+<tr class="row-even"><td>대괄호([ ])</td>
+<td>UI에서 버튼을 나타낸다.</td>
 <td>[
-<strong>ONLY</strong>
+<strong>OK</strong>
 ]</td>
 </tr>
-<tr class="row-even"><td>세로줄( | )</td>
-<td>여럿 중의 하나만을 선택할 수 있음을 나타낸다.</td>
-<td>[
-<strong>COLUMN</strong>
-|
-<strong>ATTRIBUTE</strong>
-]</td>
-</tr>
-<tr class="row-odd"><td>중괄호({ })로 싼
-파라미터</td>
-<td>여럿 중에서 하나만을 반드시 선택해야 함을 나타낸다.</td>
-<td><strong>CREATE</strong>
-{
-<strong>TABLE</strong>
-|
-<strong>CLASS</strong>
-}</td>
-</tr>
-<tr class="row-even"><td>중괄호({ })로 싼
-값</td>
-<td>집합을 구성하는 원소를 나타낸다.</td>
-<td>{2, 4, 6}</td>
-</tr>
-<tr class="row-odd"><td>중괄호 뒤의
-줄임표({ }…)</td>
-<td>파라미터 지정이 반복될 수 있음을 나타낸다.</td>
-<td>{,
-<em>class_name</em>
-}…</td>
-</tr>
-<tr class="row-even"><td>산괄호(&lt; &gt;)</td>
+<tr class="row-odd"><td>산괄호(&lt; &gt;)</td>
 <td>단일 키 또는 일련의 키 입력을 나타낸다.</td>
 <td>&lt;Ctrl+n&gt;</td>
 </tr>
@@ -360,7 +317,7 @@
     <p>
         &#169; Copyright 2022, CUBRID Corporation.
       <span class="lastupdated">
-        Last updated on Dec 09, 2022.
+        Last updated on Dec 12, 2022.
       </span>
 
     </p>
