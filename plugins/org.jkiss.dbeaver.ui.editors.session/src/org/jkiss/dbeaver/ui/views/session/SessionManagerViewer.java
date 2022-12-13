@@ -468,7 +468,7 @@ public class SessionManagerViewer<SESSION_TYPE extends DBAServerSession>
                 contributionManager.add(ActionUtils.makeActionContribution(new Action("SQL", IAction.AS_PUSH_BUTTON) {
                     {
                         setImageDescriptor(DBeaverIcons.getImageDescriptor(UIIcon.SQL_SCRIPT));
-                        setToolTipText("Open SQL editor and execute session read SQL query");
+                        setToolTipText("Open SQL(GQL) editor and execute session read SQL query");
                     }
                     @Override
                     public void run()
@@ -489,7 +489,7 @@ public class SessionManagerViewer<SESSION_TYPE extends DBAServerSession>
                                     sqlScript
                                 );
                             } catch (CoreException e) {
-                                DBWorkbench.getPlatformUI().showError("Can not open editor", "Error opening SQL editor", e);
+                                DBWorkbench.getPlatformUI().showError("Can not open editor", "Error opening SQL(GQL) editor", e);
                             }
                         }
                     }
