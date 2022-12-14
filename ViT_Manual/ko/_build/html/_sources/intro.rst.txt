@@ -20,6 +20,7 @@ ViT 구조
 ===========
 
 .. image:: /images/vit_structure.png
+ :width: 800
 
 본 과제의 시각화 도구는 Eclipse RCP로 개발된 DBeaver를 기반으로, 
 시각화 및 데이터 분석 기능을 확장한다.
@@ -39,6 +40,7 @@ DBeaver는 다양한 DBMS을 사용하는 개발자와 데이터베이스 관리
 크로스 플랫폼을 지원하기 위해 Eclipse RCP로 개발되었으며, 본 과제에서는 DBeaver에 시각화 기능들을 추가하여 확장하는 형태로 개발될 예정이다.
 
 .. image:: /images/dbeaver.png
+ :width: 1024
 
 GQL (Graph Query Language)
 -------------
