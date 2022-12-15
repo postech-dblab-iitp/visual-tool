@@ -1,5 +1,5 @@
-# MiT-Manual
-Documentation for MiT (CUBRID Migration Toolkit For Graph)
+# ViT-Manual
+Documentation for ViT (Visual Toolkit For TurboGraph++)
 
 1. Extension of original files of this manual 
 
