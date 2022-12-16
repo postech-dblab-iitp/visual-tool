@@ -17,6 +17,12 @@
 
         <local-p2-repo.url>https://dbeaver.io/eclipse-repo</local-p2-repo.url>
         <eclipse-p2-repo.url>https://download.eclipse.org/releases/2021-06/</eclipse-p2-repo.url>
+        <javafx-p2-repo.url>https://downloads.efxclipse.bestsolution.at/p2-repos/openjfx-11.0.1/</javafx-p2-repo.url>
+        <!--
+        <javafx-p2-repo.url>https://downloads.efxclipse.bestsolution.at/p2-repos/openjfx-19/</javafx-p2-repo.url>
+        -->
+        <bundle-local-repo.url>file://${project.basedir}/lib</bundle-local-repo.url>
+  
 
         <key.storage.path>/etc/</key.storage.path>
         <tsa/>
@@ -39,14 +45,17 @@
             <url>${eclipse-p2-repo.url}</url>
             <layout>p2</layout>
         </repository>
+        <repository>
+    		  <id>openfx-p2-repo</id>
+    		  <url>${javafx-p2-repo.url}</url>
+              <layout>p2</layout>
+    	</repository>
     </repositories>
 
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
         <testSourceDirectory>${project.basedir}/tests</testSourceDirectory>
         <plugins>
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -63,6 +72,17 @@
                 <artifactId>target-platform-configuration</artifactId>
                 <version>${tycho-version}</version>
                 <configuration>
+                <resolver>p2</resolver>
+            	<pomDependencies>consider</pomDependencies>
+                	<dependency-resolution>
+                		<extraRequirements>
+                			<requirement>
+                				<type>eclipse-plugin</type>
+                				<id>org.eclipse.fx.osgi</id>
+                				<versionRange>0.0.0</versionRange>
+                			</requirement>
+                		</extraRequirements>
+                	</dependency-resolution>
                     <environments>
                         <environment>
                             <os>win32</os>
@@ -85,6 +105,31 @@
             </plugin>
 
             <plugin>
+            	<groupId>org.eclipse.tycho</groupId>
+            	<artifactId>tycho-surefire-plugin</artifactId>
+            	<version>${tycho-version}</version>
+            	<configuration>
+                <frameworkExtensions>
+                	<frameworkExtension>
+                		<groupId>p2.osgi.bundle</groupId>
+                		<artifactId>org.eclipse.fx.osgi</artifactId>
+                		<version>3.6.2.202001141050</version>
+                	</frameworkExtension>
+                </frameworkExtensions>
+                <!--
+            	<frameworkExtension>
+            		<frameworkExtension>
+            			<groupId>org.eclipse.fx.runtime</groupId>
+            			<artifactId>org.eclipse.fx.osgi</artifactId>
+            			<version>3.7.0</version>
+            		</frameworkExtension>
+            	</frameworkExtension>
+                -->
+            	<argLine>${additionalTestArgLine} -Defxclipse.osgi.hook.debug=true -Dosgi.framework.extensions=org.eclipse.fx.osgi -Defxclipse.java-modules.dir=${javafx.home}\lib</argLine>
+            	</configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.eclipse.tycho</groupId>
                 <artifactId>tycho-maven-plugin</artifactId>
                 <version>${tycho-version}</version>
@@ -97,9 +142,9 @@
                 <version>${tycho-version}</version>
                 <configuration>
                     <useProjectSettings>false</useProjectSettings>
-                    <source>1.8</source>
+                    <source>11</source>
                     <target>11</target>
-                    <compilerVersion>1.8</compilerVersion>
+                    <compilerVersion>11</compilerVersion>
                     <compilerArgs>
                         <!--
                             Java 11-compatibility options.

@@ -11,71 +11,64 @@
     <artifactId>org.jkiss.dbeaver.ext.turbographpp.graph</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <packaging>eclipse-plugin</packaging>
-  
-    <dependencies>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>11</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-media</artifactId>
-            <version>11</version>
-            <classifier>win</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-media</artifactId>
-            <version>11</version>
-            <classifier>mac</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-media</artifactId>
-            <version>11</version>
-            <classifier>linux</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <version>11</version>
-            <classifier>win</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <version>11</version>
-            <classifier>mac</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <version>11</version>
-            <classifier>linux</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>11</version>
-        </dependency>
-    </dependencies>
-  
     <build>
         <plugins>
+            <!-- Tycho build -->
             <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                <resolver>p2</resolver>
+            	<pomDependencies>consider</pomDependencies>
+                	<dependency-resolution>
+                		<extraRequirements>
+                			<requirement>
+                				<type>eclipse-plugin</type>
+                				<id>org.eclipse.fx.osgi</id>
+                				<versionRange>0.0.0</versionRange>
+                			</requirement>
+                		</extraRequirements>
+                	</dependency-resolution>
+                    <!--
+                    <dependency-resolution>
+    		         <extraRequirements>
+			          <requirement>
+			               <type>p2-installable-unit</type>
+			               <id>openjfx.base</id>
+			               <versionRange>19.0.0</versionRange>
+			            </requirement>
+			            <requirement>
+			               <type>p2-installable-unit</type>
+			               <id>openjfx.controls</id>
+			               <versionRange>19.0.0</versionRange>
+			            </requirement>
+			            <requirement>
+			               <type>p2-installable-unit</type>
+			               <id>openjfx.swt</id>
+			               <versionRange>11.0.1</versionRange>
+			            </requirement>
+			         </extraRequirements>
+			      </dependency-resolution>
+                  -->
+                </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.eclipse.tycho</groupId>
+              <artifactId>tycho-compiler-plugin</artifactId>
+              <version>${tycho-version}</version>
+              <configuration>
+                <encoding>UTF-8</encoding>
+                <extraClasspathElements>
+                  <extraClasspathElement>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-controls</artifactId>
+                    <version>11.0.1</version>
+                  </extraClasspathElement>
+                </extraClasspathElements>
+              </configuration>
             </plugin>
         </plugins>
     </build>
-  
 </project>
