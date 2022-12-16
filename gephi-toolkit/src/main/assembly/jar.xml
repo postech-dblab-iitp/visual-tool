@@ -21,6 +21,7 @@
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                     <exclude>java/</exclude>
+                    <exclude>org/w3c/dom/</exclude>
                 </excludes>
             </unpackOptions>
             <useProjectArtifact>false</useProjectArtifact>
