@@ -7,10 +7,10 @@ Bundle-Version: 1.0.87.qualifier
 Bundle-Release-Date: 20211004
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/sshj-0.27.0.jar
 Require-Bundle: org.jkiss.dbeaver.model,
  org.jkiss.dbeaver.net.ssh,
- org.jkiss.bundle.sshj,
  org.bouncycastle.bcpkix,
  org.bouncycastle.bcprov
 Bundle-Localization: OSGI-INF/l10n/bundle

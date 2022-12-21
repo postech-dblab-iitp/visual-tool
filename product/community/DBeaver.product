@@ -66,6 +66,7 @@
         <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2"/>
         <!-- This is important because simpleconfigurator conflicts with update.configurator -->
         <plugin id="org.eclipse.update.configurator" autoStart="false" startLevel="10"/>
+        <plugin id="org.eclipse.fx.osgi" autoStart="false" startLevel="9"/>
     </configurations>
 
 </product>
