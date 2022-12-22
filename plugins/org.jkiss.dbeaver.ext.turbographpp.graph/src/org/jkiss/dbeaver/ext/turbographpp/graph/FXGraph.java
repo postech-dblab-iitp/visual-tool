@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Layout;
 
+import javafx.application.Platform;
 import javafx.embed.swt.FXCanvas;
 import javafx.embed.swt.SWTFXUtils;
 import javafx.event.ActionEvent;
@@ -87,7 +88,10 @@ public class FXGraph implements GraphBase {
     
     public FXGraph(Composite parent, int style, int width, int height) {
         
-    	control = parent;
+        control = parent;
+        //this default option are true then fx thread issue when changed Presentation.
+        Platform.setImplicitExit(false);
+
         canvas = new FXCanvas(parent, SWT.NONE);
         graph = new TurboGraphEdgeList<>();
         
