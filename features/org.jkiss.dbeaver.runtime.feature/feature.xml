@@ -18,6 +18,10 @@
         %license
     </license>
 
+    <includes
+         id="org.eclipse.fx.runtime.feature"
+         version="3.7.0.202010120723"/>
+
     <requires>
         <import plugin="org.eclipse.core.runtime"/>
         <import plugin="org.eclipse.core.resources"/>
@@ -44,5 +48,15 @@
     <plugin id="com.github.jsqlparser" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
     <plugin id="org.apache.commons.jexl" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
     <plugin id="com.google.gson" download-size="0" install-size="0" version="0.0.0"/>
+
+    <plugin id="openjfx.base" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+    <plugin id="openjfx.controls" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+    <plugin id="openjfx.swt" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+
+    <plugin id="openjfx.graphics.win32_64"  os="win32" arch="x86_64" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+    <plugin id="openjfx.graphics.linux_64" os="linux" arch="x86_64" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+    <plugin id="openjfx.graphics.mac" os="macosx" arch="x86_64" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+    
+    <plugin id="org.jkiss.dbeaver.ext.turbographpp.javafx" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
 
 </feature>

@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DBeaver TurboGraphPP JAVAFX Lib
+Bundle-SymbolicName: org.jkiss.dbeaver.ext.turbographpp.javafx;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Eclipse-BundleShape: dir
+Bundle-Vendor: TURBOGRAPH

@@ -10,13 +10,14 @@
 
     <properties>
         <dbeaver-version>21.2.2</dbeaver-version>
+        <vit-version>1.0.0</vit-version>
         <dbeaver-product>DBeaver</dbeaver-product>
         <tycho-version>2.1.0</tycho-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 
         <local-p2-repo.url>https://dbeaver.io/eclipse-repo</local-p2-repo.url>
-        <eclipse-p2-repo.url>https://download.eclipse.org/releases/2021-06/</eclipse-p2-repo.url>
+        <eclipse-p2-repo.url>https://download.eclipse.org/releases/2021-12/</eclipse-p2-repo.url>
         <key.storage.path>/etc/</key.storage.path>
         <tsa/>
     </properties>
@@ -38,9 +39,21 @@
             <url>${eclipse-p2-repo.url}</url>
             <layout>p2</layout>
         </repository>
+        <repository>
+            <id>efxclipse-runtime</id>
+            <layout>p2</layout>
+            <url>https://download.eclipse.org/efxclipse/runtime-released/3.7.0/site/</url>
+        </repository>
+
+        <repository>
+            <id>javafx</id>
+            <layout>p2</layout>
+            <url>http://downloads.efxclipse.bestsolution.at/p2-repos/openjfx-11/repository/</url>
+        </repository>
+
     </repositories>
 
-    <build>
+   <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
         <testSourceDirectory>${project.basedir}/tests</testSourceDirectory>
         <plugins>
@@ -96,16 +109,12 @@
             	<groupId>org.eclipse.tycho</groupId>
             	<artifactId>tycho-surefire-plugin</artifactId>
             	<version>${tycho-version}</version>
-            	<configuration>
-                <frameworkExtensions>
-                	<frameworkExtension>
-                		<groupId>org.eclipse.fx.runtime</groupId>
-                		<artifactId>org.eclipse.fx.osgi</artifactId>
-                		<version>3.7.0.202010120720</version>
-                	</frameworkExtension>
-                </frameworkExtensions>
-            	<argLine>${additionalTestArgLine} -Defxclipse.osgi.hook.debug=true -Dosgi.framework.extensions=org.eclipse.fx.osgi -Defxclipse.java-modules.dir=${javafx.home}\lib</argLine>
-            	</configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
             </plugin>
 
             <plugin>
