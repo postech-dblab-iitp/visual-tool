@@ -55,6 +55,7 @@
         <module>org.jkiss.dbeaver.ext.sqlite</module>
 
         <module>org.jkiss.dbeaver.ext.turbographpp</module>
+        <module>org.jkiss.dbeaver.ext.turbographpp.javafx</module>
 
         <module>org.jkiss.dbeaver.ext.vertica</module>
         <module>org.jkiss.dbeaver.ext.teradata</module>

@@ -12,8 +12,10 @@
         <programArgs></programArgs>
         <programArgsMac>-vm ../Eclipse/jre/Contents/Home/bin/java</programArgsMac>
 
-        <vmArgs>-XX:+IgnoreUnrecognizedVMOptions --add-modules=ALL-SYSTEM -Dosgi.requiredJavaVersion=11 -Xms64m -Xmx1024m</vmArgs>
-        <vmArgsMac>-XstartOnFirstThread</vmArgsMac>
+        <vmArgs>-XX:+IgnoreUnrecognizedVMOptions --add-modules=ALL-SYSTEM -Dosgi.requiredJavaVersion=11 -Xms64m -Xmx1024m -Dsun.java2d.opengl=true</vmArgs>
+        <vmArgsWin>-Defxclipse.java-modules.dir=plugins/org.jkiss.dbeaver.ext.turbographpp.javafx_1.0.0/win</vmArgsWin>
+        <vmArgsLin>-Defxclipse.java-modules.dir=plugins/org.jkiss.dbeaver.ext.turbographpp.javafx_1.0.0/linux</vmArgsLin>
+        <vmArgsMac>-Defxclipse.java-modules.dir=../Eclipse/plugins/org.jkiss.dbeaver.ext.turbographpp.javafx_1.0.0/mac -XstartOnFirstThread</vmArgsMac>
     </launcherArgs>
 
     <splash location="org.jkiss.dbeaver.ui.app.standalone"/>
@@ -66,7 +68,6 @@
         <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2"/>
         <!-- This is important because simpleconfigurator conflicts with update.configurator -->
         <plugin id="org.eclipse.update.configurator" autoStart="false" startLevel="10"/>
-        <plugin id="org.eclipse.fx.osgi" autoStart="false" startLevel="9"/>
     </configurations>
 
 </product>
