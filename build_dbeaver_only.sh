@@ -13,5 +13,5 @@ if [ -z "$MVN" ]; then
   echo maven not found.
   exit 1 
 else
-  $MVN -Dmaven.test.skip=true -f $SHELL_PATH/pom.xml clean package
+  $MVN -f $SHELL_PATH/pom.xml clean package
 fi
