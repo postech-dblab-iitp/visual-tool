@@ -7,15 +7,41 @@ import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Layout;
+import org.jkiss.dbeaver.ui.DBeaverIcons;
+import org.jkiss.dbeaver.ui.UIIcon;
 
 public interface GraphBase {
 
 	public enum LayoutStyle {
-		HORIZONTAL, HORIZONTAL_TREE, VERTICAL, VERTICAL_TREE, DIRECTED, GRID, HORIZONTAL_SHIFT, RADIAL, SPRING
+		HORIZONTAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_HORIZONTAL), "Horizontal Layout"), 
+		HORIZONTAL_TREE(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_HORIZONTAL), "Horizontal-Tree Layout"), 
+		VERTICAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_VERTICAL), "Vertical Layout"), 
+		VERTICAL_TREE(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_VERTICAL), "Vertical-Tree Layout"), 
+	    GRID(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_GRID), "Grid Layout"),
+	    RADIAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE), "Circle(Radial) Layout"),
+	    SPRING(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_FORCE_DIRECTED), "Spring Layout");
+	    
+	    LayoutStyle(Image image, String text) {
+	    	this.image = image;
+	    	this.text = text;
+	    }
+	    
+		private Image image;
+		private String text;
+		
+		public Image getImage() {
+			return image;
+		}
+		
+		public String getText() {
+			return text;
+		}
+		
 	}
-
+	
 	public void setCursor (Cursor cursor);
 	public void setForeground (Color color);
 	public void setBackground (Color color);

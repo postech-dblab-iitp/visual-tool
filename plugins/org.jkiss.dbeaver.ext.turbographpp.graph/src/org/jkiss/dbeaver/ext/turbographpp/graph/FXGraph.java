@@ -1,5 +1,6 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -12,14 +13,18 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseWheelListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TouchEvent;
 import org.eclipse.swt.events.TouchListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 
 import javafx.application.Platform;
@@ -27,13 +32,15 @@ import javafx.embed.swt.FXCanvas;
 import javafx.embed.swt.SWTFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.layout.VBox;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
@@ -48,18 +55,20 @@ public class FXGraph implements GraphBase {
 	public static final int MOUSE_WHELL_DOWN = -5;
 	
 	public static final int MOUSE_SECONDARY_BUTTON = 3;
-	
-	public static final int ZOOM_MIN = 50;
-	public static final int ZOOM_MAX = 500;
-	
+
 	public static final int CTRL_KEYCODE = 0x40000;
 	
     private FXCanvas canvas;
     private Graph<CyperNode, CyperEdge> graph;
     private SmartGraphPanel<CyperNode, CyperEdge> graphView;
-    ScrollPane scrollPane;
+    Group graphGroup;
+    private ScrollPane scrollPane;
+    private VBox vBox;
+    
     private Control control;
     private Scene scene;
+    
+    private MiniMap miniMap;
     
     private boolean zoomMode = false;
     private ZoomManager zoomManager;
@@ -71,6 +80,7 @@ public class FXGraph implements GraphBase {
     
     private Consumer<String> nodeIDConsumer = null;
     private Consumer<String> edgeIDConsumer = null;
+    private Consumer<String> nodeMovedConsumer = null;
     
     private LayoutUpdateThread layoutUpdatethread;
     
@@ -86,28 +96,32 @@ public class FXGraph implements GraphBase {
     
     private boolean statusCanvasFocus = false;
     
-    public FXGraph(Composite parent, int style, int width, int height) {
-        
+    private double lastWidth = 0;
+    private double lastHeight = 0;
+    
+    public FXGraph(Composite parent, int style) {
         control = parent;
         //this default option are true then fx thread issue when changed Presentation.
         Platform.setImplicitExit(false);
 
         canvas = new FXCanvas(parent, SWT.NONE);
+
         graph = new TurboGraphEdgeList<>();
         
         SmartPlacementStrategy strategy = new SmartRandomPlacementStrategy();
         
         graphView = new SmartGraphPanel<>(graph, strategy);
         
-    	scrollPane = new ScrollPane();
-    	scrollPane.setContent(graphView);
-    	scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-    	scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setStyle("-fx-focus-color: transparent;");
+        graphGroup = new Group();
+        graphGroup.getChildren().addAll(graphView);
         
-        scene = new Scene(scrollPane, 1024, 768);
+        vBox = new VBox();
+        vBox.getChildren().addAll(graphGroup);
+        
+        scrollPane = new ScrollPane();
+        scrollPane.setContent(vBox);
+
+        scene = new Scene(scrollPane);
 
         zoomManager = new ZoomManager(graphView, scrollPane);
         
@@ -117,8 +131,10 @@ public class FXGraph implements GraphBase {
         setGraphViewListener();
         setBaseListener();
         
-        canvas.computeSize(1024, 768);
         canvas.setScene(scene);
+        
+        createMiniMap(parent);
+        
     }
 
     private void setCanvasListener() {
@@ -145,9 +161,7 @@ public class FXGraph implements GraphBase {
 			
 			@Override
 			public void mouseDown(MouseEvent e) {
-				if (graphView != null) {
-					graphView.setAutomaticLayout(false);
-				}
+				setAutomaticLayout(false);
 				
 				hideContextMenu();
 				
@@ -165,9 +179,7 @@ public class FXGraph implements GraphBase {
 			
 			@Override
 			public void touch(TouchEvent e) {
-				if (graphView != null) {
-					graphView.setAutomaticLayout(false);
-				}
+				setAutomaticLayout(false);
 			}
 		});
     }
@@ -182,6 +194,15 @@ public class FXGraph implements GraphBase {
     		
     		selectNode = graphVertex; 
     		graphView.doHighlightVertexStyle(graphVertex);
+    		
+    		if (graphVertex.getUnderlyingVertex().element() instanceof CyperNode) {
+            	CyperNode node = (CyperNode) graphVertex.getUnderlyingVertex().element();
+            	String ID = node.getID();
+            	if (nodeIDConsumer == null ) {
+                    return;
+                }
+            	nodeIDConsumer.accept(ID);
+           }
         });
 
         graphView.setEdgeDoubleClickAction(graphEdge -> {
@@ -196,7 +217,8 @@ public class FXGraph implements GraphBase {
                     return;
                 }
             	nodeIDConsumer.accept(ID);
-            }
+           }
+            
         });
 
         graphView.setEdgeSelectAction(graphEdge -> {
@@ -208,6 +230,14 @@ public class FXGraph implements GraphBase {
                 }
             	edgeIDConsumer.accept(ID);
             }
+        });
+        
+        graphView.setVertexMovedAction(event -> {
+        	if (edgeIDConsumer == null ) {
+                return;
+            }
+        	edgeIDConsumer.accept(null);
+        	miniMapUpdate();
         });
         
     }
@@ -262,6 +292,9 @@ public class FXGraph implements GraphBase {
     public void resize(double width, double height) {
     	graphView.setMinSize(width, height);
     	graphView.setMaxSize(width, height);
+    	
+    	lastWidth = width;
+    	lastHeight = height;
     }
     
     private void graphInit() {
@@ -351,8 +384,10 @@ public class FXGraph implements GraphBase {
 		String rgb = Integer.toHexString(color.getRed())
 				+ Integer.toHexString(color.getGreen())
 				+ Integer.toHexString(color.getBlue());
-		graphView.setStyle("-fx-background-color: #" + rgb);
-		scrollPane.setStyle("-fx-background-color: #" + rgb);
+		graphView.setStyle("-fx-background-color: #" + rgb + "; -fx-background: #" + rgb);
+		vBox.setStyle("-fx-background-color: #" + rgb + "; -fx-background: #" + rgb);
+		scrollPane.setStyle("-fx-background-color: #" + rgb + "; -fx-background: #" + rgb);
+		canvas.setBackground(color);
 	}
 
 	@Override
@@ -385,20 +420,33 @@ public class FXGraph implements GraphBase {
 	}
 
 	public int getNodes() {
-		return graph.numVertices();	
+		int ret = graph.numVertices();
+		if (ret <= 0) {
+			return 0;
+		}
+		return ret;	
 	}
 	
 	public int getEdges() {
-		return graph.numEdges();	
+		int ret = graph.numEdges();
+		if (ret <= 0) {
+			return 0;
+		}
+		return ret;	
 	}
 
 	public ImageData getCaptureImage() {
-		if (graphView != null) {
-			Bounds bounds = graphView.localToScene(graphView.getBoundsInLocal());
-			WritableImage writableImage = new WritableImage((int) bounds.getWidth(), (int) bounds.getHeight());
-			graphView.snapshot(null, writableImage);
+		WritableImage writableImage = graphView.snapshot(new SnapshotParameters(), null);
+		if (writableImage != null) {
 			return SWTFXUtils.fromFXImage(writableImage, null);
-		} 
+		}
+//		if (graphView != null) {
+//			Bounds bounds = graphView.localToScene(graphView.getBoundsInLocal());
+//			//WritableImage writableImage = graphView.snapshot(new SnapshotParameters(), null);
+//			WritableImage writableImage = new WritableImage((int) bounds.getWidth(), (int) bounds.getHeight());
+//			graphView.snapshot(null, writableImage);
+//			return SWTFXUtils.fromFXImage(writableImage, null);
+//		} 
 		return null;
 	}
 	
@@ -419,15 +467,26 @@ public class FXGraph implements GraphBase {
 	}
 	
 	
-	class LayoutUpdateThread extends Thread {
+	private class LayoutUpdateThread extends Thread {
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(300);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			graphView.setAutomaticLayout(true);
+			
+			setAutomaticLayout(true);
+			
+			if (miniMap.isShowing()) {
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				setAutomaticLayout(false);
+				miniMapUpdate();
+			}
 		}
 	}
 	
@@ -535,6 +594,92 @@ public class FXGraph implements GraphBase {
 	private void setUnhighlight() {
 		graphView.setUnHighlight();
    		selectNode = null;
+	}
+	
+	public void setAutomaticLayout (boolean value) {
+		if (graphView != null) {
+			graphView.setAutomaticLayout(value);
+		}
+	}
+	
+	private void createMiniMap(Composite parent) {
+        miniMap = new MiniMap(parent);
+        miniMap.addZoominListner(new SelectionListener() {
+            
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+       			zoomIn();
+            }
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+            
+        });
+        
+        miniMap.addZoomOutListner(new SelectionListener() {
+            
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+       			zoomOut();
+            }
+            
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+    }
+	
+	public void setMiniMapVisible(boolean visible) {
+        if (miniMap != null) {
+            if (visible) {
+                miniMap.show();
+                setAutomaticLayout(false);
+                miniMapUpdate();
+                
+            } else {
+                miniMap.remove();
+            }
+       }
+	}
+	
+	public void miniMapUpdate () {
+    	Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                if (miniMap != null && miniMap.isShowing()) {
+                    miniMap.setImage(graphImageCapture());
+                    miniMap.reDraw();
+                }
+            }
+        });
+    }
+	
+	private Image graphImageCapture() {
+		System.out.println(LocalTime.now());
+		setGraphScaleForCapture();
+		ImageData imageData = getCaptureImage();
+		setGraphLastScale();
+		System.out.println(LocalTime.now());
+		if (imageData != null) {
+			Image image = new Image(null, imageData);
+			return image;
+		}
+		
+		return null;
+	
+	}
+	
+	private void setGraphScaleForCapture() {
+		if (lastHeight * lastWidth > 480000) {
+			graphView.setScaleX(800/lastWidth);
+			graphView.setScaleX(600/lastHeight);
+		}
+	}
+	
+	private void setGraphLastScale() {
+		graphView.setScaleX(zoomManager.getZoomLevel());
+		graphView.setScaleY(zoomManager.getZoomLevel());
 	}
 }
 

@@ -87,7 +87,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
 
         styleProxy = new SmartStyleProxy(this);
         //styleProxy.addStyleClass("vertex");
-        styleProxy.setStyle("-fx-stroke-width: 3;"
+        styleProxy.setStyle("-fx-stroke-width: 4;"
         		+ " -fx-stroke: #61B5F1;"
         		+ " -fx-stroke-type: inside;"
         		+ " -fx-fill: #B1DFF7;");

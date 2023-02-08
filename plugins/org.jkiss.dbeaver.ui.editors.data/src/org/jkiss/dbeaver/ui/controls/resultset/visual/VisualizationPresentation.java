@@ -43,8 +43,10 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.themes.ITheme;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
@@ -63,7 +65,6 @@ import org.jkiss.dbeaver.ui.UIIcon;
 import org.jkiss.dbeaver.ui.UIStyles;
 import org.jkiss.dbeaver.ui.UIUtils;
 import org.jkiss.dbeaver.ui.controls.resultset.*;
-import org.jkiss.dbeaver.ui.controls.resultset.visual.RefreshThread.Refreshable;
 import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
 
@@ -74,7 +75,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class VisualizationPresentation extends AbstractPresentation implements IAdaptable, Refreshable {
+public class VisualizationPresentation extends AbstractPresentation implements IAdaptable {
 
 	// for Other ImageButton
 	private enum ImageButton {
@@ -85,7 +86,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	private Composite mainComposite;
 	private Composite menuBarComposite;
 	private Composite graphTopComposite;
-	private MiniMap miniMap;
 	
 	private DBDAttributeBinding curAttribute;
 	private String curSelection;
@@ -98,6 +98,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	
 	private CoolBar coolBar;
 	private Label resultLabel;
+	private Label sizeLabel;
 
 	private Color[] colors;
 	private HashSet<String> propertyList = new HashSet<>();
@@ -111,8 +112,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	private LayoutStyle defaultLayoutAlgorithm = LayoutStyle.SPRING;
 
 	private boolean init = false;
-	
-	private RefreshThread miniMapThread = null;
 	
 	@Override
 	public void createPresentation(@NotNull final IResultSetController controller, @NotNull Composite parent) {
@@ -134,8 +133,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		mainComposite.setLayoutData(gd_MainComposite);
 		
 		menuBarComposite = new Composite(mainComposite, SWT.NONE);
-		menuBarComposite.setLayout(new GridLayout(4, false));
-		menuBarComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		menuBarComposite.setLayout(new GridLayout(1, false));
+		menuBarComposite.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
         
 		graphTopComposite = new Composite(mainComposite, SWT.NONE);
 		graphTopComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -143,7 +142,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         addMenuCoolbar(menuBarComposite);
 
-		visualGraph = new FXGraph(graphTopComposite, SWT.NONE, graphTopComposite.getBounds().width, graphTopComposite.getBounds().height);
+		visualGraph = new FXGraph(graphTopComposite, SWT.NONE);
 		visualGraph.setCursor(graphTopComposite.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
 		visualGraph.setForeground(UIStyles.getDefaultTextForeground());
 		visualGraph.setBackground(UIStyles.getDefaultTextBackground());
@@ -152,8 +151,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		visualGraph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		createGraphListner();
 		
-	    createMiniMap();
-	    
 		createHorizontalLine(parent, 1, 0); 
 
 		TextEditorUtils.enableHostEditorKeyBindingsSupport(controller.getSite(), visualGraph.getControl());
@@ -202,7 +199,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	    if (visualGraph != null) {
 	        return visualGraph.getControl();
 	    } 
-	    return graphTopComposite;
+	    return mainComposite;
 	}
 
 	@Override
@@ -258,64 +255,31 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		coolBar.setBackground(parent.getBackground());
 
 		CoolItem buttonItem1 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
-
+		CoolItem buttonItem2 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+		CoolItem buttonItem3 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+		CoolItem buttonItem4 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+		CoolItem buttonItem5 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+		
 		Composite composite1 = new Composite(coolBar, SWT.NONE);
 		composite1.setLayout(new GridLayout(7, true));
 
-		Button button1 = new Button(composite1, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE));
-		button1.setToolTipText("Circle(Radial) Layout");
-		button1.setData(LayoutStyle.RADIAL);
-		button1.addSelectionListener(layoutChangeListener);
-		button1.pack();
-
-		button1 = new Button(composite1, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_FORCE_DIRECTED));
-		button1.setToolTipText("Spring Layout");
-		button1.setData(LayoutStyle.SPRING);
-		button1.addSelectionListener(layoutChangeListener);
-		button1.pack();
-
-		button1 = new Button(composite1, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_GRID));
-		button1.setToolTipText("Grid Layout");
-		button1.setData(LayoutStyle.GRID);
-		button1.addSelectionListener(layoutChangeListener);
-		button1.pack();
-
-		button1 = new Button(composite1, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_HORIZONTAL));
-		button1.setToolTipText("Horizontal Layout");
-		button1.setData(LayoutStyle.HORIZONTAL);
-		button1.addSelectionListener(layoutChangeListener);
-		button1.pack();
-
-		button1 = new Button(composite1, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_HORIZONTAL));
-		button1.setToolTipText("Horizontal-Tree Layout");
-		button1.setData(LayoutStyle.HORIZONTAL_TREE);
-		button1.addSelectionListener(layoutChangeListener);
-		button1.pack();
-
-		button1 = new Button(composite1, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_VERTICAL));
-		button1.setToolTipText("Vertical Layout");
-		button1.setData(LayoutStyle.VERTICAL);
-		button1.addSelectionListener(layoutChangeListener);
-		button1.pack();
-
-		button1 = new Button(composite1, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_VERTICAL));
-		button1.setToolTipText("Vertical-Tree Layout");
-		button1.setData(LayoutStyle.VERTICAL_TREE);
-		button1.addSelectionListener(layoutChangeListener);
-		button1.pack();
+		Button button1; 
+		
+		for (LayoutStyle style : LayoutStyle.values()) {
+			button1 = new Button(composite1, SWT.PUSH);
+			button1.setImage(style.getImage());
+			button1.setToolTipText(style.getText());
+			button1.setData(style);
+			button1.addSelectionListener(layoutChangeListener);
+			button1.pack();
+		}
+		
 		composite1.pack();
 
 		Point size = composite1.getSize();
 		buttonItem1.setControl(composite1);
 		buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
-
+		
 		Composite composite2 = new Composite(coolBar, SWT.NONE);
 		composite2.setLayout(new GridLayout(2, true));
 
@@ -327,7 +291,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		button1.pack();
 		composite2.pack();
 
-		CoolItem buttonItem2 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		size = composite2.getSize();
 		buttonItem2.setControl(composite2);
 		buttonItem2.setSize(buttonItem2.computeSize(size.x, size.y));
@@ -351,24 +314,39 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 		composite3.pack();
 
-		CoolItem buttonItem3 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		size = composite3.getSize();
 		buttonItem3.setControl(composite3);
 		buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
-
+		
 		Composite composite4 = new Composite(coolBar, SWT.NONE);
-		composite4.setLayout(new GridLayout(4, true));
-		composite4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-
-		resultLabel = new Label(composite4, SWT.READ_ONLY | SWT.RIGHT);
-		resultLabel.setText("Node : " + 0 + " Edge : " + 0);
+		composite4.setLayout(new GridLayout(4, false));
+		composite4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		resultLabel = new Label(composite4, SWT.READ_ONLY | SWT.CENTER);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+        gd.horizontalSpan = 4;
+        resultLabel.setLayoutData(gd);
+		resultLabel.setText("Edge : " + "00000" + " Node : " + "00000");
 
 		composite4.pack();
-
-		CoolItem buttonItem4 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+		
 		size = composite4.getSize();
 		buttonItem4.setControl(composite4);
-		buttonItem4.setSize(composite4.computeSize(size.x, size.y));
+		buttonItem4.setSize(buttonItem4.computeSize(size.x, size.y));
+		
+		Composite composite5 = new Composite(coolBar, SWT.NONE);
+		composite5.setLayout(new GridLayout(4, false));
+		composite5.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
+		
+		sizeLabel = new Label(composite5, SWT.READ_ONLY | SWT.CENTER);
+		sizeLabel.setText("Edge : " + "00000" + " Node : " + "00000");
+		
+		composite5.pack();
+		
+		size = composite5.getSize();
+		buttonItem5.setControl(composite5);
+		buttonItem5.setSize(buttonItem5.computeSize(size.x, size.y));
+		
 	}
 
 	private static Label createHorizontalLine(Composite parent, int hSpan, int vIndent) {
@@ -416,10 +394,12 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			}
 		}
 
-		int compositeSizeX = composite.getSize().x;
-        int compositeSizeY = composite.getSize().y;
-		int drawSizeX = visualGraph.getNodes() * 18;
-		int drawSizeY =  visualGraph.getNodes() * 12;
+		int nodesNum = visualGraph.getNodes();
+		int sqrt = (int) Math.sqrt(nodesNum);
+		int compositeSizeX = composite.getSize().x - 100;
+        int compositeSizeY = composite.getSize().y - 100;
+        double drawSizeX = sqrt * 162;
+        double drawSizeY = sqrt * 129;;
         
 		if (visualGraph != null) {
 			resultLabel.setText("Node : " + visualGraph.getNodes() + " Edge : " + visualGraph.getEdges());
@@ -432,6 +412,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			    drawSizeY = compositeSizeY;
             }
 			
+			sizeLabel.setText(drawSizeX + " X " + drawSizeY); 
+			
 			if (!init) {
 			    visualGraph.drawGraph(drawSizeX, drawSizeY);
 			    init = true;
@@ -440,12 +422,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			    //visualGraph.redraw();
 			}
 			
-			//miniMap.show();
-		}
-		
-		if (miniMapThread == null) {
-		    miniMapThread = new RefreshThread(this, 1500);
-		    miniMapThread.start();
 		}
 		
 	}
@@ -712,16 +688,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         });
 	}
 	
-	private Image graphImageCapture() {
-		if (visualGraph.getCaptureImage() != null) {
-			Image image = new Image(null, visualGraph.getCaptureImage());
-			return image;
-		}
-		
-		return null;
-	
-	}
-	
 	private void saveImage() {
 	    
 		if(visualGraph != null) {
@@ -747,62 +713,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		}
 	}
 	
-    @Override
-    public void refreshWork() {
-        Display.getDefault().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                if (miniMap != null && miniMap.isShowing()) {
-                    miniMap.setImage(graphImageCapture());
-                    miniMap.reDraw();
-                }
-            }
-        });
-    }
-    
-    private void createMiniMap() {
-        miniMap = new MiniMap(graphTopComposite);
-        miniMap.addZoominListner(new SelectionListener() {
-            
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	if (visualGraph != null) {
-        			visualGraph.zoomIn();
-        		}
-                
-            }
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-            
-        });
-        
-        miniMap.addZoomOutListner(new SelectionListener() {
-            
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	if (visualGraph != null) {
-        			visualGraph.zoomOut();
-        		}
-            }
-            
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
-    }
-    
-    public void setMiniMapVisible(boolean visible) {
-        if (miniMap != null) {
-            if (visible) {
-                miniMap.show();
-            } else {
-                miniMap.remove();
-            }
-        }
-    }
-    
 //    private final SelectionListener imageButtonListener = new SelectionAdapter() {
 //		@Override
 //		public void widgetSelected(SelectionEvent e) {
@@ -821,4 +731,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 //			}
 //		}
 //	};
+    
+    public void setMiniMapVisible(boolean visible) {
+        if (visualGraph != null) {
+        	visualGraph.setMiniMapVisible(visible);
+       }
+	}
+    
 }

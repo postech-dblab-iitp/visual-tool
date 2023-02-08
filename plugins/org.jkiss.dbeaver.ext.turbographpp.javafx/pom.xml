@@ -12,6 +12,10 @@
     <version>1.0.0</version>
     <packaging>eclipse-plugin</packaging>
 
+    <properties>
+        <javafx-version>13.0.2</javafx-version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -30,7 +34,7 @@
     						<artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-base</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>win</classifier>
        							<outputDirectory>${project.build.directory}/classes/win</outputDirectory>
@@ -39,7 +43,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-controls</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>win</classifier>
                                 <outputDirectory>${project.build.directory}/classes/win</outputDirectory>
@@ -48,7 +52,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-graphics</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>win</classifier>
                                 <outputDirectory>${project.build.directory}/classes/win</outputDirectory>
@@ -58,7 +62,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-base</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>linux</classifier>
        							<outputDirectory>${project.build.directory}/classes/linux</outputDirectory>
@@ -67,7 +71,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-controls</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>linux</classifier>
                                 <outputDirectory>${project.build.directory}/classes/linux</outputDirectory>
@@ -76,7 +80,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-graphics</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>linux</classifier>
                                 <outputDirectory>${project.build.directory}/classes/linux</outputDirectory>
@@ -86,7 +90,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-base</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>mac</classifier>
        							<outputDirectory>${project.build.directory}/classes/mac</outputDirectory>
@@ -95,7 +99,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-controls</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>mac</classifier>
                                 <outputDirectory>${project.build.directory}/classes/mac</outputDirectory>
@@ -104,7 +108,7 @@
                             <artifactItem>
     							<groupId>org.openjfx</groupId>
     							<artifactId>javafx-graphics</artifactId>
-    							<version>11.0.2</version>
+    							<version>${javafx-version}</version>
     							<type>jar</type>
                                 <classifier>mac</classifier>
                                 <outputDirectory>${project.build.directory}/classes/mac</outputDirectory>
