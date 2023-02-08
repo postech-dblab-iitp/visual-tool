@@ -115,6 +115,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     private Consumer<SmartGraphVertex<V>> vertexOneClickConsumer = null;
     private Consumer<SmartGraphEdge<E, V>> edgeOneClickConsumer = null;
     
+    private Consumer<SmartGraphVertex<V>> vertexMovedConsumer = null;
+    
     /*
     AUTOMATIC LAYOUT RELATED ATTRIBUTES
      */
@@ -131,6 +133,9 @@ public class SmartGraphPanel<V, E> extends Pane {
     
     private Vertex<V> highlighNode = null;
 
+    private double vertexPosionX = 0;
+    private double vertexPosionY = 0;
+    
     /**
      * Constructs a visualization of the graph referenced by
      * <code>theGraph</code>, using default properties and default random
@@ -219,7 +224,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         //initNodes();
 
-        enableDoubleClickListener();
+        enableMouseListener();
 
         //automatic layout initializations        
         timer = new AnimationTimer() {
@@ -426,6 +431,10 @@ public class SmartGraphPanel<V, E> extends Pane {
     
     public void setEdgeSelectAction(Consumer<SmartGraphEdge<E, V>> action) {
         this.edgeOneClickConsumer = action;
+    }
+    
+    public void setVertexMovedAction(Consumer<SmartGraphVertex<V>> action) {
+        this.vertexMovedConsumer = action;
     }
     
     /*
@@ -1107,57 +1116,65 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
-    /**
-     * Enables the double click action on this pane.
-     *
-     * This method identifies the node that was clicked and, if any, calls the
-     * appropriate consumer, i.e., vertex or edge consumers.
-     */
-    private void enableDoubleClickListener() {
+    private void enableMouseListener() {
         setOnMouseClicked((MouseEvent mouseEvent) -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                if (mouseEvent.getClickCount() == 2) {
-                    //no need to continue otherwise
-                    if (vertexClickConsumer == null && edgeClickConsumer == null) {
-                        return;
-                    }
 
-                    Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
-                    if (node == null) {
-                        return;
-                    }
-
-                    if (node instanceof SmartGraphVertex) {
-                        SmartGraphVertex v = (SmartGraphVertex) node;
-                        vertexClickConsumer.accept(v);
-                    } else if (node instanceof SmartGraphEdge) {
-                        SmartGraphEdge e = (SmartGraphEdge) node;
-                        edgeClickConsumer.accept(e);
-                    }
-
+            	Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            	
+                if (node == null) {
+                    return;
                 }
                 
-                if (mouseEvent.getClickCount() == 1) {
-                    //no need to continue otherwise
-                    if (vertexOneClickConsumer == null && edgeOneClickConsumer == null) {
-                        return;
+                if (node instanceof SmartGraphVertex) {
+                	
+                	SmartGraphVertex v = (SmartGraphVertex) node;
+                	
+                	if (vertexMovedConsumer != null) {
+                		if (v.getPositionCenterX() != vertexPosionX 
+                        		|| v.getPositionCenterY() != vertexPosionY) {
+                        	vertexMovedConsumer.accept(v);
+                        }
+                	}
+                	
+                	if (mouseEvent.getClickCount() == 2) {
+                        if (vertexClickConsumer != null) {
+                            vertexClickConsumer.accept(v);
+                        }
                     }
-
-                    Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
-                    if (node == null) {
-                        return;
+                	
+                	if (mouseEvent.getClickCount() == 1) {
+                		if (vertexOneClickConsumer != null) {
+                			vertexOneClickConsumer.accept(v);
+                		}
+                	}
+                	
+                } else if (node instanceof SmartGraphEdge) {
+                	
+                	SmartGraphEdge e = (SmartGraphEdge) node;
+                	
+                	if (mouseEvent.getClickCount() == 2) {
+                        if (vertexClickConsumer != null) {
+                        	edgeClickConsumer.accept(e);
+                        }
                     }
-
-                    if (node instanceof SmartGraphVertex) {
-                        SmartGraphVertex v = (SmartGraphVertex) node;
-                        vertexOneClickConsumer.accept(v);
-                    } else if (node instanceof SmartGraphEdge) {
-                        SmartGraphEdge e = (SmartGraphEdge) node;
-                        edgeOneClickConsumer.accept(e);
-                    }
-
+                	
+                	if (mouseEvent.getClickCount() == 1) {
+                		if (vertexOneClickConsumer != null) {
+                			edgeOneClickConsumer.accept(e);
+                		}
+                	}
                 }
+       
             }
+        });
+        
+        setOnMouseMoved((MouseEvent mouseEvent) -> {
+        	Node node = mouseEvent.getPickResult().getIntersectedNode();
+        	if (node instanceof SmartGraphVertex) {
+        		vertexPosionX = ((SmartGraphVertex) node).getPositionCenterX();
+        		vertexPosionY = ((SmartGraphVertex) node).getPositionCenterY();
+        	}
         });
     }
 

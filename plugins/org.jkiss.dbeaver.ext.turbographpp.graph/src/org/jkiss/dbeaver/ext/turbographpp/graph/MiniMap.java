@@ -1,4 +1,4 @@
-package org.jkiss.dbeaver.ui.controls.resultset.visual;
+package org.jkiss.dbeaver.ext.turbographpp.graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,19 +62,19 @@ public class MiniMap {
         controlListener = new ControlListener() {
             @Override
             public void controlMoved(ControlEvent e) {
-                reposition();
+                rePosition();
             }
 
             @Override
             public void controlResized(ControlEvent e) {
-                reposition();
+                rePosition();
             }
         };
 
         paintListener = new PaintListener() {
             @Override
             public void paintControl(PaintEvent e) {
-                reposition();
+                rePosition();
             }
         };
 
@@ -106,11 +106,11 @@ public class MiniMap {
         canvasPaintListener = new PaintListener() {
             @Override
             public void paintControl(PaintEvent e) {
-                if (captureImage != null) {
+                if (captureImage != null && !captureImage.isDisposed()) {
                     e.gc.drawImage(captureImage, 0, 0,
                             captureImage.getBounds().width, captureImage.getBounds().height,
                             0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
-                    captureImage.dispose();
+                	//captureImage.dispose();
                 }
             }
         };
@@ -140,7 +140,7 @@ public class MiniMap {
             return;
         }
 
-        reposition();
+        rePosition();
 
         overlayShell.setVisible(true);
 
@@ -158,7 +158,12 @@ public class MiniMap {
     }
 
     public void remove() {
-
+    	System.out.println("remove");
+    	
+    	if (captureImage != null) {
+    		captureImage.dispose();
+    	}
+    	
         if (!showing) {
             return;
         }
@@ -215,7 +220,7 @@ public class MiniMap {
         miniMapCanvas.redraw();    
     }
     
-    private void reposition() {
+    private void rePosition() {
 
         if (!parentComposite.isVisible()) {
             overlayShell.setBounds(new Rectangle(0, 0, 0, 0));
