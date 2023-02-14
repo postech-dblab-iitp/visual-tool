@@ -13,6 +13,8 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseWheelListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TouchEvent;
@@ -80,7 +82,6 @@ public class FXGraph implements GraphBase {
     
     private Consumer<String> nodeIDConsumer = null;
     private Consumer<String> edgeIDConsumer = null;
-    private Consumer<String> nodeMovedConsumer = null;
     
     private LayoutUpdateThread layoutUpdatethread;
     
@@ -98,6 +99,9 @@ public class FXGraph implements GraphBase {
     
     private double lastWidth = 0;
     private double lastHeight = 0;
+    
+    private double lastViewportWidth = 0;
+    private double lastViewportHeight = 0;
     
     public FXGraph(Composite parent, int style) {
         control = parent;
@@ -134,6 +138,23 @@ public class FXGraph implements GraphBase {
         canvas.setScene(scene);
         
         createMiniMap(parent);
+        
+        canvas.addPaintListener(new PaintListener() {
+			
+			@Override
+			public void paintControl(PaintEvent e) {
+				Double hValue, vValue;
+				
+				lastViewportWidth = scrollPane.getViewportBounds().getWidth();
+				lastViewportHeight = scrollPane.getViewportBounds().getHeight();
+				lastWidth =  graphView.getBoundsInParent().getWidth();
+				lastHeight = graphView.getBoundsInParent().getHeight();
+				hValue = scrollPane.getHvalue();
+				vValue = scrollPane.getVvalue();
+			
+				miniMap.setPointRectAngel(lastWidth, lastHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
+			}
+		}); 
         
     }
 
@@ -233,10 +254,6 @@ public class FXGraph implements GraphBase {
         });
         
         graphView.setVertexMovedAction(event -> {
-        	if (edgeIDConsumer == null ) {
-                return;
-            }
-        	edgeIDConsumer.accept(null);
         	miniMapUpdate();
         });
         
@@ -628,6 +645,22 @@ public class FXGraph implements GraphBase {
             public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
+        
+        miniMap.addCavasMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseUp(MouseEvent e) {
+			}
+			
+			@Override
+			public void mouseDown(MouseEvent e) {
+				MoveScrollBar(e.x / (double)MiniMap.MINIMAP_WIDTH, e.y / (double)MiniMap.MINIMAP_HEIGHT);
+			}
+			
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+		});
     }
 	
 	public void setMiniMapVisible(boolean visible) {
@@ -681,5 +714,11 @@ public class FXGraph implements GraphBase {
 		graphView.setScaleX(zoomManager.getZoomLevel());
 		graphView.setScaleY(zoomManager.getZoomLevel());
 	}
+	
+	public void MoveScrollBar(double hValue, double vValue) {
+		scrollPane.setHvalue(hValue);
+		scrollPane.setVvalue(vValue);
+	}
+
 }
 

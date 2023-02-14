@@ -9,6 +9,8 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionListener;
@@ -26,11 +28,13 @@ import org.eclipse.swt.widgets.Shell;
 
 public class MiniMap {
 
-    private final int OVERLAY_WIDTH = 430;
-    private final int OVERLAY_HEIGHT = 300;
-    private final int MINIMAP_WIDTH = OVERLAY_WIDTH - 30;
-    private final int MINIMAP_HEIGHT = OVERLAY_HEIGHT;
+    private final static int OVERLAY_WIDTH = 430;
+    private final static int OVERLAY_HEIGHT = 300;
+    public static final int MINIMAP_WIDTH = OVERLAY_WIDTH - 30;
+    public static final int MINIMAP_HEIGHT = OVERLAY_HEIGHT;
     private final int OVERLAY_WH_MARGIN = 50;
+    private final int POINT_MARGIN_WIDTH = 2;
+    private final int POINT_MARGIN_HEIGHT = 5;
     
     private List<Composite> parents;
     private Control parentComposite;
@@ -44,6 +48,8 @@ public class MiniMap {
     private Image captureImage;
     private Button zoomIn;
     private Button zoomOut;
+    
+    private Rectangle pointRectAngel;
 
     public MiniMap(Control composite) {
 
@@ -103,13 +109,17 @@ public class MiniMap {
         miniMapCanvas.setLayout(gdLayout);
         miniMapCanvas.setLayoutData(gdata);
 
+        pointRectAngel = new Rectangle(0, 0, 0, 0);
+        
         canvasPaintListener = new PaintListener() {
             @Override
             public void paintControl(PaintEvent e) {
                 if (captureImage != null && !captureImage.isDisposed()) {
-                    e.gc.drawImage(captureImage, 0, 0,
-                            captureImage.getBounds().width, captureImage.getBounds().height,
-                            0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+                	e.gc.setForeground(new Color(255, 0, 0));
+                	e.gc.drawImage(captureImage, 0, 0,
+                			captureImage.getBounds().width, captureImage.getBounds().height,
+                			0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+                	e.gc.drawRectangle(pointRectAngel);
                 	//captureImage.dispose();
                 }
             }
@@ -258,5 +268,38 @@ public class MiniMap {
     public void addZoomOutListner(SelectionListener listner) {
         zoomOut.addSelectionListener(listner);
     }
+    
+    public void addCavasMouseListener(MouseListener listner) {
+    	miniMapCanvas.addMouseListener(listner);
+    }
 
+    
+    public void setPointRectAngel(double viewWidth, double viewHeight, double viewportWidth, double viewportHeight, double vValue, double hValue) {
+    	
+    	int pointX, pointY, width, height;
+    	int leftWidth, leftHeight;
+    	
+    	width = (int) (viewportWidth/viewWidth * MINIMAP_WIDTH);
+		height = (int) (viewportHeight/viewHeight * MINIMAP_HEIGHT);
+		
+		width = width >= MINIMAP_WIDTH ? MINIMAP_WIDTH : width;
+		height = height >= MINIMAP_HEIGHT ? MINIMAP_HEIGHT : height;
+		
+		leftWidth =  MINIMAP_WIDTH - width;
+		leftHeight =  MINIMAP_HEIGHT - height;
+		
+		pointX = (int) (leftWidth * hValue);
+		pointY = (int) (leftHeight * vValue);
+		
+    	pointRectAngel.x = pointX;
+    	pointRectAngel.y = pointY;
+   		pointRectAngel.width = width - POINT_MARGIN_WIDTH;
+   		pointRectAngel.height = height - POINT_MARGIN_HEIGHT;
+    	
+    	miniMapCanvas.redraw();
+    	
+    	//System.out.println("setPointRectAngel " + pointX + "," + pointY + "," + width + "," + height + ",");
+    }
+    
 }
+
