@@ -34,16 +34,18 @@ public class ZoomManager {
 		}
 	}
 	
-	public void zoomOut() {
+	public boolean zoomOut() {
 		
 		if (!isScrollVisible()) {
-			return;
+			return false;
 		}
 		
 		if (computedZoomLevel >= MIN_SCALE + SCROLL_DELTA && computedZoomLevel <= MAX_SCALE) {
 			computedZoomLevel = computedZoomLevel - SCROLL_DELTA;
 			setZoomLevel(computedZoomLevel);
 		}
+		
+		return true;
 	}
 	
 	public void setZoomLevel(double level) {
