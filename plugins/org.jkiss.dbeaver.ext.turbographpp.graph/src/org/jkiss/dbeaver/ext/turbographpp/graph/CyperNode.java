@@ -16,6 +16,7 @@ public class CyperNode {
 	private String label;
 	private String fillColor;
     private HashMap<String, Object> property;
+    private double lastPositionX, lastPositionY;
     
     private int defaultDisplayType = DEFAULT_DISPLAY_TYPE_LABLE;
     private String diplayPropertyName = null;
@@ -26,6 +27,8 @@ public class CyperNode {
         this.display = label;
         this.fillColor = fillColor;
         this.property = new HashMap<>();
+        this.lastPositionX = -1;
+        this.lastPositionY = -1;
         if (property != null) {
         	this.property.putAll(property);
         }
@@ -100,4 +103,17 @@ public class CyperNode {
     public void setDisplayType(int defaultType) {
     	this.defaultDisplayType = defaultType;
     }
+    
+    public void setLastPosition(double x, double y) {
+    	this.lastPositionX = x;
+    	this.lastPositionY = y;
+    }
+    
+    public double getLastPositionX() {
+    	return this.lastPositionX;
+    }
+    
+    public double getLastPositionY() {
+    	return this.lastPositionY;
+    } 
 }
