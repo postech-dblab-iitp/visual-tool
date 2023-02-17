@@ -127,7 +127,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final double attractionScale;
     
     //This value was obtained experimentally
-    private static final int AUTOMATIC_LAYOUT_ITERATIONS = 20;
+    private static final int AUTOMATIC_LAYOUT_ITERATIONS = 10;
     
     private String displayProperyName = null;
     
@@ -446,11 +446,6 @@ public class SmartGraphPanel<V, E> extends Pane {
         for (Vertex<V> vertex : listOfVertices()) {
             SmartGraphVertexNode<V> vertexAnchor = new SmartGraphVertexNode<V>(vertex, 0, 0,
                     graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
-            if (vertex.element() instanceof CyperNode) {
-            	CyperNode node = (CyperNode) vertex.element();
-            	String fillColor = node.getFillColor();
-            	vertexAnchor.setStyle(fillColor);
-            }
             vertexNodes.put(vertex, vertexAnchor);
         }
 
@@ -544,6 +539,12 @@ public class SmartGraphPanel<V, E> extends Pane {
             this.getChildren().add(label);
             v.attachLabel(label);
         }
+        
+        if (v.getUnderlyingVertex().element() instanceof CyperNode) {
+        	CyperNode node = (CyperNode) v.getUnderlyingVertex().element();
+        	String fillColor = node.getFillColor();
+        	v.setStyle(fillColor);
+        }
     }
 
     private void addEdge(SmartGraphEdgeBase e, FxEdge<E, V> edge) {
@@ -615,6 +616,17 @@ public class SmartGraphPanel<V, E> extends Pane {
                     }
                 }
 
+                if (vertex.element() instanceof CyperNode) {
+                	double lastPositionX = ((CyperNode) vertex.element()).getLastPositionX();
+                	double lastPositionY = ((CyperNode) vertex.element()).getLastPositionY();
+                	if (lastPositionX != -1) {
+                		x = lastPositionX;
+                	}
+                	if (lastPositionY != -1) {
+                		y = lastPositionY;
+                	}
+                }
+                
                 SmartGraphVertexNode newVertex = new SmartGraphVertexNode<>(vertex,
                         x, y, graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
 
@@ -1030,7 +1042,10 @@ public class SmartGraphPanel<V, E> extends Pane {
     public SmartStylableNode getStylableVertex(Vertex<V> v) {
         return vertexNodes.get(v);
     }
-
+    
+    public SmartGraphVertexNode<V> getGraphVertex(Vertex<V> v) {
+        return vertexNodes.get(v);
+    }
     /**
      * Returns the associated stylable element with a graph vertex.
      *

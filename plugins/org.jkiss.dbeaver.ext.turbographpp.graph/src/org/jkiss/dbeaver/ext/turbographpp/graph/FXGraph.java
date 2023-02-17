@@ -1,7 +1,9 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -45,10 +47,13 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphEdgeList;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartRandomPlacementStrategy;
+
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 
 public class FXGraph implements GraphBase {
@@ -59,6 +64,8 @@ public class FXGraph implements GraphBase {
 	public static final int MOUSE_SECONDARY_BUTTON = 3;
 
 	public static final int CTRL_KEYCODE = 0x40000;
+	public static final int Z_KEYCODE = 0x7a;
+	public static final int Y_KEYCODE = 0x79;
 	
     private FXCanvas canvas;
     private Graph<CyperNode, CyperEdge> graph;
@@ -72,7 +79,7 @@ public class FXGraph implements GraphBase {
     
     private MiniMap miniMap;
     
-    private boolean zoomMode = false;
+    private boolean ctrlKeyMode = false;
     private ZoomManager zoomManager;
     
     private HashMap<String, CyperNode> Nodes = new HashMap<>();
@@ -102,6 +109,9 @@ public class FXGraph implements GraphBase {
     
     private double lastViewportWidth = 0;
     private double lastViewportHeight = 0;
+    
+    private ArrayList<DeleteGraphElement> undoList = new ArrayList<>();
+    private ArrayList<DeleteGraphElement> redoList = new ArrayList<>();
     
     public FXGraph(Composite parent, int style) {
         control = parent;
@@ -154,7 +164,7 @@ public class FXGraph implements GraphBase {
 			
 				miniMap.setPointRectAngel(lastWidth, lastHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
 			}
-		}); 
+		});
         
     }
 
@@ -265,15 +275,28 @@ public class FXGraph implements GraphBase {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode == CTRL_KEYCODE) {
-					zoomMode = false;
+					ctrlKeyMode = false;
 				}
 			}
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == CTRL_KEYCODE) {
-					zoomMode = true;
+				if (e.keyCode == CTRL_KEYCODE ) {
+					ctrlKeyMode = true;
 				}
+				
+				if (ctrlKeyMode) {
+					if (e.keyCode == Z_KEYCODE) {
+						doUndo();
+					} else if (e.keyCode == Y_KEYCODE) {
+						doRedo();
+					}
+				}
+				
+				if (selectNode != null && e.keyCode == SWT.DEL) {
+					doDelete(true);
+				}
+				
 			}
 		});
 		
@@ -281,7 +304,7 @@ public class FXGraph implements GraphBase {
 			
 			@Override
 			public void mouseScrolled(MouseEvent e) {
-				if (zoomMode) {
+				if (ctrlKeyMode) {
 					if (e != null) {
 						if (e.count == MOUSE_WHELL_UP) {
 							zoomOut();
@@ -352,6 +375,32 @@ public class FXGraph implements GraphBase {
         return e;
     }
 
+    private boolean removeNode(SmartGraphVertex<CyperNode> node) {
+    	if (node != null) {
+	    	graph.removeVertex(node.getUnderlyingVertex());
+	    	return true;
+    	}
+    	
+    	return false;
+    }
+    
+    private Vertex<CyperNode> restoreNode(SmartGraphVertex<CyperNode> node, double x, double y) {
+    	if (node != null) {
+    		node.getUnderlyingVertex().element().setLastPosition(x, y);
+    		Vertex<CyperNode> v = graph.insertVertex(node.getUnderlyingVertex().element());
+	    	return v;
+    	}
+    	return null;
+    }
+    
+    private boolean restoreEdge(CyperEdge edge) {
+    	if (edge != null) {
+    		graph.insertEdge(Nodes.get(edge.getStartNodeID()), Nodes.get(edge.getEndNodeID()), edge);
+	    	return true;
+    	}
+    	return false;
+    }
+    
     public void updateNodeLabel(String label) {
     }
     
@@ -367,14 +416,16 @@ public class FXGraph implements GraphBase {
 
     @Override
     public void clearGraph() {
+    	Nodes.clear();
+    	Edges.clear();
+    	undoList.clear();
+        redoList.clear();
         graph.clearElement();
         graphView.clear();
-        
     }
 
     @Override
     public void clear() {
-        
     }
     
 	@Override
@@ -553,8 +604,10 @@ public class FXGraph implements GraphBase {
 		  {
 			if (selectNode != null && !graphView.isHighlighted()) {
 				highlightMenu.setDisable(false);
+				deteleMenu.setDisable(false);
 			} else {
 				highlightMenu.setDisable(true);
+				deteleMenu.setDisable(true);
 			}
 			
 			if (graphView.isHighlighted()) {
@@ -565,6 +618,18 @@ public class FXGraph implements GraphBase {
 			  
 			if (statusCanvasFocus) {
 				contextMenu.show(graphView, event.getScreenX(), event.getScreenY());
+			}
+			
+			if (redoList.size() != 0) {
+				redoMenu.setDisable(false);
+			} else {
+				redoMenu.setDisable(true);
+			}
+			
+			if (undoList.size() != 0) {
+				undoMenu.setDisable(false);
+			} else {
+				undoMenu.setDisable(true);
 			}
 		  }
 		});
@@ -585,6 +650,30 @@ public class FXGraph implements GraphBase {
 		    	setUnhighlight();
 		    }
 		});
+		
+		deteleMenu.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent arg0) {
+				doDelete(true);
+			}
+		});
+		
+		redoMenu.setOnAction(new EventHandler<ActionEvent>() {
+					
+			@Override
+			public void handle(ActionEvent arg0) {
+				doRedo();
+			}
+		});
+
+		undoMenu.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent arg0) {
+				doUndo();
+			}
+		});
 	}
 	
 	private void hideContextMenu() {
@@ -600,6 +689,62 @@ public class FXGraph implements GraphBase {
     	}
 		
 		selectNode = null;
+	}
+	
+	private void doDelete(boolean delete) {
+		if (selectNode != null) {
+			DeleteGraphElement deleteModel = new DeleteGraphElement(selectNode, selectNode.getPositionCenterX(), selectNode.getPositionCenterY());
+			deleteModel.addEdges(graph.incidentEdges(selectNode.getUnderlyingVertex()));
+			deleteModel.addEdges(graph.outboundEdges(selectNode.getUnderlyingVertex()));
+			removeNode(selectNode);
+			if (undoList.size() > 4) {
+				undoList.remove(0);
+			}
+			undoList.add(deleteModel);
+			graphView.update();
+			selectNode = null;
+			
+			if (delete) {
+				redoList.clear();
+			}
+        }
+	}
+	
+	private void doRedo() {
+		if (redoList.size() != 0) {
+			int idx = redoList.size() -1;
+			DeleteGraphElement deleteModel = redoList.get(idx); 
+			clearSelectNode();
+			selectNode = graphView.getGraphVertex(deleteModel.getVertex());
+			doDelete(false);
+			
+			redoList.remove(idx);
+			graphView.update();
+			selectNode= null;
+			
+		}
+	}
+	
+	private void doUndo() {
+		if (undoList.size() != 0) {
+			int idx = undoList.size() -1;
+			DeleteGraphElement deleteModel = undoList.get(idx); 
+			Vertex<CyperNode> vertex = restoreNode(deleteModel.getNode(), deleteModel.getPositionX(), deleteModel.getPositionY());
+			deleteModel.setVertex(vertex);
+			Iterator<FxEdge<CyperEdge, CyperNode>> itr = deleteModel.getEdges().iterator();
+			while(itr.hasNext()) {
+				CyperEdge cyperEdge = itr.next().element();
+				restoreEdge(cyperEdge);
+			}
+			
+			if (redoList.size() > 4) {
+				redoList.remove(0);
+			}
+			
+			redoList.add(deleteModel);
+			undoList.remove(idx);
+			graphView.update();
+		}
 	}
 	
 	private void setHighlight() {
