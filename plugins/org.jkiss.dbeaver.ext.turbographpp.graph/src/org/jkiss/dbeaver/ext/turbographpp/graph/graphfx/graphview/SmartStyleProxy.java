@@ -30,14 +30,14 @@ public class SmartStyleProxy implements SmartStylableNode {
     		+ " -fx-stroke-dash-array: 2 5 2 5;"
     		+ " -fx-fill: transparent;"
     		+ " -fx-stroke-line-cap: round;"
-    		+ " -fx-opacity: 0.8;";
+    		+ " -fx-opacity: 0.2;";
 	
     public static final String HIGHLIGHT_EDGE = "-fx-stroke-width: 4;"
     		+ " -fx-stroke: #FF6D66;"
     		+ " -fx-stroke-dash-array: 2 5 2 5;"
     		+ " -fx-fill: transparent;"
     		+ " -fx-stroke-line-cap: round;"
-    		+ " -fx-opacity: 0.8;";
+    		+ " -fx-opacity: 1.0;";
     
     private final Shape client;
     

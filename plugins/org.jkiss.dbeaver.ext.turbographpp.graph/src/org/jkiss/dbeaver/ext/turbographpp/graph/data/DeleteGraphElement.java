@@ -1,4 +1,4 @@
-package org.jkiss.dbeaver.ext.turbographpp.graph;
+package org.jkiss.dbeaver.ext.turbographpp.graph.data;
 
 import java.util.ArrayList;
 import java.util.Collection;

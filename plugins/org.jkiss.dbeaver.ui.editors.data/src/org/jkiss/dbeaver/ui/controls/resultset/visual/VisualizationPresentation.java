@@ -29,7 +29,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
@@ -42,18 +41,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.themes.ITheme;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.ModelPreferences;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
-import org.jkiss.dbeaver.ext.turbographpp.graph.GephiModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.GraphBase.LayoutStyle;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.GephiModel;
 import org.jkiss.dbeaver.model.DBConstants;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.data.DBDAttributeBinding;
@@ -242,6 +238,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 					case SHORTEST :
 					    break;
 					case TO_CSV :
+						saveCSV();
 					    break;
 					default :
 						break;
@@ -711,6 +708,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			imageLoader.data = new ImageData[] { imageData };
 			imageLoader.save(filename, SWT.IMAGE_JPEG);
 		}
+	}
+	
+	private void saveCSV() {
+		visualGraph.exportCSV();
 	}
 	
 //    private final SelectionListener imageButtonListener = new SelectionAdapter() {
