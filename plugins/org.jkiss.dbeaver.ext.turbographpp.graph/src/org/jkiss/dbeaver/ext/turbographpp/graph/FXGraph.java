@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.function.Consumer;
 
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -47,13 +48,17 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.DeleteGraphElement;
+import org.jkiss.dbeaver.ext.turbographpp.graph.dialog.CSVDialog;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphEdgeList;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartRandomPlacementStrategy;
-
+import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 
 public class FXGraph implements GraphBase {
@@ -562,9 +567,9 @@ public class FXGraph implements GraphBase {
 	private String ramdomColor() {
 		int r, g, b;
 		Random random = new Random();
-		r = random.nextInt(170) + 40;
-		g = random.nextInt(170) + 40;
-		b = random.nextInt(170) + 40;
+		r = random.nextInt(80) + 70;
+		g = random.nextInt(170) + 70;
+		b = random.nextInt(170) + 70;
 
 		return "-fx-fill: #" + Integer.toHexString(r) + Integer.toHexString(g) +  Integer.toHexString(b);
 	}
@@ -865,5 +870,18 @@ public class FXGraph implements GraphBase {
 		scrollPane.setVvalue(vValue);
 	}
 
+	public boolean exportCSV() {
+		
+		CSVDialog csvDialog = new  CSVDialog(this.getControl().getShell());
+		
+		csvDialog.create();
+		if (csvDialog.open() == Window.OK) {
+			return ExportCSV.exportCSV(csvDialog.getFolderPath(), csvDialog.getNodeFileName(), csvDialog.getEdgeFileName(), 
+					graph.vertices(), graph.edges());
+		}
+		
+		return false;
+	}
+	
 }
 

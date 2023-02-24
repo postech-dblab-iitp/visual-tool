@@ -53,7 +53,7 @@ import javafx.scene.text.Text;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
-import org.jkiss.dbeaver.ext.turbographpp.graph.CyperNode;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Digraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.openide.loaders.InstanceSupport.Instance;

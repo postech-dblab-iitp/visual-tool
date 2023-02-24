@@ -116,6 +116,7 @@ public class MiniMap {
             public void paintControl(PaintEvent e) {
                 if (captureImage != null && !captureImage.isDisposed()) {
                 	e.gc.setForeground(new Color(255, 0, 0));
+                	e.gc.setLineWidth(4);
                 	e.gc.drawImage(captureImage, 0, 0,
                 			captureImage.getBounds().width, captureImage.getBounds().height,
                 			0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
