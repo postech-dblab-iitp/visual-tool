@@ -94,8 +94,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	
 	private CoolBar coolBar;
 	private Label resultLabel;
-	private Label sizeLabel;
+	private Label InfoLabel;
 
+	private Button shortestButton;
+	
 	private Color[] colors;
 	private HashSet<String> propertyList = new HashSet<>();
 	private HashMap<String, DBDAttributeBinding> DBDAttributeNodeList = new HashMap<>();
@@ -166,6 +168,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			UIUtils.dispose(monoFont);
 			monoFont = null;
 		}
+		
+		if (visualGraph != null) {
+			visualGraph.finalize();
+		}
+		
 		super.dispose();
 	}
 
@@ -205,6 +212,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     			gephiModel.clear();
     			gephiModel.clearGraph(visualGraph);
 			}
+			setShortestMode(false);
 			setLayoutManager(defaultLayoutAlgorithm);
 			propertyList.clear();
 			DBDAttributeNodeList.clear();
@@ -234,11 +242,17 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 				switch((ImageButton) e.widget.getData()) {
 					case CAPTURE :
 					    saveImage();
+					    setShortestMode(false);
 						break;
 					case SHORTEST :
+						if(visualGraph != null) {
+							boolean status = visualGraph.getShortestMode();
+							setShortestMode(!status);
+						}
 					    break;
 					case TO_CSV :
 						saveCSV();
+						setShortestMode(false);
 					    break;
 					default :
 						break;
@@ -280,12 +294,12 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		Composite composite2 = new Composite(coolBar, SWT.NONE);
 		composite2.setLayout(new GridLayout(2, true));
 
-		button1 = new Button(composite2, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
-		button1.setToolTipText("Shortest Path");
-		button1.setData(ImageButton.SHORTEST);
-		button1.addSelectionListener(imageButtonListener);
-		button1.pack();
+		shortestButton = new Button(composite2, SWT.PUSH);
+		shortestButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
+		shortestButton.setToolTipText("Shortest Path");
+		shortestButton.setData(ImageButton.SHORTEST);
+		shortestButton.addSelectionListener(imageButtonListener);
+		shortestButton.pack();
 		composite2.pack();
 
 		size = composite2.getSize();
@@ -335,8 +349,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		composite5.setLayout(new GridLayout(4, false));
 		composite5.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
 		
-		sizeLabel = new Label(composite5, SWT.READ_ONLY | SWT.CENTER);
-		sizeLabel.setText("Edge : " + "00000" + " Node : " + "00000");
+		InfoLabel = new Label(composite5, SWT.READ_ONLY | SWT.CENTER);
+		InfoLabel.setText("Edge : " + "00000" + " Node : " + "00000");
 		
 		composite5.pack();
 		
@@ -409,7 +423,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			    drawSizeY = compositeSizeY;
             }
 			
-			sizeLabel.setText(drawSizeX + " X " + drawSizeY); 
+			InfoLabel.setText(drawSizeX + " X " + drawSizeY); 
 			
 			if (!init) {
 			    visualGraph.drawGraph(drawSizeX, drawSizeY);
@@ -666,7 +680,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	private void setLayoutManager(LayoutStyle layoutStyle) {
 		defaultLayoutAlgorithm = layoutStyle;
-		//visualGraph.setLayoutAlgorithm(layoutStyle);
+		visualGraph.setLayoutAlgorithm(layoutStyle);
 	}
 
 	private void createGraphListner() {
@@ -738,5 +752,19 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         	visualGraph.setMiniMapVisible(visible);
        }
 	}
+    
+    private void setShortestMode(boolean status) {
+    	visualGraph.setShortestMode(status);
+    	setColorShortestButton(status);
+    	
+    }
+    
+    private void setColorShortestButton(boolean shortestStatus) {
+    	if (shortestStatus) {
+    		shortestButton.setBackground(new Color(200, 200, 200));
+    	} else {
+    		shortestButton.setBackground(null);
+    	}
+    }
     
 }

@@ -136,6 +136,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     private double vertexPosionX = 0;
     private double vertexPosionY = 0;
     
+    private Set<Vertex<V>> visitedVertexList = new HashSet<>(); 
+    
     /**
      * Constructs a visualization of the graph referenced by
      * <code>theGraph</code>, using default properties and default random
@@ -1257,12 +1259,14 @@ public class SmartGraphPanel<V, E> extends Pane {
     public void setHighlight(Vertex<V> vertex) {
     	highlighNode = vertex;
     	doHighlight(highlighNode, true);
+    	visitedVertexList.clear();
     }
     
     public void setUnHighlight() {
     	if (highlighNode != null) {
     		doHighlight(highlighNode, false);
     		highlighNode = null;
+    		visitedVertexList.clear();
     	}
     }
     
@@ -1286,32 +1290,41 @@ public class SmartGraphPanel<V, E> extends Pane {
     	SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
     	
     	if (graphVertexIn.getUnderlyingVertex().element() instanceof CyperNode) {
-       	 CyperNode node = (CyperNode) graphVertexIn.getUnderlyingVertex().element();
-       	//Set Vertex Style
-       	 graphVertexIn.setStyle(vertexStyle + node.getFillColor());
+    		CyperNode node = (CyperNode) graphVertexIn.getUnderlyingVertex().element();
+    		//Set Vertex Style
+    		graphVertexIn.setStyle(vertexStyle + node.getFillColor());
         }
     	
     	Iterable<FxEdge<E, V>> incidentEdges = theGraph.outboundEdges(vertex);
-    	 for (FxEdge<E, V> edge : incidentEdges) {
-    		 //Set Edge Style
-    		 getStylableEdge(edge).setStyle(edgeStyle);
+    	for (FxEdge<E, V> edge : incidentEdges) {
+    		//Set Edge Style
+    		getStylableEdge(edge).setStyle(edgeStyle);
 
-             Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
+    		Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
 
-             SmartGraphVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
-             
-             if (graphVertexOppositeOut.getUnderlyingVertex().element() instanceof CyperNode) {
-            	 CyperNode node = (CyperNode) graphVertexOppositeOut.getUnderlyingVertex().element();
-            	//Set Vertex Style
-            	 graphVertexOppositeOut.setStyle(vertexStyle + node.getFillColor());
-             }
-             
-             doHighlight(graphVertexOppositeOut.getUnderlyingVertex(), highlight);
+    		SmartGraphVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
+    		if (graphVertexOppositeOut.getUnderlyingVertex().element() instanceof CyperNode) {
+    			CyperNode node = (CyperNode) graphVertexOppositeOut.getUnderlyingVertex().element();
+    			//Set Vertex Style
+    			graphVertexOppositeOut.setStyle(vertexStyle + node.getFillColor());
+    		}
+    		
+    		if (!visitedVertexList.contains(graphVertexOppositeOut.getUnderlyingVertex())) {
+    			visitedVertexList.add(graphVertexOppositeOut.getUnderlyingVertex());
+    			doHighlight(graphVertexOppositeOut.getUnderlyingVertex(), highlight);
+    		}
          }
 	}
     
     
     public void clear() {
     	highlighNode = null;
+    }
+    
+    public void setSmartPlacementStrategy (SmartPlacementStrategy placementStrategy) {
+    	placementStrategy.place(this.getMinWidth(),
+				this.getMaxHeight(),
+				this.theGraph,
+				this.vertexNodes.values());
     }
 }

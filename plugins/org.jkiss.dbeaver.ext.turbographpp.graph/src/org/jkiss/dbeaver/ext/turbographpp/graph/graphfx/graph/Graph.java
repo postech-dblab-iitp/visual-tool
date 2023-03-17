@@ -245,4 +245,6 @@ public interface Graph<V, E> {
     public E replace(FxEdge<E, V> e, E newElement) throws InvalidEdgeException;
     
     public void clearElement();
+
+	public FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v) throws InvalidVertexException;
 }

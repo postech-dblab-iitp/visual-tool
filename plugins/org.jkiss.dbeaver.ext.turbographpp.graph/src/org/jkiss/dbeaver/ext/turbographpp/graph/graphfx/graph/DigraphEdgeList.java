@@ -376,5 +376,11 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
 
         return edge;
     }
+
+
+	@Override
+	public FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
+		return null;
+	}
     
 }

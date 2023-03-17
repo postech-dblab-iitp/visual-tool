@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License
  *
  * Copyright 2019 brunomnsilva@gmail.com.
@@ -24,9 +24,9 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph;
 
 /**
- * Error when using an invalid vertex in calls of methods in {@link Graph}
- * and {@link Digraph} implementations.
- * 
+ * Error when using an invalid vertex in calls of methods in {@link Graph} and {@link Digraph}
+ * implementations.
+ *
  * @see Graph
  * @see Digraph
  */
@@ -39,5 +39,4 @@ public class InvalidVertexException extends RuntimeException {
     public InvalidVertexException(String string) {
         super(string);
     }
-    
 }

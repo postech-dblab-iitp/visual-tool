@@ -404,4 +404,9 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
+		return null;
+	}
 }

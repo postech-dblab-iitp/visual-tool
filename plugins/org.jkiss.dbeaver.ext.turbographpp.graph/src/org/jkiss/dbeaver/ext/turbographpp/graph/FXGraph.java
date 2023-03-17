@@ -47,18 +47,22 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartCircularSortedPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.DeleteGraphElement;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.NodesEdges;
 import org.jkiss.dbeaver.ext.turbographpp.graph.dialog.CSVDialog;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphList;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphEdgeList;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphalgorithms.ShortestPath;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartRandomPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
+
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 
 public class FXGraph implements GraphBase {
@@ -73,7 +77,7 @@ public class FXGraph implements GraphBase {
 	public static final int Y_KEYCODE = 0x79;
 	
     private FXCanvas canvas;
-    private Graph<CyperNode, CyperEdge> graph;
+    private TurboGraphList<CyperNode, CyperEdge> graph;
     private SmartGraphPanel<CyperNode, CyperEdge> graphView;
     Group graphGroup;
     private ScrollPane scrollPane;
@@ -117,6 +121,13 @@ public class FXGraph implements GraphBase {
     
     private ArrayList<DeleteGraphElement> undoList = new ArrayList<>();
     private ArrayList<DeleteGraphElement> redoList = new ArrayList<>();
+    private NodesEdges nodesEdges = new NodesEdges();
+    
+    private boolean shortestMode = false;
+    private SmartGraphVertex<CyperNode> startVertex;
+    private SmartGraphVertex<CyperNode> endVertex;
+    
+    private TextMsgBox textMsgBox;
     
     public FXGraph(Composite parent, int style) {
         control = parent;
@@ -125,7 +136,7 @@ public class FXGraph implements GraphBase {
 
         canvas = new FXCanvas(parent, SWT.NONE);
 
-        graph = new TurboGraphEdgeList<>();
+        graph = new TurboGraphList<>();
         
         SmartPlacementStrategy strategy = new SmartRandomPlacementStrategy();
         
@@ -135,7 +146,7 @@ public class FXGraph implements GraphBase {
         graphGroup.getChildren().addAll(graphView);
         
         vBox = new VBox();
-        vBox.getChildren().addAll(graphGroup);
+        vBox.getChildren().add(graphGroup);
         
         scrollPane = new ScrollPane();
         scrollPane.setContent(vBox);
@@ -153,6 +164,7 @@ public class FXGraph implements GraphBase {
         canvas.setScene(scene);
         
         createMiniMap(parent);
+        textMsgBox = new TextMsgBox(parent, this);
         
         canvas.addPaintListener(new PaintListener() {
 			
@@ -221,57 +233,76 @@ public class FXGraph implements GraphBase {
     }
     
     private void setGraphViewListener() {
-    	graphView.setVertexDoubleClickAction((SmartGraphVertex<CyperNode> graphVertex) -> {
-    		if (selectNode != null) {
-        		graphView.doDefaultVertexStyle(selectNode);
-        	} else {
-        		setUnhighlight();
-        	}
-    		
-    		selectNode = graphVertex; 
-    		graphView.doHighlightVertexStyle(graphVertex);
-    		
-    		if (graphVertex.getUnderlyingVertex().element() instanceof CyperNode) {
-            	CyperNode node = (CyperNode) graphVertex.getUnderlyingVertex().element();
-            	String ID = node.getID();
-            	if (nodeIDConsumer == null ) {
-                    return;
-                }
-            	nodeIDConsumer.accept(ID);
-           }
-        });
+        graphView.setVertexDoubleClickAction(
+                (SmartGraphVertex<CyperNode> graphVertex) -> {
+                    if (shortestMode) {
+                        if (isEmptyStartVertex()) {
+                            textMsgBox.setText("Please Select EndNode(Vertex)");
+                            startVertex = graphVertex;
+                            graphView.doHighlightVertexStyle(startVertex);
+                        } else if (isEmptyEndVertex()) {
+                            textMsgBox.setText("Please Select StartNode(Vertex)");
+                            endVertex = graphVertex;
+                            graphView.doHighlightVertexStyle(endVertex);
+                            runShortest();
+                        } else {
+                            textMsgBox.setText("Please Select EndNode(Vertex)");
+                            unShortestMode();
+                            startVertex = null;
+                            endVertex = null;
 
-        graphView.setEdgeDoubleClickAction(graphEdge -> {
-            
-        });
-        
-        graphView.setVertexSelectAction((SmartGraphVertex<CyperNode> graphVertex) -> {
-            if (graphVertex.getUnderlyingVertex().element() instanceof CyperNode) {
-            	CyperNode node = (CyperNode) graphVertex.getUnderlyingVertex().element();
-            	String ID = node.getID();
-            	if (nodeIDConsumer == null ) {
-                    return;
-                }
-            	nodeIDConsumer.accept(ID);
-           }
-            
-        });
+                            startVertex = graphVertex;
+                            graphView.doHighlightVertexStyle(startVertex);
+                        }
 
-        graphView.setEdgeSelectAction(graphEdge -> {
-            if (graphEdge.getUnderlyingEdge().element() instanceof CyperEdge) {
-            	CyperEdge edge = (CyperEdge) graphEdge.getUnderlyingEdge().element();
-            	String ID = edge.getID();
-            	if (edgeIDConsumer == null ) {
-                    return;
-                }
-            	edgeIDConsumer.accept(ID);
-            }
-        });
-        
-        graphView.setVertexMovedAction(event -> {
-        	miniMapUpdate();
-        });
-        
+                    } else {
+                        setUnhighlight();
+
+                        selectNode = graphVertex;
+                        graphView.doHighlightVertexStyle(graphVertex);
+
+                        if (graphVertex.getUnderlyingVertex().element() instanceof CyperNode) {
+                            CyperNode node =
+                                    (CyperNode) graphVertex.getUnderlyingVertex().element();
+                            String ID = node.getID();
+                            if (nodeIDConsumer == null) {
+                                return;
+                            }
+                            nodeIDConsumer.accept(ID);
+                        }
+                    }
+                });
+
+        graphView.setEdgeDoubleClickAction(graphEdge -> {});
+
+        graphView.setVertexSelectAction(
+                (SmartGraphVertex<CyperNode> graphVertex) -> {
+                    if (graphVertex.getUnderlyingVertex().element() instanceof CyperNode) {
+                        CyperNode node = (CyperNode) graphVertex.getUnderlyingVertex().element();
+                        String ID = node.getID();
+                        if (nodeIDConsumer == null) {
+                            return;
+                        }
+                        nodeIDConsumer.accept(ID);
+                    }
+                });
+
+        graphView.setEdgeSelectAction(
+                graphEdge -> {
+                    if (graphEdge.getUnderlyingEdge().element() instanceof CyperEdge) {
+                        CyperEdge edge = (CyperEdge) graphEdge.getUnderlyingEdge().element();
+                        String ID = edge.getID();
+                        if (edgeIDConsumer == null) {
+                            return;
+                        }
+                        edgeIDConsumer.accept(ID);
+                    }
+                });
+
+        graphView.setVertexMovedAction(
+                event -> {
+                    miniMapUpdate();
+                });
     }
     
     private void setBaseListener() {
@@ -326,7 +357,9 @@ public class FXGraph implements GraphBase {
     }
     
     public void finalize() {
-        
+    	if (textMsgBox != null) {
+    		textMsgBox.remove();
+    	}
     }
     
     @Override
@@ -348,6 +381,10 @@ public class FXGraph implements GraphBase {
     	graphView.update();
     	layoutUpdatethread = new LayoutUpdateThread();
     	layoutUpdatethread.start();
+    	selectNode = null;
+    	shortestMode = false;
+    	startVertex = null;
+    	endVertex = null;
     }
     
     public void drawGraph(double width, double height) {
@@ -358,12 +395,10 @@ public class FXGraph implements GraphBase {
     @Override
     public Object addNode(String id, String label, HashMap<String, Object> attr, Color color) {
     	//For Group Color
-    	String fillColor = nodesGroup.get(label);
     	if (nodesGroup.get(label) == null) {
-    		fillColor = ramdomColor();
     		nodesGroup.put(label, ramdomColor());
     	}
-    	
+    	String fillColor = nodesGroup.get(label);
     	CyperNode node = new CyperNode(id, label, attr, fillColor);
     	Nodes.put(id, node);
     	Object v = graph.insertVertex(node);
@@ -421,12 +456,16 @@ public class FXGraph implements GraphBase {
 
     @Override
     public void clearGraph() {
+    	shortestMode = false;
+    	startVertex = null;
+    	endVertex = null;
     	Nodes.clear();
     	Edges.clear();
     	undoList.clear();
         redoList.clear();
         graph.clearElement();
         graphView.clear();
+        nodesGroup.clear();
     }
 
     @Override
@@ -435,7 +474,10 @@ public class FXGraph implements GraphBase {
     
 	@Override
 	public void setLayoutAlgorithm(LayoutStyle layoutStyle) {
-		// TODO Auto-generated method stub
+		setAutomaticLayout(false);
+		if (LayoutStyle.RADIAL == layoutStyle) {
+			graphView.setSmartPlacementStrategy(new SmartCircularSortedPlacementStrategy());
+		}
 		
 	}
 
@@ -758,11 +800,15 @@ public class FXGraph implements GraphBase {
         }
 	}
 	
-	private void setUnhighlight() {
-		graphView.setUnHighlight();
-   		selectNode = null;
-	}
-	
+    private void setUnhighlight() {
+
+        if (selectNode != null) {
+            graphView.doDefaultVertexStyle(selectNode);
+            selectNode = null;
+        }
+
+        graphView.setUnHighlight();
+    }
 	public void setAutomaticLayout (boolean value) {
 		if (graphView != null) {
 			graphView.setAutomaticLayout(value);
@@ -872,7 +918,7 @@ public class FXGraph implements GraphBase {
 
 	public boolean exportCSV() {
 		
-		CSVDialog csvDialog = new  CSVDialog(this.getControl().getShell());
+		CSVDialog csvDialog = new CSVDialog(this.getControl().getShell());
 		
 		csvDialog.create();
 		if (csvDialog.open() == Window.OK) {
@@ -881,6 +927,65 @@ public class FXGraph implements GraphBase {
 		}
 		
 		return false;
+	}
+	
+	public void setShortestMode(boolean status) {
+		shortestMode = status;
+		
+		if (status) {
+            setUnhighlight();
+
+			startVertex = null;
+			endVertex = null;
+			
+			textMsgBox.setText("Please Select StartNode(Vertex)");
+			textMsgBox.show();
+			
+		} else {
+			unShortestMode();
+			textMsgBox.remove();
+		}
+	}
+	
+	public boolean getShortestMode() {
+		return shortestMode;
+	}
+	
+	public void runShortest() {
+		if(startVertex != null && endVertex != null) {
+			nodesEdges = ShortestPath.start(graph, graphView, startVertex.getUnderlyingVertex(), endVertex.getUnderlyingVertex());
+        } else{
+        	textMsgBox.setText("Please select two vertices to compute the shortest path between them.\n\n");
+        }
+	}
+	
+	private boolean isEmptyStartVertex() {
+		if (startVertex == null) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isEmptyEndVertex() {
+		if (endVertex == null) {
+			return true;
+		}
+		return false;
+	}
+	
+	private void unShortestMode() {
+		if (nodesEdges != null) {
+			for(Vertex<CyperNode> node : nodesEdges.getNodes()) {
+				graphView.getStylableVertex(node).setStyle(SmartStyleProxy.DEFAULT_VERTEX + node.element().getFillColor());
+			}
+					
+					
+			for(FxEdge<CyperEdge, CyperNode> edge : nodesEdges.getEdges()) {
+				graphView.getStylableEdge(edge).setStyle(SmartStyleProxy.DEFAULT_EDGE);
+			}
+			
+			nodesEdges = null;
+		}
 	}
 	
 }
