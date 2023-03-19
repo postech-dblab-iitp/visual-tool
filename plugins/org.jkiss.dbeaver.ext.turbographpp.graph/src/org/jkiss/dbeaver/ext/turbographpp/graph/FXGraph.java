@@ -107,8 +107,7 @@ public class FXGraph implements GraphBase {
     private MenuItem highlightMenu;
     private MenuItem unHighlightMenu;
     private MenuItem deteleMenu;
-    private MenuItem shortestPathAction;
-    
+
     private SmartGraphVertex<CyperNode> selectNode = null;
     
     private boolean statusCanvasFocus = false;
@@ -631,16 +630,14 @@ public class FXGraph implements GraphBase {
 		highlightMenu = new MenuItem("Highlight");
 		unHighlightMenu = new MenuItem("unHighlight");
 		deteleMenu = new MenuItem("Delete");
-		shortestPathAction = new MenuItem("Shortest Path");
-		
+
 		redoMenu.setDisable(true);
 		undoMenu.setDisable(true);
 		highlightMenu.setDisable(true);
 		deteleMenu.setDisable(true);
 		unHighlightMenu.setDisable(true);
-		shortestPathAction.setDisable(true);
-		
-		contextMenu.getItems().addAll(redoMenu, undoMenu, highlightMenu, unHighlightMenu, deteleMenu, shortestPathAction);
+
+		contextMenu.getItems().addAll(redoMenu, undoMenu, highlightMenu, unHighlightMenu, deteleMenu);
 		
 		contextMenuAction();
 		
