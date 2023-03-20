@@ -191,8 +191,10 @@ public class ShortestPath {
             for (FxEdge<CyperEdge, CyperNode> edge : digraph.incidentEdges(vertexInPath)) {
                 Vertex<CyperNode> u = digraph.opposite(vertexInPath, edge);
                 if (!oldVertexInPath.equals(vertexInPath) && oldVertexInPath.equals(u)) {
-                    graphView.getStylableEdge(edge).setStyle(SmartStyleProxy.HIGHLIGHT_EDGE);
-                    nodesEdges.addEdge(edge);
+                    if (graphView.getStylableEdge(edge) != null) {
+                        graphView.getStylableEdge(edge).setStyle(SmartStyleProxy.HIGHLIGHT_EDGE);
+                        nodesEdges.addEdge(edge);
+                    }
                 }
             }
         }

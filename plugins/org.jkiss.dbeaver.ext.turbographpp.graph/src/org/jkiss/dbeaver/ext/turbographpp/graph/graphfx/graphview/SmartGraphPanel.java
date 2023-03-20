@@ -788,6 +788,10 @@ public class SmartGraphPanel<V, E> extends Pane {
     
     private String generateEdgeLabel(E edge) {
         
+        if (edge == null) {
+            return "null";
+        }
+	
         try {
             Class<?> clazz = edge.getClass();
             for (Method method : clazz.getDeclaredMethods()) {

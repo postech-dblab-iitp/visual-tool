@@ -213,6 +213,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         /* add translation transform to put the arrow touching the circle's bounds */
         Translate t = new Translate(-outbound.getRadius(), 0);
         arrow.getTransforms().add(t);
+        
+        update();
     }
 
     @Override

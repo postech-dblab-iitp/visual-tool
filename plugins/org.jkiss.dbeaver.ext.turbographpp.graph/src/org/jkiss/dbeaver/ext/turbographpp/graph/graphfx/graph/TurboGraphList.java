@@ -296,7 +296,7 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
         startVertex.getOutgoingEdges().remove(endVertex);
         endVertex.getIncomingEdges().remove(startVertex);
         E element = edge.element();
-        edges.remove(edge);
+        edges.remove(edge.element());
         return element;
     }
 
