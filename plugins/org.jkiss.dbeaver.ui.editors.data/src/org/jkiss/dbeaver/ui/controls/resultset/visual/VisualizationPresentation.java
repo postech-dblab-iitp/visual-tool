@@ -410,7 +410,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		int compositeSizeX = composite.getSize().x - 100;
         int compositeSizeY = composite.getSize().y - 100;
         double drawSizeX = sqrt * 162;
-        double drawSizeY = sqrt * 129;;
+        double drawSizeY = sqrt * 129;
         
 		if (visualGraph != null) {
 			resultLabel.setText("Node : " + visualGraph.getNodes() + " Edge : " + visualGraph.getEdges());
@@ -758,13 +758,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     	setColorShortestButton(status);
     	
     }
-    
+
     private void setColorShortestButton(boolean shortestStatus) {
-    	if (shortestStatus) {
-    		shortestButton.setBackground(new Color(200, 200, 200));
-    	} else {
-    		shortestButton.setBackground(null);
-    	}
+        if (shortestButton != null && !shortestButton.isDisposed()) {
+            if (shortestStatus) {
+                shortestButton.setBackground(new Color(200, 200, 200));
+            } else {
+                shortestButton.setBackground(null);
+            }
+        }
     }
-    
 }

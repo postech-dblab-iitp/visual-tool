@@ -8,6 +8,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -22,7 +24,7 @@ import org.eclipse.swt.widgets.Text;
 public class TextMsgBox {
 
     private static final int OVERLAY_WIDTH = 300;
-    private static final int OVERLAY_HEIGHT = 60;
+    private static final int OVERLAY_HEIGHT = 80;
     public static final int MINIMAP_WIDTH = OVERLAY_WIDTH - 30;
     public static final int MINIMAP_HEIGHT = OVERLAY_HEIGHT;
     private final int OVERLAY_WH_MARGIN = 50;
@@ -38,7 +40,9 @@ public class TextMsgBox {
     private int pressedPositonX = 0;
     private int pressedPositonY = 0;
 
-    public TextMsgBox(Control composite,FXGraph graph) {
+    private PaintListener paintListener;
+    
+    public TextMsgBox(Control composite, FXGraph graph) {
 
         Objects.requireNonNull(composite);
 
@@ -110,6 +114,13 @@ public class TextMsgBox {
         showing = false;
         overlayShell.open();
         overlayShell.setVisible(showing);
+       
+        paintListener = new PaintListener() {
+            @Override
+            public void paintControl(PaintEvent e) {
+                rePosition();
+            }
+        };
     }
 
     public void show() {
@@ -121,7 +132,11 @@ public class TextMsgBox {
         rePosition();
 
         overlayShell.setVisible(true);
-
+        
+        for (Composite parent : parents) {
+            parent.addPaintListener(paintListener);
+        }
+        
         showing = true;
     }
 
@@ -134,6 +149,10 @@ public class TextMsgBox {
             overlayShell.setVisible(false);
         }
 
+        for (Composite parent : parents) {
+            parent.removePaintListener(paintListener);
+        }
+        
         showing = false;
     }
 
@@ -158,7 +177,6 @@ public class TextMsgBox {
     }
 
     private void rePosition() {
-    	System.out.println("TextMsgBox rePosition");
         if (!parentComposite.isVisible()) {
             overlayShell.setBounds(new Rectangle(0, 0, 0, 0));
             return;

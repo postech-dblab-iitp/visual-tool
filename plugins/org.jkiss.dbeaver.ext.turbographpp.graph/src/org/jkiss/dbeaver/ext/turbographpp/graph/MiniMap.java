@@ -9,7 +9,6 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -169,7 +168,6 @@ public class MiniMap {
     }
 
     public void remove() {
-    	System.out.println("remove");
     	
     	if (captureImage != null) {
     		captureImage.dispose();
