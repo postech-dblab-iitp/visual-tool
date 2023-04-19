@@ -17,7 +17,9 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
 
     private Map<V, Vertex<V>> vertices;
     private Map<E, FxEdge<E, V>> edges;
-
+    private int lastweight = 0;
+    private int pathCount = 0;
+    private String lastPathString = "";
     /**
      * Concrete implementation of {@link Vertex}. A {@link DVertex} object stores a {@link V}
      * element and its edges. Edges are implemented as {@link LinkedHashMap} to provide O(1) lookup
@@ -25,12 +27,12 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
      */
     private class DVertex implements Vertex<V> {
         private V element;
-        private Map<Vertex<V>, FxEdge<E, V>> outgoingEdges, incomingEdges;
+        private List<FxEdge<E, V>> outgoingEdges, incomingEdges;
 
         public DVertex(V element) {
             this.element = element;
-            outgoingEdges = new LinkedHashMap<>();
-            incomingEdges = new LinkedHashMap<>();
+            outgoingEdges = new ArrayList<>();
+            incomingEdges = new ArrayList<>();
         }
 
         @Override
@@ -38,11 +40,11 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
             return element;
         }
 
-        public Map<Vertex<V>, FxEdge<E, V>> getOutgoingEdges() {
+        public List<FxEdge<E, V>> getOutgoingEdges() {
             return outgoingEdges;
         }
 
-        public Map<Vertex<V>, FxEdge<E, V>> getIncomingEdges() {
+        public List<FxEdge<E, V>> getIncomingEdges() {
             return incomingEdges;
         }
 
@@ -192,14 +194,14 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
     public synchronized Collection<FxEdge<E, V>> incidentEdges(Vertex<V> v)
             throws InvalidVertexException {
         DVertex vertex = validateVertex(v);
-        return vertex.getIncomingEdges().values();
+        return vertex.getIncomingEdges();
     }
 
     @Override
     public synchronized Collection<FxEdge<E, V>> outboundEdges(Vertex<V> v)
             throws InvalidVertexException {
         DVertex vertex = validateVertex(v);
-        return vertex.getOutgoingEdges().values();
+        return vertex.getOutgoingEdges();
     }
 
     @Override
@@ -233,23 +235,29 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
     public synchronized FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v)
             throws InvalidVertexException {
         DVertex startVertex = validateVertex(u);
-        return startVertex.getOutgoingEdges().get(v);
+        for (FxEdge<E, V> edge : startVertex.getOutgoingEdges()) {
+        	if (edge.vertices()[0].equals(v)) {
+        		return edge;
+        	}
+        }
+        
+        return null;
     }
 
     @Override
     public synchronized FxEdge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E element)
             throws InvalidVertexException, InvalidEdgeException {
-        if (getEdge(u, v) == null) {
+//        if (getEdge(u, v) == null) {
             DVertex startVertex = validateVertex(u);
             DVertex endVertex = validateVertex(v);
             DEdge edge = new DEdge(startVertex, endVertex, element);
             edges.put(element, edge);
-            startVertex.getOutgoingEdges().put(endVertex, edge);
-            endVertex.getIncomingEdges().put(startVertex, edge);
+            startVertex.getOutgoingEdges().add(edge);
+            endVertex.getIncomingEdges().add(edge);
             return edge;
-        } else {
-            throw new InvalidEdgeException("Edge from u to v exists.");
-        }
+//        } else {
+//            throw new InvalidEdgeException("Edge from u to v exists.");
+//        }
     }
 
     @Override
@@ -258,15 +266,17 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
         DVertex startVertex = validateVertex(vertices.get(uElement));
         DVertex endVertex = validateVertex(vertices.get(vElement));
 
-        if (getEdge(startVertex, endVertex) == null) {
+//        if (getEdge(startVertex, endVertex) == null) {
             DEdge edge = new DEdge(startVertex, endVertex, eElement);
             edges.put(eElement, edge);
-            startVertex.getOutgoingEdges().put(endVertex, edge);
-            endVertex.getIncomingEdges().put(startVertex, edge);
+            startVertex.getOutgoingEdges().add(edge);
+            endVertex.getIncomingEdges().add(edge);
             return edge;
-        } else {
-            throw new InvalidEdgeException("Edge from u to v exists.");
-        }
+//        } else {
+//        	System.out.println("startVertex " + startVertex.toString());
+//        	System.out.println("endVertex " + startVertex.toString());
+//            throw new InvalidEdgeException("Edge from u to v exists.");
+//        }
     }
 
     @Override
@@ -274,8 +284,8 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
         DVertex vertex = validateVertex(v);
         List<FxEdge<E, V>> removedEdges = new LinkedList<>();
 
-        removedEdges.addAll(vertex.getIncomingEdges().values());
-        removedEdges.addAll(vertex.getOutgoingEdges().values());
+        removedEdges.addAll(vertex.getIncomingEdges());
+        removedEdges.addAll(vertex.getOutgoingEdges());
 
         for (FxEdge<E, V> edge : removedEdges) {
             removeEdge(edge);
@@ -293,8 +303,9 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
         DVertex startVertex = validateVertex(endVertices[0]);
         DVertex endVertex = validateVertex(endVertices[1]);
 
-        startVertex.getOutgoingEdges().remove(endVertex);
-        endVertex.getIncomingEdges().remove(startVertex);
+        startVertex.getOutgoingEdges().remove(edge);
+        endVertex.getIncomingEdges().remove(edge);
+        
         E element = edge.element();
         edges.remove(edge.element());
         return element;
@@ -302,10 +313,8 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
 
     public synchronized String generateRandomEdge(E randomElement) {
         StringBuilder sb = new StringBuilder();
-        if (numEdges()
-                == numVertices()
-                        * (numVertices() - 1)) // maximum no. of edges in digraph is n(n - 1)
-        return sb.append("Graph has maximum number of edges.\n").toString();
+        if (numEdges() == numVertices() * (numVertices() - 1)) // maximum no. of edges in digraph is n(n - 1)
+        	return sb.append("Graph has maximum number of edges.\n").toString();
 
         Random random;
         List<V> randomVertices = new ArrayList<>(vertices.keySet());
@@ -323,13 +332,11 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
 
             if (startVertex.equals(endVertex)) { // self-loop is not allowed, retry
                 continue;
-            } else if (getEdge(startVertex, endVertex)
-                    == null) { // a random edge from u to v does not exist
+            } else if (getEdge(startVertex, endVertex) == null) { // a random edge from u to v does not exist
                 return sb.append(insertEdge(startVertex, endVertex, randomElement))
                         .append(" is generated.\n")
                         .toString();
-            } else if (getEdge(endVertex, startVertex)
-                    == null) { // a random edge from v to u does not exist
+            } else if (getEdge(endVertex, startVertex) == null) { // a random edge from v to u does not exist
                 return sb.append(insertEdge(endVertex, startVertex, randomElement))
                         .append(" is generated.\n")
                         .toString();
@@ -490,5 +497,33 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
 
     private boolean existsEdgeWith(E edgeElement) {
         return edges.containsKey(edgeElement);
+    }
+    
+    public int getLastWeight() {
+    	return lastweight;
+    }
+    
+    public void setlastWeight(int value) {
+    	lastweight = value;
+    }
+    
+    public int getPathCount() {
+    	return pathCount;
+    }
+    
+    public void setPathCount(int value) {
+    	pathCount = value;
+    }
+    
+    public String getLastPathString() {
+    	return lastPathString;
+    }
+    
+    public void addLastPathString(String path) {
+    	lastPathString = lastPathString + path;
+    }
+    
+    public void clearLastPathString() {
+    	lastPathString = "";
     }
 }

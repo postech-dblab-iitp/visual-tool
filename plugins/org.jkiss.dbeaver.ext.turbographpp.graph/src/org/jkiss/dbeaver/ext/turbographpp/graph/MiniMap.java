@@ -7,8 +7,6 @@ import java.util.Objects;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -39,7 +37,6 @@ public class MiniMap {
     private Control parentComposite;
     private Shell overlayShell;
     private ControlListener controlListener;
-    private DisposeListener disposeListener;
     private PaintListener paintListener;
     private PaintListener canvasPaintListener;
     private boolean showing;
@@ -80,13 +77,6 @@ public class MiniMap {
             @Override
             public void paintControl(PaintEvent e) {
                 rePosition();
-            }
-        };
-
-        disposeListener = new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                remove();
             }
         };
 
@@ -155,7 +145,6 @@ public class MiniMap {
         overlayShell.setVisible(true);
 
         parentComposite.addControlListener(controlListener);
-        parentComposite.addDisposeListener(disposeListener);
         parentComposite.addPaintListener(paintListener);
         miniMapCanvas.addPaintListener(canvasPaintListener);
 
@@ -179,7 +168,6 @@ public class MiniMap {
 
         if (!parentComposite.isDisposed()) {
             parentComposite.removeControlListener(controlListener);
-            parentComposite.removeDisposeListener(disposeListener);
             parentComposite.removePaintListener(paintListener);
         }
         
