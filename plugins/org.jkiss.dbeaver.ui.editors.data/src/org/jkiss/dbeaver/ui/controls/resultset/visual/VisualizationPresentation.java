@@ -107,8 +107,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	private HashMap<String, String> displayStringNodeList = new HashMap<>();
 	private HashMap<String, String> displayStringEdgeList = new HashMap<>();
 	
-	private LayoutStyle defaultLayoutAlgorithm = LayoutStyle.SPRING;
-
 	private boolean init = false;
 	
 	@Override
@@ -213,7 +211,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     			gephiModel.clearGraph(visualGraph);
 			}
 			setShortestMode(false);
-			setLayoutManager(defaultLayoutAlgorithm);
+			setDefaultLayoutManager();
 			propertyList.clear();
 			DBDAttributeNodeList.clear();
 			DBDAttributeEdgeList.clear();
@@ -679,8 +677,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	}
 
 	private void setLayoutManager(LayoutStyle layoutStyle) {
-		defaultLayoutAlgorithm = layoutStyle;
 		visualGraph.setLayoutAlgorithm(layoutStyle);
+	}
+	
+	private void setDefaultLayoutManager() {
+		visualGraph.setDefaultLayoutAlgorithm();
 	}
 
 	private void createGraphListner() {

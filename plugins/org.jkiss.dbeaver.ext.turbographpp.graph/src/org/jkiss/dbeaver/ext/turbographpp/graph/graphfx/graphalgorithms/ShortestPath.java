@@ -35,18 +35,19 @@ public class ShortestPath {
             TurboGraphList<CyperNode, CyperEdge> digraph,
             SmartGraphPanel<CyperNode, CyperEdge> graphView,
             Vertex<CyperNode> startVertex,
-            Vertex<CyperNode> endVertex) {
+            Vertex<CyperNode> endVertex,
+            String propertyName) {
         LinkedHashMap<Vertex<CyperNode>, Integer> d = new LinkedHashMap<>();
 
         int[] weight = {1};
+        digraph.setlastWeight(0);
+        digraph.clearLastPathString();
 
-        // Generate random edges between random vertices until the path exists
-        while (!dijkstra(digraph, startVertex, endVertex, d, weight)) {
-            // generate a random edge
-            digraph.generateRandomEdge(null);
-        }
+        dijkstra(digraph, startVertex, endVertex, d, weight, propertyName);
 
-        return generatePath(digraph, startVertex, endVertex, d, graphView);
+        digraph.setlastWeight(weight[0]);
+
+        return generatePath(digraph, startVertex, endVertex, d, graphView, propertyName);
     }
 
     /**
@@ -67,13 +68,13 @@ public class ShortestPath {
             Vertex<CyperNode> startVertex,
             Vertex<CyperNode> endVertex,
             LinkedHashMap<Vertex<CyperNode>, Integer> d,
-            int[] weight) {
+            int[] weight,
+            String propertyName) {
 
         Map<Vertex<CyperNode>, Integer> cloud = new LinkedHashMap<>();
         HeapAdaptablePriorityQueue<Integer, Vertex<CyperNode>> pq =
                 new HeapAdaptablePriorityQueue<>();
         Map<Vertex<CyperNode>, Entry<Integer, Vertex<CyperNode>>> pqTokens = new LinkedHashMap<>();
-
         // for each vertex of the graph, add an entry to the priority queue with the
         // source having
         // distance 0 and all others having infinite distance
@@ -101,6 +102,12 @@ public class ShortestPath {
                 if (cloud.get(v) == null) {
                     // perform the relaxation step on edge (u,v)
                     int wgt = 1;
+                    try {
+                        wgt = Integer.valueOf(edge.element().getProperty(propertyName));
+                    } catch (NumberFormatException ex) {
+                        wgt = 1;
+                    }
+
                     if ((d.get(u) + wgt)
                             < d.get(v)) { // check if there is any better/shorter path to v
                         d.put(v, (d.get(u) + wgt)); // update the distance in Map d
@@ -109,12 +116,7 @@ public class ShortestPath {
                 }
             }
         }
-        weight[0] =
-                weight[0]
-                        + (cloud.get(endVertex) != null
-                                ? 1
-                                : 0); // Store the weight of shortest path in array
-        // weight
+        weight[0] = cloud.get(endVertex);
 
         // check if there is any path can be reach by starting vertex to ending vertex
         // and return a
@@ -143,7 +145,8 @@ public class ShortestPath {
             Vertex<CyperNode> startVertex,
             Vertex<CyperNode> endVertex,
             LinkedHashMap<Vertex<CyperNode>, Integer> d,
-            SmartGraphPanel<CyperNode, CyperEdge> graphView) {
+            SmartGraphPanel<CyperNode, CyperEdge> graphView,
+            String propertyName) {
         Map<Vertex<CyperNode>, FxEdge<CyperEdge, CyperNode>> tree = new LinkedHashMap<>();
         Map<Vertex<CyperNode>, Vertex<CyperNode>> parentsOfVertices = new HashMap<>();
         NodesEdges nodesEdges = new NodesEdges();
@@ -153,7 +156,13 @@ public class ShortestPath {
                 for (FxEdge<CyperEdge, CyperNode> edge :
                         digraph.incidentEdges(vertex)) { // consider the incoming edges
                     Vertex<CyperNode> u = digraph.opposite(vertex, edge);
-                    if (d.get(vertex) == d.get(u) + 1) {
+                    int wgt = 1;
+                    try {
+                        wgt = Integer.valueOf(edge.element().getProperty(propertyName));
+                    } catch (NumberFormatException ex) {
+                        wgt = 1;
+                    }
+                    if (d.get(vertex) == d.get(u) + wgt) {
                         tree.put(vertex, edge); // The vertices and edges are stored
                         parentsOfVertices.put(vertex, u); // The parents of vertices are stored
                     }
@@ -166,7 +175,7 @@ public class ShortestPath {
 
         // push the vertex or vertices on path into the stack
         for (vertexInPath = endVertex;
-                !vertexInPath.equals(startVertex);
+                vertexInPath != null && !vertexInPath.equals(startVertex);
                 vertexInPath = parentsOfVertices.get(vertexInPath)) {
             if (vertexInPath != null) {
                 path.push(vertexInPath);
@@ -190,15 +199,31 @@ public class ShortestPath {
 
             for (FxEdge<CyperEdge, CyperNode> edge : digraph.incidentEdges(vertexInPath)) {
                 Vertex<CyperNode> u = digraph.opposite(vertexInPath, edge);
-                if (!oldVertexInPath.equals(vertexInPath) && oldVertexInPath.equals(u)) {
+                if (oldVertexInPath != null
+                        && !oldVertexInPath.equals(vertexInPath)
+                        && oldVertexInPath.equals(u)) {
                     if (graphView.getStylableEdge(edge) != null) {
                         graphView.getStylableEdge(edge).setStyle(SmartStyleProxy.HIGHLIGHT_EDGE);
                         nodesEdges.addEdge(edge);
+                        int path_wet = 1;
+                        if (propertyName == null) {
+                            path_wet = 1;
+                        } else {
+                            path_wet = Integer.valueOf(edge.element().getProperty(propertyName));
+                        }
+                        digraph.addLastPathString(
+                                edge.vertices()[0].element().getDisplay()
+                                        + "->"
+                                        + edge.vertices()[1].element().getDisplay()
+                                        + " : "
+                                        + path_wet
+                                        + "\n");
                     }
                 }
             }
         }
 
+        digraph.setPathCount(nodesEdges.getEdges().size());
         return nodesEdges;
     }
 }

@@ -28,17 +28,17 @@
             dialect="turbographpp">
             <tree path="turbographpp" label="GTurboGraph++ data source" supportsEntityMerge="true">
                 <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTable" label="%tree.table.node.name" icon="#folder_table" description="%tree.tables.node.tip">
-                    <items label="%tree.table.node.name" path="table" property="physicalTables" icon="#table">
+                    <items label="%tree.table.node.name" path="nodes" property="physicalTables" icon="#table">
                         <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.node.name" icon="#columns" description="%tree.columns.node.tip">
-                            <items label="%tree.column.node.name" path="attribute" property="attributes" icon="#column">
+                            <items label="%tree.column.node.name" path="nodeproperties" property="attributes" icon="#column">
                             </items>
                         </folder>
                     </items>
                 </folder>
                 <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPEdge" label="%tree.table.edge.name" icon="#folder_table" description="%tree.table.edge.tip">
-                    <items label="%tree.table.edge.name" path="table" property="Edges" icon="#table">
-                        <folder type="org.jkiss.dbeaver.ext.generic.model.GenericTableColumn" label="%tree.column.edge.name" icon="#columns" description="%tree.columns.edge.tip">
-                            <items label="%tree.column.edge.name" path="attribute" property="Properties" icon="#column">
+                    <items label="%tree.table.edge.name" path="edges" property="Edges" icon="#table">
+                        <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPEdgesProperty" label="%tree.column.edge.name" icon="#columns" description="%tree.columns.edge.tip">
+                            <items label="%tree.column.edge.name" path="edgeproperties" property="Properties" icon="#column">
                             </items>
                         </folder>
                     </items>

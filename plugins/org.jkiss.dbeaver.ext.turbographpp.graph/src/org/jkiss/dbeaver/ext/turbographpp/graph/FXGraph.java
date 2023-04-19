@@ -2,13 +2,18 @@ package org.jkiss.dbeaver.ext.turbographpp.graph;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -126,7 +131,7 @@ public class FXGraph implements GraphBase {
     private SmartGraphVertex<CyperNode> startVertex;
     private SmartGraphVertex<CyperNode> endVertex;
     
-    private TextMsgBox textMsgBox;
+    private GuideBox guideBox;
     
     public FXGraph(Composite parent, int style) {
         control = parent;
@@ -162,10 +167,28 @@ public class FXGraph implements GraphBase {
         
         canvas.setScene(scene);
         
-        createMiniMap(parent);
-        textMsgBox = new TextMsgBox(parent, this);
+        createMiniMap(canvas);
+        guideBox = new GuideBox(canvas, this);
         
-        canvas.addPaintListener(new PaintListener() {
+        parent.addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if (miniMap != null) {
+					miniMap.remove();
+				} 
+				
+				if (guideBox != null) {
+					guideBox.remove();
+				}
+			}
+		});
+        
+    }
+
+    private void setCanvasListener() {
+    	
+    	canvas.addPaintListener(new PaintListener() {
 			
 			@Override
 			public void paintControl(PaintEvent e) {
@@ -181,10 +204,6 @@ public class FXGraph implements GraphBase {
 				miniMap.setPointRectAngel(lastWidth, lastHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
 			}
 		});
-        
-    }
-
-    private void setCanvasListener() {
     	
     	canvas.addFocusListener(new FocusListener() {
 			
@@ -236,22 +255,26 @@ public class FXGraph implements GraphBase {
                 (SmartGraphVertex<CyperNode> graphVertex) -> {
                     if (shortestMode) {
                         if (isEmptyStartVertex()) {
-                            textMsgBox.setText("Please Select EndNode(Vertex)");
                             startVertex = graphVertex;
                             graphView.doHighlightVertexStyle(startVertex);
+                            guideBox.setComboList(getincidentEdgesProperies(startVertex.getUnderlyingVertex()));
+                            guideBox.setText("Please Select EndNode(Vertex)");
                         } else if (isEmptyEndVertex()) {
-                            textMsgBox.setText("Please Select StartNode(Vertex)");
                             endVertex = graphVertex;
                             graphView.doHighlightVertexStyle(endVertex);
-                            runShortest();
+                            runShortest(guideBox.getSelectedProperty());
+                            guideBox.setText("Please Select StartNode(Vertex)\n"
+                            		+ "path Count = " + graph.getPathCount() + " weight = " + graph.getLastWeight() + "\n"
+                            		+ graph.getLastPathString());
                         } else {
-                            textMsgBox.setText("Please Select EndNode(Vertex)");
                             unShortestMode();
                             startVertex = null;
                             endVertex = null;
 
                             startVertex = graphVertex;
                             graphView.doHighlightVertexStyle(startVertex);
+                            guideBox.setComboList(getincidentEdgesProperies(startVertex.getUnderlyingVertex()));
+                            guideBox.setText("Please Select EndNode(Vertex)");
                         }
 
                     } else {
@@ -356,8 +379,8 @@ public class FXGraph implements GraphBase {
     }
     
     public void finalize() {
-    	if (textMsgBox != null) {
-    		textMsgBox.remove();
+    	if (guideBox != null) {
+    		guideBox.remove();
     	}
     }
     
@@ -474,10 +497,18 @@ public class FXGraph implements GraphBase {
 	@Override
 	public void setLayoutAlgorithm(LayoutStyle layoutStyle) {
 		setAutomaticLayout(false);
+		
 		if (LayoutStyle.RADIAL == layoutStyle) {
 			graphView.setSmartPlacementStrategy(new SmartCircularSortedPlacementStrategy());
+		} else if (LayoutStyle.SPRING == layoutStyle) {
+			setAutomaticLayout(true);
+			graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());
 		}
 		
+	}
+	
+	public void setDefaultLayoutAlgorithm() {
+		graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());
 	}
 
 	@Override
@@ -488,9 +519,11 @@ public class FXGraph implements GraphBase {
 
 	@Override
 	public void setForeground(Color color) {
-		String rgb = Integer.toHexString(color.getRed())
-		+ Integer.toHexString(color.getGreen())
-		+ Integer.toHexString(color.getBlue());
+//		String rgb = Integer.toHexString(color.getRed())
+//		+ Integer.toHexString(color.getGreen())
+//		+ Integer.toHexString(color.getBlue());
+//		
+		canvas.setForeground(color);
 	}
 
 	@Override
@@ -935,12 +968,12 @@ public class FXGraph implements GraphBase {
 			startVertex = null;
 			endVertex = null;
 			
-			textMsgBox.setText("Please Select StartNode(Vertex)");
-			textMsgBox.show();
+			guideBox.setText("Please Select StartNode(Vertex)");
+			guideBox.show();
 			
 		} else {
 			unShortestMode();
-			textMsgBox.remove();
+			guideBox.remove();
 		}
 	}
 	
@@ -948,11 +981,17 @@ public class FXGraph implements GraphBase {
 		return shortestMode;
 	}
 	
-	public void runShortest() {
+	public void runShortest(String propertyName) {
 		if(startVertex != null && endVertex != null) {
-			nodesEdges = ShortestPath.start(graph, graphView, startVertex.getUnderlyingVertex(), endVertex.getUnderlyingVertex());
+			nodesEdges = ShortestPath.start(graph, graphView, startVertex.getUnderlyingVertex(), endVertex.getUnderlyingVertex(), propertyName);
+			if (nodesEdges.getEdges().size() == 0) {
+				guideBox.setText("Path is not exist");
+				graphView.getStylableVertex(startVertex.getUnderlyingVertex()).setStyle(SmartStyleProxy.DEFAULT_VERTEX + startVertex.getUnderlyingVertex().element().getFillColor());
+				graphView.getStylableVertex(endVertex.getUnderlyingVertex()).setStyle(SmartStyleProxy.DEFAULT_VERTEX + endVertex.getUnderlyingVertex().element().getFillColor());
+				
+			}
         } else{
-        	textMsgBox.setText("Please select two vertices to compute the shortest path between them.\n\n");
+        	guideBox.setText("Please select two vertices to compute the shortest path between them.\n\n");
         }
 	}
 	
@@ -983,6 +1022,23 @@ public class FXGraph implements GraphBase {
 			
 			nodesEdges = null;
 		}
+	}
+	
+	private Set<String> getincidentEdgesProperies(Vertex<CyperNode> vertex) {
+		Collection<FxEdge<CyperEdge, CyperNode>> edges;
+		Set<String> properties = new HashSet <>();
+		if (vertex != null) {
+			edges = graph.incidentEdges(vertex);
+			for (FxEdge<CyperEdge, CyperNode> edge : edges) {
+				properties.addAll(edge.element().getProperties().keySet());
+			}
+			
+			if (properties.size() > 0) {
+				return properties;
+			}
+		}
+		
+		return properties;
 	}
 	
 }
