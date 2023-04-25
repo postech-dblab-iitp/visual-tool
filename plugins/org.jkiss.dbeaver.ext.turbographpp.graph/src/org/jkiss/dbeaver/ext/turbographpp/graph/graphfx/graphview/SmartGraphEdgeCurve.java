@@ -51,7 +51,9 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
  */
 public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphEdgeBase<E, V> {
 
-    private static final double MAX_EDGE_CURVE_ANGLE = 20;
+    private static final double FIRST_CURVE_ANGLE_COUNT = 10;
+    private static final double MIDDLE_ANGLE = 70;
+    private static final double MAX_ANGLE = 89;
 
     private final FxEdge<E, V> underlyingEdge;
 
@@ -61,7 +63,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     private SmartLabel attachedLabel = null;
     private SmartArrow attachedArrow = null;
 
-    private double randomAngleFactor = 0;
+    private double angleFactor = 0;
+    private boolean evenOrder = false;
     
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
@@ -86,8 +89,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         this.endXProperty().bind(inbound.centerXProperty());
         this.endYProperty().bind(inbound.centerYProperty());
 
-        //TODO: improve this solution taking into account even indices, etc.
-        randomAngleFactor = edgeIndex == 0 ? 0 : 1.0 / edgeIndex; //Math.random();
+        angleFactor = edgeIndex + 1;
+        evenOrder = (edgeIndex / 4) % 2 == 1 ? true : false;
 
         //update();
         enableListeners();
@@ -108,49 +111,99 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         return styleProxy.removeStyleClass(cssClass);
     }
     
-    private void update() {                
+    private void update() {
         if (inbound == outbound) {
-            /* Make a loop using the control points proportional to the vertex radius */
+        	double midpointX1 = outbound.getCenterX();
+            double midpointY1 = outbound.getCenterY();
+            double midpointX2 = outbound.getCenterX();
+            double midpointY2 = outbound.getCenterY();
             
-            //TODO: take into account several "self-loops" with randomAngleFactor
-            double midpointX1 = outbound.getCenterX() - inbound.getRadius() * 5;
-            double midpointY1 = outbound.getCenterY() - inbound.getRadius() * 2;
-            
-            double midpointX2 = outbound.getCenterX() + inbound.getRadius() * 5;
-            double midpointY2 = outbound.getCenterY() - inbound.getRadius() * 2;
+        	if (angleFactor % 4 == 0) {
+	            midpointX1 = midpointX1 - inbound.getRadius() * (angleFactor / 4 + 4);
+	            midpointY1 = midpointY1 - inbound.getRadius() * (angleFactor / 4 + 1);
+	            
+	            midpointX2 = midpointX2 + inbound.getRadius() * (angleFactor / 4 + 1);
+	            midpointY2 = midpointY2 - inbound.getRadius() * (angleFactor / 4 + 4);
+        	} else if (angleFactor % 4 == 1) {
+        		midpointX1 = midpointX1 + inbound.getRadius() * (angleFactor / 4 + 4);
+	            midpointY1 = midpointY1 + inbound.getRadius() * (angleFactor / 4 + 1);
+	            
+	            midpointX2 = midpointX2 - inbound.getRadius() * (angleFactor / 4 + 1);
+	            midpointY2 = midpointY2 + inbound.getRadius() * (angleFactor / 4 + 4);
+        	} else if (angleFactor % 4 == 2) {
+        		if (evenOrder) {
+	        		midpointX1 = midpointX1 + inbound.getRadius() * (angleFactor / 4 + 4);
+		            midpointY1 = midpointY1 + inbound.getRadius() * (angleFactor / 4 + 1);
+		            midpointX2 = midpointX2 + inbound.getRadius() * (angleFactor / 4 + 1);
+		            midpointY2 = midpointY2 - inbound.getRadius() * (angleFactor / 4 + 4);
+        		} else {
+        			midpointX1 = midpointX1 + inbound.getRadius() * (angleFactor / 4 + 5);
+		            midpointY1 = midpointY1 + inbound.getRadius() * (angleFactor / 4 + 1);
+		            midpointX2 = midpointX2 + inbound.getRadius() * (angleFactor / 4 + 1);
+		            midpointY2 = midpointY2 - inbound.getRadius() * (angleFactor / 4 + 5);
+        		}
+        	} else {
+        		if (evenOrder) {
+	        		midpointX1 = midpointX1 - inbound.getRadius() * (angleFactor / 4 + 4);
+		            midpointY1 = midpointY1 - inbound.getRadius() * (angleFactor / 4 + 1);
+		            
+		            midpointX2 = midpointX2 - inbound.getRadius() * (angleFactor / 4 + 1);
+		            midpointY2 = midpointY2 + inbound.getRadius() * (angleFactor / 4 + 4);
+        		} else {
+        			midpointX1 = midpointX1 - inbound.getRadius() * (angleFactor / 4 + 5);
+		            midpointY1 = midpointY1 - inbound.getRadius() * (angleFactor / 4 + 1);
+		            
+		            midpointX2 = midpointX2 - inbound.getRadius() * (angleFactor / 4 + 1);
+		            midpointY2 = midpointY2 + inbound.getRadius() * (angleFactor / 4 + 5);
+        		}
+        	}
             
             setControlX1(midpointX1);
             setControlY1(midpointY1);
             setControlX2(midpointX2);
             setControlY2(midpointY2);
             
-        } else {          
-            /* Make a curved edge. The curve is proportional to the distance  */
-            double midpointX = (outbound.getCenterX() + inbound.getCenterX()) / 2;
-            double midpointY = (outbound.getCenterY() + inbound.getCenterY()) / 2;
-
-            Point2D midpoint = new Point2D(midpointX, midpointY);
-
-            Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
+        } else {
+        	
+        	Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
             Point2D endpoint = new Point2D(outbound.getCenterX(), outbound.getCenterY());
 
-            //TODO: improvement lower max_angle_placement according to distance between vertices
-            double angle = MAX_EDGE_CURVE_ANGLE;
+            double angle = FIRST_CURVE_ANGLE_COUNT * angleFactor;
+            
+            if (angle > MIDDLE_ANGLE) {
+            	angle = 64 + angleFactor * 1;
+            	if (angle > MAX_ANGLE) {
+            		angle = MAX_ANGLE - angleFactor * 0.01;
+            	}
+            } 
+            
+            double x1 = startpoint.getX();
+            double y1 = startpoint.getY();
+            double x2 = endpoint.getX();
+            double y2 = endpoint.getY();
+            
+            double mid_x = (x1 + x2) / 2;
+            double mid_y = (y1 + y2) / 2;
 
-            double distance = startpoint.distance(endpoint);
+            double vec_x = x1 - mid_x;
+            double vec_y = y1 - mid_y;
 
-            //TODO: remove "magic number" 1500 and provide a distance function for the 
-            //decreasing angle with distance
-            angle = angle - (distance / 1500 * angle);
+            double rot_vec_x = -vec_y;
+            double rot_vec_y = vec_x;
 
-            midpoint = UtilitiesPoint2D.rotate(midpoint,
-                    startpoint,
-                    (-angle) + randomAngleFactor * (angle - (-angle)));
+            double length = Math.sqrt(Math.pow(rot_vec_y, 2) + Math.pow(rot_vec_y, 2));
+            double base_length = length * Math.tan(Math.toRadians(angle / 2));
+            double scale_factor = base_length / length;
+            double scaled_vec_x = rot_vec_x * scale_factor;
+            double scaled_vec_y = rot_vec_y * scale_factor;
 
-            setControlX1(midpoint.getX());
-            setControlY1(midpoint.getY());
-            setControlX2(midpoint.getX());
-            setControlY2(midpoint.getY());
+            double x3 = mid_x + scaled_vec_x;
+            double y3 = mid_y + scaled_vec_y;
+            
+            setControlX1(x3);
+            setControlY1(y3);
+            setControlX2(x3);
+            setControlY2(y3);
         }
 
     }

@@ -122,6 +122,7 @@ public class ShortestPath {
         // and return a
         // boolean value
         if (cloud.get(endVertex) >= Integer.MAX_VALUE) {
+        	weight[0] = 0;
             return false;
         } else return Integer.signum(cloud.get(endVertex)) != -1;
     }
