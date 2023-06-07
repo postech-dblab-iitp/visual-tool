@@ -36,12 +36,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.CoolBar;
-import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -62,8 +59,6 @@ import org.jkiss.dbeaver.ui.UIUtils;
 import org.jkiss.dbeaver.ui.css.CSSUtils;
 import org.jkiss.dbeaver.ui.css.DBStyles;
 import org.jkiss.dbeaver.ui.editors.sql.internal.SQLEditorMessages;
-
-import net.sf.jsqlparser.statement.select.First.Keyword;
 
 class VisualQuickQueryPanel extends Composite {
     private static final Log log = Log.getLog(VisualQuickQueryPanel.class);
@@ -211,7 +206,6 @@ class VisualQuickQueryPanel extends Composite {
                                 Combo combo = vTypeCombo.getCombo();
                                 String selectItem =
                                         String.valueOf(combo.getItem(combo.getSelectionIndex()));
-                                System.out.println("selectItem : " + selectItem);
                                 vPropertyCombo.setInput(
                                         propertiesToArray(vertexList.get(selectItem), false));
                                 vPropertyCombo.getCombo().select(0);
@@ -231,7 +225,6 @@ class VisualQuickQueryPanel extends Composite {
                                 Combo combo = eTypeCombo.getCombo();
                                 String selectItem =
                                         String.valueOf(combo.getItem(combo.getSelectionIndex()));
-                                System.out.println("selectItem : " + selectItem);
                                 ePropertyCombo.setInput(
                                         propertiesToArray(edgeList.get(selectItem), true));
                                 ePropertyCombo.getCombo().select(0);
@@ -349,12 +342,8 @@ class VisualQuickQueryPanel extends Composite {
         String databaseName = "";
 
         if (this.editor != null && this.editor.getDataSourceContainer() != null) {
-            System.out.println(
-                    "isGraphDB dataSourceContainer.getDataSource().getName() "
-                            + this.editor.getDataSourceContainer().getId());
             databaseName = this.editor.getDataSourceContainer().getId();
             if (databaseName.contains("turbograph_jdbc")) {
-                System.out.println("database is neo4j");
                 return true;
             }
         }
@@ -363,7 +352,6 @@ class VisualQuickQueryPanel extends Composite {
     }
 
     private void setShowAndHide(boolean status) {
-        System.out.println("setShowAndHide status : " + status);
         UIUtils.asyncExec(
                 new Runnable() {
 
@@ -385,22 +373,17 @@ class VisualQuickQueryPanel extends Composite {
 
     public void ControlQuickQueryView() {
         boolean isGraphDB = isGraphDB();
-        System.out.println("ControlQuickQueryView isGraphDB : " + isGraphDB);
         if (isGraphDB) {
             startUpdateJob = new GetTypeInfoJob("VisualQuickQueryPanel editor Update");
 
             if (!startUpdateJob.isFinished()) {
-                System.out.println("startUpdateJob let's go");
                 startUpdateJob.schedule();
-            } else {
-                System.out.println("startUpdateJob is null");
             }
         }
         setShowAndHide(isGraphDB);
     }
 
     public ArrayList<String> propertiesToArray(String properties, boolean isEdge) {
-        System.out.println("propertiesToArray properties :" + properties);
         ArrayList<String> list = new ArrayList<>();
 
         if (properties != null && !properties.equals("[]")) {
@@ -414,7 +397,6 @@ class VisualQuickQueryPanel extends Composite {
             String[] propertiesList = properties.split(", ");
             for (int i = 0; i < propertiesList.length; i++) {
                 list.add(propertiesList[i].replaceAll("\"", ""));
-                System.out.println("EdgePropertiesToArray edgePropertyName :" + propertiesList[i]);
             }
         }
 
@@ -431,20 +413,16 @@ class VisualQuickQueryPanel extends Composite {
 
         @Override
         protected IStatus run(DBRProgressMonitor monitor) {
-            System.out.println("GetTypeInfoJob start");
-
+        	
             if (editor == null) {
-                System.out.println("GetTypeInfoJob editor null");
                 return Status.CANCEL_STATUS;
             }
 
             if (editor.getDataSourceContainer() == null) {
-                System.out.println("GetTypeInfoJob getDataSourceContainer is null");
                 return Status.CANCEL_STATUS;
             }
 
             if (editor.getDataSource() == null) {
-                System.out.println("GetTypeInfoJob getdatasource is null");
                 return Status.CANCEL_STATUS;
             }
 
@@ -467,7 +445,6 @@ class VisualQuickQueryPanel extends Composite {
                 lock.unlock();
                 monitor.done();
             }
-            System.out.println("GetTypeInfoJob end");
             return Status.OK_STATUS;
         }
 
@@ -502,7 +479,6 @@ class VisualQuickQueryPanel extends Composite {
         }
 
         private void getNodeLabel(DBRProgressMonitor monitor) {
-            System.out.println("getVertexLabel start");
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Vertex Label")) {
@@ -513,21 +489,17 @@ class VisualQuickQueryPanel extends Composite {
                             vertexLabel = JDBCUtils.safeGetString(dbResult, "label");
                             vertexLabel = vertexLabel.replaceAll("[\\[\\]\"]", "");
                             vertexList.put(vertexLabel, DEFAULT_ALL);
-                            System.out.println("vertexLabel :" + vertexLabel);
                         }
                     }
                 }
             } catch (DBCException | SQLException e) {
-                System.out.println("getVertexLabel excpetion");
                 error = e;
             }
-            System.out.println("getVertexLabel end");
         }
 
         private void getNodeProperties(DBRProgressMonitor monitor) {
             String vertexLabel;
             String vertexPropertyName;
-            System.out.println("getVertexProperties start");
             String query = makeVertexPropertiesQuery();
 
             try (JDBCSession session =
@@ -541,20 +513,14 @@ class VisualQuickQueryPanel extends Composite {
                         vertexList.put(
                                 vertexLabel,
                                 vertexList.get(vertexLabel).concat(", " + vertexPropertyName));
-                        System.out.println("vertexPropertyName :" + vertexLabel);
-                        System.out.println("vertexPropertyName :" + vertexPropertyName);
                     }
                 }
             } catch (DBCException | SQLException e) {
                 error = e;
-                System.out.println("getVertexProperties e : " + e.toString());
             }
-
-            System.out.println("getVertexProperties end");
         }
 
         private void getEdgeType(DBRProgressMonitor monitor) {
-            System.out.println("getEdgeType start");
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Edges Type")) {
@@ -563,23 +529,18 @@ class VisualQuickQueryPanel extends Composite {
                         while (dbResult.next()) {
                             edgeType = JDBCUtils.safeGetString(dbResult, "type");
                             edgeList.put(edgeType, DEFAULT_ALL);
-                            System.out.println("edge typeName :" + edgeType);
                         }
                     }
                 }
             } catch (DBCException | SQLException e) {
                 error = e;
-                System.out.println("getEdgeType e : " + e.toString());
             }
-            System.out.println("getEdgeType end");
         }
 
         private void getEdgeProperties(DBRProgressMonitor monitor) {
             if (edgeList.size() < 1) {
                 return;
             }
-            System.out.println("getEdgeProperties start");
-            
             String edgeType;
             String edgePropertyName;
             String query = makeEdgePropertiesQuery();
@@ -595,17 +556,13 @@ class VisualQuickQueryPanel extends Composite {
                             edgePropertyName = JDBCUtils.safeGetString(dbResult, "key");
                             edgeList.put(edgeType, 
                             		vertexList.get(vertexLabel).concat(", " + edgePropertyName));
-                            System.out.println("edge edgeType : " + edgeType);
-                            System.out.println("edge edgePropertyName :" + edgePropertyName);
                         }
                     }
                     
                 }
             } catch (DBCException | SQLException e) {
                 error = e;
-                System.out.println("getEdgeProperties e : " + e.toString());
             }
-            System.out.println("getEdgeProperties end");
         }
 
         @SuppressWarnings("unused")
@@ -623,11 +580,9 @@ class VisualQuickQueryPanel extends Composite {
                 while (tableResultSet.next()) {
                     vertexLabel = JDBCUtils.safeGetString(tableResultSet, "TABLE_NAME");
                     vertexList.put(vertexLabel, DEFAULT_ALL);
-                    System.out.println("tableName name :" + vertexLabel);
                     JDBCResultSet columsResultSet = meta.getColumns(null, null, vertexLabel, null);
                     while (columsResultSet.next()) {
                         vertexProperty = JDBCUtils.safeGetString(columsResultSet, "COLUMN_NAME");
-                        System.out.println("columnName name :" + vertexProperty);
                         vertexList.put(
                                 vertexLabel,
                                 vertexList.get(vertexLabel).concat(", " + vertexProperty));
@@ -635,7 +590,6 @@ class VisualQuickQueryPanel extends Composite {
                 }
             } catch (DBCException | SQLException e) {
                 error = e;
-                System.out.println("e : " + e.toString());
             }
         }
 
