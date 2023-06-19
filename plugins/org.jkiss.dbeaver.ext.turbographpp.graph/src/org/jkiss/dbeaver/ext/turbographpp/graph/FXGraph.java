@@ -23,8 +23,8 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TouchEvent;
 import org.eclipse.swt.events.TouchListener;
 import org.eclipse.swt.graphics.Color;
@@ -57,6 +57,7 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPane
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.DeleteGraphElement;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.GraphDataModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.NodesEdges;
 import org.jkiss.dbeaver.ext.turbographpp.graph.dialog.CSVDialog;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphList;
@@ -96,8 +97,7 @@ public class FXGraph implements GraphBase {
     private boolean ctrlKeyMode = false;
     private ZoomManager zoomManager;
     
-    private HashMap<String, CyperNode> Nodes = new HashMap<>();
-    private HashMap<String, CyperEdge> Edges = new HashMap<>();
+    private GraphDataModel dataModel = new GraphDataModel();
     
     private HashMap<String, String> nodesGroup = new HashMap<>();
     
@@ -112,6 +112,7 @@ public class FXGraph implements GraphBase {
     private MenuItem highlightMenu;
     private MenuItem unHighlightMenu;
     private MenuItem deteleMenu;
+    private MenuItem designMenu;
 
     private SmartGraphVertex<CyperNode> selectNode = null;
     
@@ -125,13 +126,14 @@ public class FXGraph implements GraphBase {
     
     private ArrayList<DeleteGraphElement> undoList = new ArrayList<>();
     private ArrayList<DeleteGraphElement> redoList = new ArrayList<>();
-    private NodesEdges nodesEdges = new NodesEdges();
+    private NodesEdges shortestList = new NodesEdges();
     
     private boolean shortestMode = false;
     private SmartGraphVertex<CyperNode> startVertex;
     private SmartGraphVertex<CyperNode> endVertex;
     
     private GuideBox guideBox;
+    private DesignBox designBox;
     
     public FXGraph(Composite parent, int style) {
         control = parent;
@@ -170,6 +172,8 @@ public class FXGraph implements GraphBase {
         createMiniMap(canvas);
         guideBox = new GuideBox(canvas, this);
         
+        designBox = new DesignBox(canvas, this);
+        
         parent.addDisposeListener(new DisposeListener() {
 			
 			@Override
@@ -180,6 +184,10 @@ public class FXGraph implements GraphBase {
 				
 				if (guideBox != null) {
 					guideBox.remove();
+				}
+				
+				if (designBox != null) {
+					designBox.remove();
 				}
 			}
 		});
@@ -306,6 +314,7 @@ public class FXGraph implements GraphBase {
                             return;
                         }
                         nodeIDConsumer.accept(ID);
+                        designBox.setSelectItem(node);
                     }
                 });
 
@@ -318,6 +327,7 @@ public class FXGraph implements GraphBase {
                             return;
                         }
                         edgeIDConsumer.accept(ID);
+                        designBox.setSelectItem(edge);
                     }
                 });
 
@@ -422,18 +432,17 @@ public class FXGraph implements GraphBase {
     	}
     	String fillColor = nodesGroup.get(label);
     	CyperNode node = new CyperNode(id, label, attr, fillColor);
-    	Nodes.put(id, node);
     	Object v = graph.insertVertex(node);
+    	dataModel.putNode(id, label, (Vertex<CyperNode>)v);
         return v;
     }
 
     @Override
     public Object addEdge(String id, String label, String startNodeID, String endNodeID,
             HashMap<String, String> attr) {
-    	//System.out.println("addEdge id : " + id + " startNodeID : " + startNodeID + " endNodeID : " + endNodeID);
     	CyperEdge edge = new CyperEdge(id, label, attr, startNodeID, endNodeID);
-    	Edges.put(id, edge);
-    	Object e = graph.insertEdge(Nodes.get(startNodeID), Nodes.get(endNodeID), edge);
+    	Object e = graph.insertEdge(dataModel.getNode(startNodeID), dataModel.getNode(endNodeID), edge);
+    	dataModel.putEdge(id, label, (FxEdge<CyperEdge, CyperNode>)e);
         return e;
     }
 
@@ -457,7 +466,7 @@ public class FXGraph implements GraphBase {
     
     private boolean restoreEdge(CyperEdge edge) {
     	if (edge != null) {
-    		graph.insertEdge(Nodes.get(edge.getStartNodeID()), Nodes.get(edge.getEndNodeID()), edge);
+    		graph.insertEdge(dataModel.getNode(edge.getStartNodeID()), dataModel.getNode(edge.getEndNodeID()), edge);
 	    	return true;
     	}
     	return false;
@@ -481,8 +490,7 @@ public class FXGraph implements GraphBase {
     	shortestMode = false;
     	startVertex = null;
     	endVertex = null;
-    	Nodes.clear();
-    	Edges.clear();
+    	dataModel.clear();
     	undoList.clear();
         redoList.clear();
         graph.clearElement();
@@ -566,7 +574,7 @@ public class FXGraph implements GraphBase {
 		
 	}
 
-	public int getNodes() {
+	public int getNumNodes() {
 		int ret = graph.numVertices();
 		if (ret <= 0) {
 			return 0;
@@ -574,7 +582,7 @@ public class FXGraph implements GraphBase {
 		return ret;	
 	}
 	
-	public int getEdges() {
+	public int getNumEdges() {
 		int ret = graph.numEdges();
 		if (ret <= 0) {
 			return 0;
@@ -618,7 +626,7 @@ public class FXGraph implements GraphBase {
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(700);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -645,7 +653,7 @@ public class FXGraph implements GraphBase {
 		g = random.nextInt(170) + 70;
 		b = random.nextInt(170) + 70;
 
-		return "-fx-fill: #" + Integer.toHexString(r) + Integer.toHexString(g) +  Integer.toHexString(b);
+		return Integer.toHexString(r) + Integer.toHexString(g) +  Integer.toHexString(b);
 	}
 	
 	public void setVertexSelectAction(Consumer<String> action) {
@@ -663,6 +671,7 @@ public class FXGraph implements GraphBase {
 		highlightMenu = new MenuItem("Highlight");
 		unHighlightMenu = new MenuItem("unHighlight");
 		deteleMenu = new MenuItem("Delete");
+		designMenu = new MenuItem("Design");
 
 		redoMenu.setDisable(true);
 		undoMenu.setDisable(true);
@@ -670,7 +679,7 @@ public class FXGraph implements GraphBase {
 		deteleMenu.setDisable(true);
 		unHighlightMenu.setDisable(true);
 
-		contextMenu.getItems().addAll(redoMenu, undoMenu, highlightMenu, unHighlightMenu, deteleMenu);
+		contextMenu.getItems().addAll(redoMenu, undoMenu, highlightMenu, unHighlightMenu, deteleMenu, designMenu);
 		
 		contextMenuAction();
 		
@@ -749,6 +758,14 @@ public class FXGraph implements GraphBase {
 			@Override
 			public void handle(ActionEvent arg0) {
 				doUndo();
+			}
+		});
+		
+		designMenu.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent arg0) {
+				designBox.open((int)contextMenu.getX(), (int)contextMenu.getY());
 			}
 		});
 	}
@@ -847,28 +864,19 @@ public class FXGraph implements GraphBase {
 	
 	private void createMiniMap(Composite parent) {
         miniMap = new MiniMap(parent);
-        miniMap.addZoominListner(new SelectionListener() {
+        miniMap.addZoominListner(new SelectionAdapter() {
             
             @Override
             public void widgetSelected(SelectionEvent e) {
        			zoomIn();
             }
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-            
         });
         
-        miniMap.addZoomOutListner(new SelectionListener() {
+        miniMap.addZoomOutListner(new SelectionAdapter() {
             
             @Override
             public void widgetSelected(SelectionEvent e) {
        			zoomOut();
-            }
-            
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
         
@@ -969,7 +977,7 @@ public class FXGraph implements GraphBase {
 			endVertex = null;
 			
 			guideBox.setText("Please Select StartNode(Vertex)");
-			guideBox.show();
+			guideBox.open();
 			
 		} else {
 			unShortestMode();
@@ -983,8 +991,8 @@ public class FXGraph implements GraphBase {
 	
 	public void runShortest(String propertyName) {
 		if(startVertex != null && endVertex != null) {
-			nodesEdges = ShortestPath.start(graph, graphView, startVertex.getUnderlyingVertex(), endVertex.getUnderlyingVertex(), propertyName);
-			if (nodesEdges.getEdges().size() == 0) {
+			shortestList = ShortestPath.start(graph, graphView, startVertex.getUnderlyingVertex(), endVertex.getUnderlyingVertex(), propertyName);
+			if (shortestList.getEdges().size() == 0) {
 				guideBox.setText("Path is not exist");
 				graphView.getStylableVertex(startVertex.getUnderlyingVertex()).setStyle(SmartStyleProxy.DEFAULT_VERTEX + startVertex.getUnderlyingVertex().element().getFillColor());
 				graphView.getStylableVertex(endVertex.getUnderlyingVertex()).setStyle(SmartStyleProxy.DEFAULT_VERTEX + endVertex.getUnderlyingVertex().element().getFillColor());
@@ -993,6 +1001,26 @@ public class FXGraph implements GraphBase {
         } else{
         	guideBox.setText("Please select two vertices to compute the shortest path between them.\n\n");
         }
+	}
+	
+	private void unShortestMode() {
+		if (shortestList != null) {
+			for(Vertex<CyperNode> node : shortestList.getNodes()) {
+				graphView.getStylableVertex(node).setStyle(SmartStyleProxy.DEFAULT_VERTEX + node.element().getFillColor());
+			}
+					
+					
+			for(FxEdge<CyperEdge, CyperNode> edge : shortestList.getEdges()) {
+				CyperEdge cyperEdge = edge.element();
+				graphView.getStylableEdge(edge).setStyle(
+						SmartStyleProxy.getEdgeStyleInputValue(
+								cyperEdge.getLineColor(), 
+								cyperEdge.getLineStyle(), 
+								cyperEdge.getLineStrength()));
+			}
+			
+			shortestList = null;
+		}
 	}
 	
 	private boolean isEmptyStartVertex() {
@@ -1007,21 +1035,6 @@ public class FXGraph implements GraphBase {
 			return true;
 		}
 		return false;
-	}
-	
-	private void unShortestMode() {
-		if (nodesEdges != null) {
-			for(Vertex<CyperNode> node : nodesEdges.getNodes()) {
-				graphView.getStylableVertex(node).setStyle(SmartStyleProxy.DEFAULT_VERTEX + node.element().getFillColor());
-			}
-					
-					
-			for(FxEdge<CyperEdge, CyperNode> edge : nodesEdges.getEdges()) {
-				graphView.getStylableEdge(edge).setStyle(SmartStyleProxy.DEFAULT_EDGE);
-			}
-			
-			nodesEdges = null;
-		}
 	}
 	
 	private Set<String> getincidentEdgesProperies(Vertex<CyperNode> vertex) {
@@ -1039,6 +1052,18 @@ public class FXGraph implements GraphBase {
 		}
 		
 		return properties;
+	}
+	
+	public GraphDataModel getDataModel() {
+		return dataModel;
+	}
+	
+	public SmartGraphPanel<CyperNode, CyperEdge> getGraphView() {
+		return graphView;
+	}
+	
+	public TurboGraphList<CyperNode, CyperEdge> getGraph() {
+		return graph;
 	}
 	
 }

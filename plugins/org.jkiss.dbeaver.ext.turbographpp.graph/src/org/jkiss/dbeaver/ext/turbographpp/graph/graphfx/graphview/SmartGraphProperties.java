@@ -46,7 +46,7 @@ public class SmartGraphProperties {
     private static final boolean DEFAULT_VERTEX_ALLOW_USER_MOVE = true;
     private static final String PROPERTY_VERTEX_ALLOW_USER_MOVE = "vertex.allow-user-move";
     
-    private static final double DEFAULT_VERTEX_RADIUS = 30;
+    public static final double DEFAULT_VERTEX_RADIUS = 30;
     private static final String PROPERTY_VERTEX_RADIUS = "vertex.radius";
 
     private static final boolean DEFAULT_VERTEX_USE_TOOLTIP = true;

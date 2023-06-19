@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartLabelSource;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 
 public class CyperEdge {
     private String id;
@@ -11,7 +12,13 @@ public class CyperEdge {
     private HashMap<String, String> property;
     private String startNodeID;
     private String endNodeID;
-
+    private DisplayType displayType;
+    private String displayProperty;
+    private String lineStrength = SmartStyleProxy.DEFAULT_EDGE_LINE_STRENGTH;
+    private String lineColor = SmartStyleProxy.DEFAULT_EDGE_LINE_COLOR;
+    private String lineStyle = SmartStyleProxy.DEFAULT_EDGE_LINE_STYLE;
+    private int textSize = SmartStyleProxy.DEFAULT_EDGE_LABEL_SIZE;
+    
     public CyperEdge(
             String id,
             String type,
@@ -26,6 +33,7 @@ public class CyperEdge {
         }
         this.startNodeID = startNodeID;
         this.endNodeID = endNodeID;
+        this.displayType = DisplayType.TYPE;
     }
 
     public String getID() {
@@ -53,6 +61,55 @@ public class CyperEdge {
     }
 
     public String toString() {
-        return type;
+    	switch (displayType) {
+            case ID:
+            	return id;
+            case PROPERTY:
+            	return property.get(displayProperty);
+            case TYPE:
+            	return type;
+            default:
+                return type;
+        }
+    }
+    
+    public void setDisplayType(DisplayType type) {
+    	displayType = type;
+    }
+    
+    public void setDisplayProperty(String property) {
+    	displayProperty = property;
+    }
+    
+    public void setLineStrength(String strength) {
+    	lineStrength = strength;
+    }
+    
+    public String getLineStrength() {
+    	return lineStrength;
+    }
+    
+    public void setLineColor(String color) {
+    	lineColor = color;
+    }
+    
+    public String getLineColor() {
+    	return lineColor;
+    }
+    
+    public void setLineStyle(String style) {
+    	lineStyle = style;
+    }
+    
+    public String getLineStyle() {
+    	return lineStyle;
+    }
+    
+    public void setTextSize(int size) {
+    	textSize = size;
+    }
+    
+    public int getTextSize() {
+    	return textSize;
     }
 }

@@ -54,5 +54,10 @@ public interface SmartGraphEdgeBase<E, V> extends SmartGraphEdge<E, V>, SmartLab
      * @return      reference of the attached arrow; null if none.
      */
     public SmartArrow getAttachedArrow();
+ 
+    public void setTextSize(int size);
     
+    public void updateLabelText();
+    
+    public void updateLabelPosition();
 }

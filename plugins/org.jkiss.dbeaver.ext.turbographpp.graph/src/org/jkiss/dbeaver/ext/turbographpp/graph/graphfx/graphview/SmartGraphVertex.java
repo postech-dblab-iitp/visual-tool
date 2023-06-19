@@ -84,4 +84,11 @@ public interface SmartGraphVertex<V> extends SmartStylableNode {
      * @return the label node.
      */
     public SmartStylableNode getStylableLabel();
+    
+    public void setTextSize(int size);
+    
+    public void updateLabelText();
+    
+    public void updateLabelPosition();
+
 }

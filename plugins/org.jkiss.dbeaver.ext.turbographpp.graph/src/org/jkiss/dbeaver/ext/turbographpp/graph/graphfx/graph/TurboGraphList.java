@@ -185,9 +185,17 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
         return vertices.values();
     }
 
+    public synchronized Map<V, Vertex<V>> getVertices() {
+        return vertices;
+    }
+    
     @Override
     public synchronized Collection<FxEdge<E, V>> edges() {
         return edges.values();
+    }
+    
+    public synchronized Map<E, FxEdge<E, V>> getEdges(E e) {
+        return edges;
     }
 
     @Override

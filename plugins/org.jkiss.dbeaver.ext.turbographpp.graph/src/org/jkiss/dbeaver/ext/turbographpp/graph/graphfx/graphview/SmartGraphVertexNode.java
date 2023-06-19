@@ -357,7 +357,30 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     public SmartStylableNode getStylableLabel() {
         return this.attachedLabel;
     }
-
+    
+    public void setNodeRadius(double size) {
+    	setRadius(size);
+    }
+    
+    @Override
+    public synchronized void setTextSize(int size) {
+    	String labelStyle = "-fx-font: bold " 
+        		+ size 
+        		+ "pt \"sans-serif\";";
+    	attachedLabel.setStyle(labelStyle);
+    }
+    
+    @Override
+    public synchronized void updateLabelText() {
+    	attachedLabel.setText(underlyingVertex.element().toString());
+    }
+    
+    @Override
+    public synchronized void updateLabelPosition() {
+	    attachedLabel.xProperty().bind(centerXProperty().subtract(this.attachedLabel.getLayoutBounds().getWidth() / 2.0 ));
+		attachedLabel.yProperty().bind(centerYProperty().add(this.attachedLabel.getLayoutBounds().getHeight() / 2.0));
+    }
+    
     /**
      * Internal representation of a 2D point or vector for quick access to its
      * attributes.
