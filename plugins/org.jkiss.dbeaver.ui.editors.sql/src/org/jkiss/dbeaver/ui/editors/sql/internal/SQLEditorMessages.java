@@ -330,7 +330,11 @@ public class SQLEditorMessages extends NLS {
     public static String sql_generator_dialog_button_show_comments;
     public static String sql_generator_dialog_button_show_permissions;
     public static String sql_generator_dialog_button_show_full_DDL;
-
+    
+    public static String query_translation_title;
+    public static String query_translation_node_label;
+    public static String query_translation_edge_title;
+    public static String query_translation_execute;
 
 	static {
         // initialize resource bundle

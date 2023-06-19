@@ -157,6 +157,9 @@ public class DBIcon implements DBPImage
 
     private static final boolean VALIDATE_ICON_FILE = false;
 
+    public static final DBIcon QUERY_TRANSFORMING = new DBIcon("query_trans", "editor/query_trans.png"); //$NON-NLS-1$ //$NON-NLS-2$
+    public static final DBIcon QUERY_TRANSFORMING_BIG = new DBIcon("query_trans", "editor/query_trans_big.png"); //$NON-NLS-1$ //$NON-NLS-2$
+    
     private static Map<String, DBPImage> iconMap = new HashMap<>();
 
 

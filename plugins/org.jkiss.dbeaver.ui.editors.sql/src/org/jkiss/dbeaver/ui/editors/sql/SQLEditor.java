@@ -181,6 +181,7 @@ public class SQLEditor extends SQLEditorBase implements
     private SQLLogPanel logViewer;
     private SQLEditorOutputConsoleViewer outputViewer;
     private SQLVariablesPanel variablesViewer;
+    private VisualQuickQueryPanel visualQuickQueryViewer;
 
     private volatile QueryProcessor curQueryProcessor;
     private final List<QueryProcessor> queryProcessors = new ArrayList<>();
@@ -796,6 +797,9 @@ public class SQLEditor extends SQLEditorBase implements
         Composite editorContainer;
         sqlEditorPanel = UIUtils.createPlaceholder(resultsSash, 3, 0);
 
+        //Create QuickQueryView (for GraphDB)
+        visualQuickQueryViewer = new VisualQuickQueryPanel(this, sqlEditorPanel);
+        
         // Create left vertical toolbar
         createControlsBar(sqlEditorPanel);
 
@@ -2485,6 +2489,7 @@ public class SQLEditor extends SQLEditorBase implements
     private void fireDataSourceChange()
     {
         updateExecutionContext(null);
+        updateQuickQueryView();
         UIUtils.syncExec(this::onDataSourceChange);
     }
 
@@ -3805,6 +3810,7 @@ public class SQLEditor extends SQLEditorBase implements
                     // Update dirty flag
                     updateDirtyFlag();
                     refreshActions();
+                    updateQuickQueryView();
                 });
             } finally {
                 if (extListener != null) {
@@ -4254,5 +4260,12 @@ public class SQLEditor extends SQLEditorBase implements
         }
 
     }
-
+    
+    private void updateQuickQueryView() {
+    	if (dataSourceContainer != null) {
+    		if (visualQuickQueryViewer != null) {
+    			visualQuickQueryViewer.ControlQuickQueryView();
+    		}
+    	}
+    }
 }
