@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphProperties;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
+
 public class CyperNode {
 
     public static final int DEFAULT_DISPLAY_TYPE_ID = 0;
@@ -15,11 +18,13 @@ public class CyperNode {
     private String id;
     private String label;
     private String fillColor;
+    private double radius = SmartGraphProperties.DEFAULT_VERTEX_RADIUS;
+    private int textSize = SmartStyleProxy.DEFAULT_VERTEX_LABEL_SIZE;
     private HashMap<String, Object> property;
     private double lastPositionX, lastPositionY;
 
-    private int defaultDisplayType = DEFAULT_DISPLAY_TYPE_LABLE;
-    private String diplayPropertyName = null;
+    private DisplayType displayType = DisplayType.PROPERTY;
+    private String displayPropertyName = null;
 
     public CyperNode(String id, String label, HashMap<String, Object> property, String fillColor) {
         this.id = id;
@@ -53,12 +58,12 @@ public class CyperNode {
 
         for (int i = 0; i < typeList.length; i++) {
             if (typeList[i] != null) {
-                diplayPropertyName = typeList[i];
+            	displayPropertyName = typeList[i];
                 break;
             }
         }
     }
-
+    
     public String getID() {
         return this.id;
     }
@@ -68,17 +73,28 @@ public class CyperNode {
     }
 
     public String getFillColor() {
-        return this.fillColor;
+        return "-fx-fill: #" + fillColor;
     }
 
+    public String getFillColorHexString() {
+    	return fillColor;
+    }
+    
+    public void setFillColor(String color) {
+    	this.fillColor = color;
+    }
+    
     public String getDisplay() {
-        display = String.valueOf(this.property.get(diplayPropertyName));
-        if (display == null || display.isEmpty() || display.contains("null")) {
-            if (defaultDisplayType == DEFAULT_DISPLAY_TYPE_ID) {
-                display = id;
-            } else {
+        if (displayType == DisplayType.PROPERTY) {
+        	display = String.valueOf(this.property.get(displayPropertyName));
+        	if (display == null || display.isEmpty() || display.contains("null")) {
+            	displayType = DisplayType.TYPE;
                 display = label;
-            }
+        	}
+        } else if (displayType == DisplayType.ID){
+            display = id;
+        } else {
+        	display = label;
         }
         return display;
     }
@@ -95,12 +111,20 @@ public class CyperNode {
         return getDisplay();
     }
 
-    public void setDisplayName(String propertyName) {
-        this.diplayPropertyName = propertyName;
+    public void setDisplayProperty(String propertyName) {
+        this.displayPropertyName = propertyName;
+    }
+    
+    public String getDisplayProperty() {
+        return this.displayPropertyName;
     }
 
-    public void setDisplayType(int defaultType) {
-        this.defaultDisplayType = defaultType;
+    public void setDisplayType(DisplayType type) {
+        this.displayType = type;
+    }
+    
+    public DisplayType getDisplayType() {
+        return this.displayType;
     }
 
     public void setLastPosition(double x, double y) {
@@ -115,4 +139,21 @@ public class CyperNode {
     public double getLastPositionY() {
         return this.lastPositionY;
     }
+    
+    public void setRadius(double radius) {
+    	this.radius = radius;
+    }
+    
+    public double getRadius() {
+    	return this.radius;
+    }
+    
+    public void setTextSize(int size) {
+    	this.textSize = size;
+    }
+    
+    public int getTextSize() {
+    	return this.textSize;
+    }
+    
 }

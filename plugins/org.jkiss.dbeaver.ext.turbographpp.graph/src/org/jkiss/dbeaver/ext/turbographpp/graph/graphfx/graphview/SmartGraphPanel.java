@@ -53,6 +53,7 @@ import javafx.scene.text.Text;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Digraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
@@ -101,6 +102,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final SmartPlacementStrategy placementStrategy;
     private final Map<Vertex<V>, SmartGraphVertexNode<V>> vertexNodes;
     private final Map<FxEdge<E, V>, SmartGraphEdgeBase> edgeNodes;
+    private final Map<String, SmartGraphEdgeBase> edgeNodesForID;
     private Map<FxEdge<E,V>, Tuple<Vertex<V>>> connections;
     private final Map<Tuple<SmartGraphVertexNode>, Integer> placedEdges = new HashMap<>();
     private boolean initialized = false;
@@ -218,7 +220,8 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.attractionScale = this.graphProperties.getAttractionScale();
 
         vertexNodes = new HashMap<>();
-        edgeNodes = new HashMap<>(); 
+        edgeNodes = new HashMap<>();
+        edgeNodesForID = new HashMap<>();
         connections = new HashMap<>();
 
         //set stylesheet and class
@@ -405,6 +408,10 @@ public class SmartGraphPanel<V, E> extends Pane {
         updateLabels();
     }
 
+    public synchronized void updateLabel() {
+        updateLabels();
+    }
+    
     /*
     INTERACTION WITH VERTICES AND EDGES
      */
@@ -537,7 +544,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             SmartLabel label = new SmartLabel(labelText);
 
             //label.addStyleClass("vertex-label");
-            label.setStyle("-fx-font: bold 8pt \"sans-serif\";");
+            label.setStyle(SmartStyleProxy.DEFAULT_VERTEX_LABEL);
             this.getChildren().add(label);
             v.attachLabel(label);
         }
@@ -553,6 +560,10 @@ public class SmartGraphPanel<V, E> extends Pane {
         //edges to the back
         this.getChildren().add(0, (Node) e);
         edgeNodes.put(edge, e);
+        if (e.getUnderlyingEdge().element() instanceof CyperEdge) {
+        	CyperEdge tempElement = (CyperEdge)e.getUnderlyingEdge().element();
+        	edgeNodesForID.put(tempElement.getID(), e);
+        }
 
         String labelText = generateEdgeLabel(edge.element());
         
@@ -565,7 +576,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             SmartLabel label = new SmartLabel(labelText);
 
             //label.addStyleClass("edge-label");
-            label.setStyle("-fx-font: normal 5pt \"sans-serif\";");
+            label.setStyle(SmartStyleProxy.DEFAULT_EDGE_LABEL);
             this.getChildren().add(label);
             e.attachLabel(label);
         }
@@ -628,7 +639,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 		y = lastPositionY;
                 	}
                 }
-                
+
                 SmartGraphVertexNode newVertex = new SmartGraphVertexNode<>(vertex,
                         x, y, graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
 
@@ -771,6 +782,10 @@ public class SmartGraphPanel<V, E> extends Pane {
     
     private String generateVertexLabel(V vertex) {
         
+    	if (vertex == null) {
+            return "null";
+        }
+    	
         try {
             Class<?> clazz = vertex.getClass();
             for (Method method : clazz.getDeclaredMethods()) {
@@ -1116,6 +1131,9 @@ public class SmartGraphPanel<V, E> extends Pane {
         return edge != null ? edge.getStylableLabel() : null;
     }
    
+    public SmartGraphEdgeBase getGraphEdgeBase(String eID) {
+    	return edgeNodesForID.get(eID);
+    }
 
     /**
      * Loads the stylesheet and applies the .graph class to this panel.
@@ -1285,10 +1303,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     	String vertexStyle, edgeStyle;
     	if (highlight) {
     		vertexStyle = SmartStyleProxy.HIGHLIGHT_VERTEX;
-    		edgeStyle = SmartStyleProxy.HIGHLIGHT_EDGE;
     	} else {
     		vertexStyle = SmartStyleProxy.DEFAULT_VERTEX;
-    		edgeStyle = SmartStyleProxy.DEFAULT_EDGE;
     	}
     	
     	SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
@@ -1302,6 +1318,19 @@ public class SmartGraphPanel<V, E> extends Pane {
     	Iterable<FxEdge<E, V>> incidentEdges = theGraph.outboundEdges(vertex);
     	for (FxEdge<E, V> edge : incidentEdges) {
     		//Set Edge Style
+    		if (highlight) {
+    			edgeStyle = SmartStyleProxy.HIGHLIGHT_EDGE;
+    		} else {
+    			if (edge.element() instanceof CyperEdge) {
+    				CyperEdge cyperEdge = (CyperEdge)edge.element();
+	    			edgeStyle = SmartStyleProxy.getEdgeStyleInputValue(
+	    					cyperEdge.getLineColor(),
+	    					cyperEdge.getLineStyle(),
+	    					cyperEdge.getLineStrength());
+    			} else {
+    				edgeStyle = SmartStyleProxy.DEFAULT_EDGE;
+    			}
+    		}
     		getStylableEdge(edge).setStyle(edgeStyle);
 
     		Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
@@ -1330,5 +1359,9 @@ public class SmartGraphPanel<V, E> extends Pane {
 				this.getMaxHeight(),
 				this.theGraph,
 				this.vertexNodes.values());
+    }
+    
+    public SmartGraphProperties getSmartGraphProperties() {
+    	return graphProperties;
     }
 }

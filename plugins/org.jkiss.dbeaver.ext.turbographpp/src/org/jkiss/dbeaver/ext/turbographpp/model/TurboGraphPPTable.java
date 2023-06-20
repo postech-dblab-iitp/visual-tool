@@ -16,39 +16,22 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
-import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.DBException;
 import org.jkiss.dbeaver.Log;
-import org.jkiss.dbeaver.ext.generic.model.GenericStructContainer;
 import org.jkiss.dbeaver.ext.generic.model.GenericTable;
-import org.jkiss.dbeaver.ext.generic.model.GenericTableColumn;
-import org.jkiss.dbeaver.model.DBConstants;
-import org.jkiss.dbeaver.model.DBPObjectStatistics;
 import org.jkiss.dbeaver.model.DBPScriptObject;
 import org.jkiss.dbeaver.model.DBPScriptObjectExt2;
-import org.jkiss.dbeaver.model.DBUtils;
-import org.jkiss.dbeaver.model.exec.DBCSession;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCPreparedStatement;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCUtils;
 import org.jkiss.dbeaver.model.meta.Property;
-import org.jkiss.dbeaver.model.preferences.DBPPropertySource;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSEntityAssociation;
 import org.jkiss.dbeaver.model.struct.DBStructUtils;
 import org.jkiss.dbeaver.model.struct.rdb.DBSTableConstraint;
 import org.jkiss.dbeaver.model.struct.rdb.DBSTableIndex;
-import org.jkiss.utils.ByteNumberFormat;
 import org.jkiss.utils.CommonUtils;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public class TurboGraphPPTable extends TurboGraphPPTableBase implements DBPScriptObjectExt2

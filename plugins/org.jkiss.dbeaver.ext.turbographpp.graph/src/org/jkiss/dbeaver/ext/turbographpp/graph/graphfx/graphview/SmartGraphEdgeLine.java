@@ -146,4 +146,23 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         return this.attachedLabel;
     }
     
+    @Override
+    public synchronized void setTextSize(int size) {
+    	System.out.println("Line size : " + size);
+    	String labelStyle = "-fx-font: normal " 
+        		+ size 
+        		+ "pt \"sans-serif\";";
+    	attachedLabel.setStyle(labelStyle);
+    }
+    
+    @Override
+    public synchronized void updateLabelText() {
+    	attachedLabel.setText(underlyingEdge.element().toString());
+    }
+    
+    @Override
+    public synchronized void updateLabelPosition() {
+    	attachedLabel.xProperty().bind(startXProperty().add(endXProperty()).divide(2).subtract(attachedLabel.getLayoutBounds().getWidth() / 2));
+    	attachedLabel.yProperty().bind(startYProperty().add(endYProperty()).divide(2).add(attachedLabel.getLayoutBounds().getHeight() / 1.5));
+    }
 }

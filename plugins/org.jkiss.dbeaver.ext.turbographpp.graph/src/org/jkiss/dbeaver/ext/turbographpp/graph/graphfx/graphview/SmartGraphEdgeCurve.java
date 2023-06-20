@@ -284,4 +284,26 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     public SmartStylableNode getStylableLabel() {
         return this.attachedLabel;
     }
+    
+    @Override
+    public synchronized void setTextSize(int size) {
+    	System.out.println("Curve attachedLabel.getText() : " + attachedLabel.getText());
+    	System.out.println("Curve size : " + size);
+    	String labelStyle = "-fx-font: normal " 
+        		+ size 
+        		+ "pt \"sans-serif\";";
+    	attachedLabel.setStyle(labelStyle);
+    }
+    
+    @Override
+    public synchronized void updateLabelText() {
+    	attachedLabel.setText(underlyingEdge.element().toString());
+    }
+    
+    @Override
+    public synchronized void updateLabelPosition() {
+    	attachedLabel.xProperty().bind(controlX1Property().add(controlX2Property()).divide(2).subtract(attachedLabel.getLayoutBounds().getWidth() / 2));
+    	attachedLabel.yProperty().bind(controlY1Property().add(controlY2Property()).divide(2).add(attachedLabel.getLayoutBounds().getHeight() / 2));
+    }
+    
 }
