@@ -281,7 +281,6 @@ public class SmartGraphPanel<V, E> extends Pane {
 //            throw new IllegalStateException("The layout for this panel has zero width and/or height");
 //        } 
         if (this.initialized) {
-        	System.out.println("\"Already initialized. Use update() method instead.");
         	initialized = false;
         	this.getChildren().clear();
         	removeNodes();
@@ -518,9 +517,12 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
         SmartGraphEdgeBase graphEdge;
 
-        if (getTotalEdgesBetween(graphVertexInbound.getUnderlyingVertex(), graphVertexOutbound.getUnderlyingVertex()) > 1
-                || graphVertexInbound == graphVertexOutbound) {
-            graphEdge = new SmartGraphEdgeCurve(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
+        if (getTotalEdgesBetween(graphVertexInbound.getUnderlyingVertex(), graphVertexOutbound.getUnderlyingVertex()) > 1) {
+        	if (graphVertexInbound == graphVertexOutbound) {
+        		graphEdge = new SmartGraphEdgeCurveSelf(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
+        	} else {
+        		graphEdge = new SmartGraphEdgeCurve(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
+        	}
         } else {
             graphEdge = new SmartGraphEdgeLine<>(edge, graphVertexInbound, graphVertexOutbound);
         }
