@@ -69,6 +69,9 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
 
     private int angleFactor = 0;
     
+    private Point2D lastStartpoint;
+    private Point2D lastEndpoint;
+    
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
 
@@ -115,6 +118,12 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     private void update() {
     	Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
         Point2D endpoint = new Point2D(outbound.getCenterX(), outbound.getCenterY());
+    	
+    	if (!checkStartEndNaN()) {
+    		lastStartpoint = startpoint;
+    		lastEndpoint = endpoint;
+    	}
+    	
         double angle = 0;
        	angle = getCurveAngle(angleFactor);
         if (angle > MIDDLE_ANGLE) {
@@ -124,10 +133,10 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
         	}
         } 
         
-        double x1 = startpoint.getX();
-        double y1 = startpoint.getY();
-        double x2 = endpoint.getX();
-        double y2 = endpoint.getY();
+        double x1 = lastStartpoint.getX();
+        double y1 = lastStartpoint.getY();
+        double x2 = lastEndpoint.getX();
+        double y2 = lastEndpoint.getY();
         
         double mid_x = (x1 + x2) / 2;
         double mid_y = (y1 + y2) / 2;
@@ -147,22 +156,23 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
         double x3 = mid_x + scaled_vec_x;
         double y3 = mid_y + scaled_vec_y;
         
-        setControlX(x3);
-        setControlY(y3);
-
+        
+        if (!Double.isNaN(x3)) {
+        	setControlX(x3);
+        } 
+        if (!Double.isNaN(y3)) {
+        	setControlY(y3);
+        }
+        
         if (attachedLabel != null) {
-        	
         	double midX = (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4;
         	double midY = (this.getStartY() + 2 * this.getControlY() + this.getEndY()) / 4;
-        	if (midX > 0) {
-        		DoubleProperty xPropery = new SimpleDoubleProperty(midX);
-        		attachedLabel.xProperty().bind(xPropery);
-        	} 
         	
-        	if (midY > 0 ) {
-	        	DoubleProperty yPropery = new SimpleDoubleProperty(midY);
-	        	attachedLabel.yProperty().bind(yPropery);
-        	}
+    		DoubleProperty xPropery = new SimpleDoubleProperty(midX);
+    		attachedLabel.xProperty().bind(xPropery);
+    		
+        	DoubleProperty yPropery = new SimpleDoubleProperty(midY);
+        	attachedLabel.yProperty().bind(yPropery);
         }
         
         if (attachedLabel != null) {
@@ -328,4 +338,25 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     	
     	return result;
     }
+    
+    private boolean checkStartEndNaN() {
+    	if (Double.isNaN(inbound.getCenterX())) {
+    		return true;
+    	}
+    	
+    	if (Double.isNaN(inbound.getCenterY())) {
+    		return true;
+    	}
+    	
+    	if (Double.isNaN(outbound.getCenterX())) {
+    		return true;
+    	}
+    	
+    	if (Double.isNaN(outbound.getCenterY())) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
+   
 }
