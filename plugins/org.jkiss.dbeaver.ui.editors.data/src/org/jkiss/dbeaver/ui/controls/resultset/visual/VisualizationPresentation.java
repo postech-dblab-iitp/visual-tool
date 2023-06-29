@@ -403,7 +403,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			}
 		}
 
-		int nodesNum = visualGraph.getNodes();
+		int nodesNum = visualGraph.getNumNodes();
 		int sqrt = (int) Math.sqrt(nodesNum);
 		int compositeSizeX = composite.getSize().x - 100;
         int compositeSizeY = composite.getSize().y - 100;
@@ -411,7 +411,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         double drawSizeY = sqrt * 129;
         
 		if (visualGraph != null) {
-			resultLabel.setText("Node : " + visualGraph.getNodes() + " Edge : " + visualGraph.getEdges());
+			resultLabel.setText("Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
 			
 			if ( compositeSizeX > drawSizeX){
 			    drawSizeX = compositeSizeX;

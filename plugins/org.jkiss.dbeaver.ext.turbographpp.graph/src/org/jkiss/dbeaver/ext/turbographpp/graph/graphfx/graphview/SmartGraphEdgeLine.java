@@ -23,6 +23,7 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 
+import javafx.beans.value.ObservableValue;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -69,6 +70,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         this.startYProperty().bind(outbound.centerYProperty());
         this.endXProperty().bind(inbound.centerXProperty());
         this.endYProperty().bind(inbound.centerYProperty());
+        
+        enableListeners();
     }
     
     @Override
@@ -148,7 +151,6 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     
     @Override
     public synchronized void setTextSize(int size) {
-    	System.out.println("Line size : " + size);
     	String labelStyle = "-fx-font: normal " 
         		+ size 
         		+ "pt \"sans-serif\";";
@@ -164,5 +166,38 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     public synchronized void updateLabelPosition() {
     	attachedLabel.xProperty().bind(startXProperty().add(endXProperty()).divide(2).subtract(attachedLabel.getLayoutBounds().getWidth() / 2));
     	attachedLabel.yProperty().bind(startYProperty().add(endYProperty()).divide(2).add(attachedLabel.getLayoutBounds().getHeight() / 1.5));
+    }
+    
+    private void update() {
+    	attachedLabel.setRotate(getAngle());
+    }
+    
+    private void enableListeners() {
+        this.startXProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+            update();
+        });
+        this.startYProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+            update();
+        });
+        this.endXProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+            update();
+        });
+        this.endYProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+            update();
+        });
+    }
+ 
+    private double getAngle() {
+        double y2y1 = endYProperty().intValue()-startYProperty().intValue();
+        double x2x1 = endXProperty().intValue()-startXProperty().intValue();
+        double angle = Math.atan(y2y1/x2x1) * (180.0/Math.PI);
+        if(x2x1 < 0.0) {
+            angle += 360.0;
+        } else {
+            if(y2y1 < 0.0) {
+            	angle += 360.0;
+            }
+        }
+        return angle;
     }
 }

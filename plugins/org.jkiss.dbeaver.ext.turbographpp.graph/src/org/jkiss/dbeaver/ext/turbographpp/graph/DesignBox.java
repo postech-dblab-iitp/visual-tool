@@ -475,8 +475,7 @@ public class DesignBox extends MoveBox {
                     
                     if (!color.isEmpty() | !styleValue.isEmpty() | !Strength.isEmpty()) {
                     	String lineStyle = SmartStyleProxy.getEdgeStyleInputValue(color, styleValue, Strength);
-                    	//System.out.println("lineStyle : " + lineStyle);
-                    	graph.getGraphView().getStylableEdge(fxEdge).setStyle(lineStyle);
+                    	graph.getGraphView().getGraphEdgeBase(fxEdge.element().getID()).setStyle(lineStyle);
                     }
                     
                     saveEdge.setTextSize(edgeTextSize.getSelection());
