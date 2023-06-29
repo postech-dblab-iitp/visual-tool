@@ -923,11 +923,11 @@ public class FXGraph implements GraphBase {
     }
 	
 	private Image graphImageCapture() {
-		System.out.println(LocalTime.now());
+//		System.out.println(LocalTime.now());
 		setGraphScaleForCapture();
 		ImageData imageData = getCaptureImage();
 		setGraphLastScale();
-		System.out.println(LocalTime.now());
+//		System.out.println(LocalTime.now());
 		if (imageData != null) {
 			Image image = new Image(null, imageData);
 			return image;

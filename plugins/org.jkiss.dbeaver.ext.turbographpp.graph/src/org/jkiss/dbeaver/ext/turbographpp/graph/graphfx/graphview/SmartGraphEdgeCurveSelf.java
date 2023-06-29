@@ -23,10 +23,7 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Point2D;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -63,7 +60,6 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
     private SmartArrow attachedArrow = null;
 
     private double angleFactor = 0;
-    private boolean evenOrder = false;
     
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
@@ -89,7 +85,6 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
         this.endYProperty().bind(inbound.centerYProperty());
 
         angleFactor = edgeIndex + 1;
-        evenOrder = (edgeIndex / 4) % 2 == 1 ? true : false;
 
         update();
         enableListeners();
@@ -255,7 +250,6 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
     
     @Override
     public synchronized void updateLabelPosition() {
-    	System.out.println("updateLabelPosition");
     	attachedLabel.xProperty().bind(
         		startXProperty()
         		.add(controlX1Property().multiply(3))
@@ -268,19 +262,5 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
         		.add(controlY2Property().multiply(3))
         		.add(endYProperty())
         		.divide(8));
-    }
-    
-    private double getLineAngle() {
-        double y2y1 = controlX1Property().intValue()-controlX2Property().intValue();
-        double x2x1 = controlY1Property().intValue()-controlY2Property().intValue();
-        double angle = Math.atan(y2y1/x2x1) * (180.0/Math.PI);
-        if(x2x1 < 0.0) {
-            angle += 360.0;
-        } else {
-            if(y2y1 < 0.0) {
-            	angle += 360.0;
-            }
-        }
-        return angle;
     }
 }
