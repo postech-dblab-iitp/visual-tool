@@ -165,13 +165,10 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
         }
         
         if (attachedLabel != null) {
-        	double midX = (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4;
-        	double midY = (this.getStartY() + 2 * this.getControlY() + this.getEndY()) / 4;
-        	
-    		DoubleProperty xPropery = new SimpleDoubleProperty(midX);
+    		DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
     		attachedLabel.xProperty().bind(xPropery);
     		
-        	DoubleProperty yPropery = new SimpleDoubleProperty(midY);
+        	DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
         	attachedLabel.yProperty().bind(yPropery);
         }
         
@@ -203,10 +200,8 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        double midX = (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4;
-    	double midY = (this.getStartY() + 2 * this.getControlY() + this.getEndY()) / 4;
-    	DoubleProperty xPropery = new SimpleDoubleProperty(midX);
-    	DoubleProperty yPropery = new SimpleDoubleProperty(midY);
+        DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
+    	DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
     	label.xProperty().bind(xPropery);
     	label.yProperty().bind(yPropery);
     }
@@ -300,7 +295,7 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     
     
     private Point2D getMidPoint() {
-		double midX = (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4;
+		double midX = (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4 - 8;
 		double midY = (this.getStartY() + 2 * this.getControlY() + this.getEndY()) / 4;
 		 
 		Point2D midPoint = new Point2D(midX, midY);

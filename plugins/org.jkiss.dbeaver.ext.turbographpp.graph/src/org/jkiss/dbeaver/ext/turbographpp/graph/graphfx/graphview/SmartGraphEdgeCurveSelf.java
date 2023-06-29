@@ -129,42 +129,22 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
             midpointX2 = midpointX2 - inbound.getRadius() * (angleFactor / 4 + 1);
             midpointY2 = midpointY2 + inbound.getRadius() * (angleFactor / 4 + 4);
     	} else if (angleFactor % 4 == 2) {
-    		if (evenOrder) {
-        		midpointX1 = midpointX1 + inbound.getRadius() * (angleFactor / 4 + 4);
-	            midpointY1 = midpointY1 + inbound.getRadius() * (angleFactor / 4 + 1);
-	            midpointX2 = midpointX2 + inbound.getRadius() * (angleFactor / 4 + 1);
-	            midpointY2 = midpointY2 - inbound.getRadius() * (angleFactor / 4 + 4);
-    		} else {
-    			midpointX1 = midpointX1 + inbound.getRadius() * (angleFactor / 4 + 5);
-	            midpointY1 = midpointY1 + inbound.getRadius() * (angleFactor / 4 + 1);
-	            midpointX2 = midpointX2 + inbound.getRadius() * (angleFactor / 4 + 1);
-	            midpointY2 = midpointY2 - inbound.getRadius() * (angleFactor / 4 + 5);
-    		}
+       		midpointX1 = midpointX1 + inbound.getRadius() * (angleFactor / 4 + 4);
+            midpointY1 = midpointY1 + inbound.getRadius() * (angleFactor / 4 + 1);
+            midpointX2 = midpointX2 + inbound.getRadius() * (angleFactor / 4 + 1);
+            midpointY2 = midpointY2 - inbound.getRadius() * (angleFactor / 4 + 4);
     	} else {
-    		if (evenOrder) {
-        		midpointX1 = midpointX1 - inbound.getRadius() * (angleFactor / 4 + 4);
-	            midpointY1 = midpointY1 - inbound.getRadius() * (angleFactor / 4 + 1);
-	            
-	            midpointX2 = midpointX2 - inbound.getRadius() * (angleFactor / 4 + 1);
-	            midpointY2 = midpointY2 + inbound.getRadius() * (angleFactor / 4 + 4);
-    		} else {
-    			midpointX1 = midpointX1 - inbound.getRadius() * (angleFactor / 4 + 5);
-	            midpointY1 = midpointY1 - inbound.getRadius() * (angleFactor / 4 + 1);
-	            
-	            midpointX2 = midpointX2 - inbound.getRadius() * (angleFactor / 4 + 1);
-	            midpointY2 = midpointY2 + inbound.getRadius() * (angleFactor / 4 + 5);
-    		}
+    		midpointX1 = midpointX1 - inbound.getRadius() * (angleFactor / 4 + 4);
+            midpointY1 = midpointY1 - inbound.getRadius() * (angleFactor / 4 + 1);
+            
+            midpointX2 = midpointX2 - inbound.getRadius() * (angleFactor / 4 + 1);
+            midpointY2 = midpointY2 + inbound.getRadius() * (angleFactor / 4 + 4);
     	}
         
         setControlX1(midpointX1);
         setControlY1(midpointY1);
         setControlX2(midpointX2);
         setControlY2(midpointY2);
-        
-//        if (attachedLabel != null) {
-//        	attachedLabel.setRotate(getAngle());
-//        }
-        
     }
 
     /*
@@ -189,12 +169,24 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        attachedLabel.xProperty().bind(controlX1Property()
-    			.add(controlX2Property()).divide(2)
-    			.subtract(attachedLabel.getLayoutBounds().getWidth() / 2));
-    	attachedLabel.yProperty().bind(controlY1Property()
-    			.add(controlY2Property()).divide(2)
-    			.add(attachedLabel.getLayoutBounds().getHeight() / 2));
+        attachedLabel.xProperty().bind(
+        		startXProperty()
+        		.add(controlX1Property().multiply(3))
+        		.add(controlX2Property().multiply(3))
+        		.add(endXProperty())
+        		.divide(8).subtract(16));
+        attachedLabel.yProperty().bind(
+        		startYProperty()
+        		.add(controlY1Property().multiply(3))
+        		.add(controlY2Property().multiply(3))
+        		.add(endYProperty())
+        		.divide(8));
+        
+        if (angleFactor % 4 == 2) {
+        	attachedLabel.setRotate(90);
+    	} else if (angleFactor % 4 == 3) {
+    		attachedLabel.setRotate(90);
+    	}
     }
 
     @Override
@@ -264,17 +256,23 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
     @Override
     public synchronized void updateLabelPosition() {
     	System.out.println("updateLabelPosition");
-    	attachedLabel.xProperty().bind(controlX1Property()
-    			.add(controlX2Property()).divide(2)
-    			.subtract(attachedLabel.getLayoutBounds().getWidth() / 2));
-    	attachedLabel.yProperty().bind(controlY1Property()
-    			.add(controlY2Property()).divide(2)
-    			.add(attachedLabel.getLayoutBounds().getHeight() / 2));
+    	attachedLabel.xProperty().bind(
+        		startXProperty()
+        		.add(controlX1Property().multiply(3))
+        		.add(controlX2Property().multiply(3))
+        		.add(endXProperty())
+        		.divide(8));
+        attachedLabel.yProperty().bind(
+        		startYProperty()
+        		.add(controlY1Property().multiply(3))
+        		.add(controlY2Property().multiply(3))
+        		.add(endYProperty())
+        		.divide(8));
     }
     
-    private double getAngle() {
-        double y2y1 = endYProperty().intValue()-startYProperty().intValue();
-        double x2x1 = endXProperty().intValue()-startXProperty().intValue();
+    private double getLineAngle() {
+        double y2y1 = controlX1Property().intValue()-controlX2Property().intValue();
+        double x2x1 = controlY1Property().intValue()-controlY2Property().intValue();
         double angle = Math.atan(y2y1/x2x1) * (180.0/Math.PI);
         if(x2x1 < 0.0) {
             angle += 360.0;
