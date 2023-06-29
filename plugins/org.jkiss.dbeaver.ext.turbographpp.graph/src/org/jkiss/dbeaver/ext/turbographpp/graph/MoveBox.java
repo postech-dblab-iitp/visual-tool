@@ -212,7 +212,6 @@ public class MoveBox {
     }
     
     public void show(int x, int y) {
-    	System.out.println("show x : " + x + " y : " + y);
     	show();
     }
     
