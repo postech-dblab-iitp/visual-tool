@@ -75,7 +75,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	// for Other ImageButton
 	private enum ImageButton {
-		SHORTEST, CAPTURE, TO_CSV
+		SHORTEST, DESIGN, CAPTURE, TO_CSV
 	}
 	
 	private Composite composite;
@@ -238,6 +238,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget != null && e.widget.getData() != null) {
 				switch((ImageButton) e.widget.getData()) {
+					case DESIGN :
+						visualGraph.designEditorShow();
+						break;
 					case CAPTURE :
 					    saveImage();
 					    setShortestMode(false);
@@ -305,8 +308,15 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		buttonItem2.setSize(buttonItem2.computeSize(size.x, size.y));
 
 		Composite composite3 = new Composite(coolBar, SWT.NONE);
-		composite3.setLayout(new GridLayout(2, true));
+		composite3.setLayout(new GridLayout(3, true));
 
+		button1 = new Button(composite3, SWT.PUSH);
+		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DESIGN));
+		button1.setToolTipText("Design Editor");
+		button1.setData(ImageButton.DESIGN);
+		button1.addSelectionListener(imageButtonListener);
+		button1.pack();
+		
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
 		button1.setToolTipText("Visualization Capture");

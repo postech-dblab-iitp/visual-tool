@@ -16,19 +16,10 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
 import org.jkiss.dbeaver.ext.generic.GenericConstants;
-import org.jkiss.dbeaver.ext.generic.model.GenericCatalog;
-import org.jkiss.dbeaver.ext.generic.model.GenericSchema;
-import org.jkiss.dbeaver.ext.turbographpp.model.TableCache;
 import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPDataSource;
-import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPStructContainer;
-import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTable;
-import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableBase;
 import org.jkiss.dbeaver.ext.turbographpp.model.meta.TurboGraphPPMetaModel;
 import org.jkiss.dbeaver.model.DBPDataSource;
 import org.jkiss.dbeaver.model.DBPDataSourceContainer;
@@ -40,7 +31,6 @@ import org.jkiss.dbeaver.model.impl.jdbc.JDBCURL;
 import org.jkiss.dbeaver.model.messages.ModelMessages;
 import org.jkiss.dbeaver.model.preferences.DBPPropertyDescriptor;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
-import org.jkiss.dbeaver.model.struct.DBSObject;
 import org.jkiss.utils.CommonUtils;
 
 public class TurboGraphPPDataSourceProvider extends JDBCDataSourceProvider {

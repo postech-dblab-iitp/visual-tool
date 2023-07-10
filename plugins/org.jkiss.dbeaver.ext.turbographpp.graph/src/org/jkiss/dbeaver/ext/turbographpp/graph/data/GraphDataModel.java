@@ -2,7 +2,6 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;

@@ -60,4 +60,6 @@ public interface SmartGraphEdgeBase<E, V> extends SmartGraphEdge<E, V>, SmartLab
     public void updateLabelText();
     
     public void updateLabelPosition();
+    
+    public void updateArrowPosition();
 }
