@@ -1066,5 +1066,8 @@ public class FXGraph implements GraphBase {
 		return graph;
 	}
 	
+	public void designEditorShow() {
+		designBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
+	}
 }
 

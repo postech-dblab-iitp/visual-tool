@@ -782,6 +782,19 @@ public class SmartGraphPanel<V, E> extends Pane {
         });
     }
     
+    
+    /**
+     * Updates All Edge Arrow For changed radius.
+     */
+    public void updateEdgeArrowForRadius() {
+        theGraph.edges().forEach((e) -> {
+            SmartGraphEdgeBase edgeNode = edgeNodes.get(e);
+            if (edgeNode != null) {
+                edgeNode.updateArrowPosition();
+            }
+        });
+    }
+    
     private String generateVertexLabel(V vertex) {
         
     	if (vertex == null) {

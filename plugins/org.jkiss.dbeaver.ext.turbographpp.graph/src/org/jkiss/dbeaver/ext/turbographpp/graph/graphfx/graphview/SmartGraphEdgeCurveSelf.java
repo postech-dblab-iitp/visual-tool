@@ -216,8 +216,6 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
         /* add translation transform to put the arrow touching the circle's bounds */
         Translate t = new Translate(-outbound.getRadius(), 0);
         arrow.getTransforms().add(t);
-        
-        update();
     }
 
     @Override
@@ -250,17 +248,12 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
     
     @Override
     public synchronized void updateLabelPosition() {
-    	attachedLabel.xProperty().bind(
-        		startXProperty()
-        		.add(controlX1Property().multiply(3))
-        		.add(controlX2Property().multiply(3))
-        		.add(endXProperty())
-        		.divide(8));
-        attachedLabel.yProperty().bind(
-        		startYProperty()
-        		.add(controlY1Property().multiply(3))
-        		.add(controlY2Property().multiply(3))
-        		.add(endYProperty())
-        		.divide(8));
+    }
+    
+    @Override
+    public synchronized void updateArrowPosition() {
+    	attachedArrow.getTransforms().remove(attachedArrow.getTransforms().size()-1);
+        Translate t = new Translate(-outbound.getRadius(), 0);
+        attachedArrow.getTransforms().add(t);
     }
 }

@@ -26,6 +26,10 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
@@ -67,6 +71,9 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
     
+    private ChangeListener<Bounds> labelBoundsChangeListener;
+    private boolean needlabelUpdate = false; 
+    
     /**
      * Constructor which sets the instance attributes.
      *
@@ -95,6 +102,19 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         if (allowMove) {
             enableDrag();
         }
+        
+        labelBoundsChangeListener = new ChangeListener<Bounds>(){
+            @Override
+            public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
+            	if (needlabelUpdate) {
+	            	if (attachedLabel != null) {
+	            		attachedLabel.xProperty().bind(centerXProperty().subtract(attachedLabel.getLayoutBounds().getWidth() / 2.0 ));
+	            		attachedLabel.yProperty().bind(centerYProperty().add(attachedLabel.getLayoutBounds().getHeight() / 2.0));
+	            	}
+	            	needlabelUpdate = false;
+            	}
+            }
+        };
     }
     
     /**
@@ -377,8 +397,8 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     
     @Override
     public synchronized void updateLabelPosition() {
-	    attachedLabel.xProperty().bind(centerXProperty().subtract(this.attachedLabel.getLayoutBounds().getWidth() / 2.0 ));
-		attachedLabel.yProperty().bind(centerYProperty().add(this.attachedLabel.getLayoutBounds().getHeight() / 2.0));
+    	needlabelUpdate = true;
+    	attachedLabel.layoutBoundsProperty().addListener(labelBoundsChangeListener);
     }
     
     /**

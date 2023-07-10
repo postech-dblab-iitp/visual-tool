@@ -25,7 +25,9 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.QuadCurve;
 import javafx.scene.transform.Rotate;
@@ -58,6 +60,8 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     private static final double MIDDLE_ANGLE = 140;
     private static final double MAX_ANGLE = 159;
 
+    private final double LABEL_DEFAULT_HEIGHT = 7;
+
     private final FxEdge<E, V> underlyingEdge;
 
     private final SmartGraphVertexNode<V> inbound;
@@ -67,18 +71,27 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     private SmartArrow attachedArrow = null;
 
     private int angleFactor = 0;
-    
+
     private Point2D lastStartpoint;
     private Point2D lastEndpoint;
-    
+
+    private ChangeListener<Bounds> labelBoundsChangeListener;
+    boolean needlabelUpdate = false;
+    private double subtractPointLabel = LABEL_DEFAULT_HEIGHT;
+
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
 
-    public SmartGraphEdgeCurve(FxEdge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound) {
+    public SmartGraphEdgeCurve(
+            FxEdge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound) {
         this(edge, inbound, outbound, 0);
     }
 
-    public SmartGraphEdgeCurve(FxEdge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound, int edgeIndex) {
+    public SmartGraphEdgeCurve(
+            FxEdge<E, V> edge,
+            SmartGraphVertexNode inbound,
+            SmartGraphVertexNode outbound,
+            int edgeIndex) {
         this.inbound = inbound;
         this.outbound = outbound;
 
@@ -87,7 +100,7 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
         styleProxy = new SmartStyleProxy(this);
         styleProxy.setStyle(SmartStyleProxy.DEFAULT_EDGE);
 
-        //bind start and end positions to vertices centers through properties
+        // bind start and end positions to vertices centers through properties
         this.startXProperty().bind(outbound.centerXProperty());
         this.startYProperty().bind(outbound.centerYProperty());
         this.endXProperty().bind(inbound.centerXProperty());
@@ -97,6 +110,27 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
 
         update();
         enableListeners();
+
+        labelBoundsChangeListener =
+                new ChangeListener<Bounds>() {
+                    @Override
+                    public void changed(
+                            ObservableValue<? extends Bounds> observableValue,
+                            Bounds oldBounds,
+                            Bounds newBounds) {
+                        if (needlabelUpdate) {
+                            if (attachedLabel != null) {
+                                subtractPointLabel =
+                                        attachedLabel.getLayoutBounds().getHeight();
+                                DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
+                                attachedLabel.xProperty().bind(xPropery);
+                                DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
+                                attachedLabel.yProperty().bind(yPropery);
+                            }
+                            needlabelUpdate = false;
+                        }
+                    }
+                };
     }
 
     @Override
@@ -113,30 +147,30 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     public boolean removeStyleClass(String cssClass) {
         return styleProxy.removeStyleClass(cssClass);
     }
-    
+
     private void update() {
-    	Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
+        Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
         Point2D endpoint = new Point2D(outbound.getCenterX(), outbound.getCenterY());
-    	
-    	if (!checkStartEndNaN()) {
-    		lastStartpoint = startpoint;
-    		lastEndpoint = endpoint;
-    	}
-    	
+
+        if (!checkStartEndNaN()) {
+            lastStartpoint = startpoint;
+            lastEndpoint = endpoint;
+        }
+
         double angle = 0;
-       	angle = getCurveAngle(angleFactor);
+        angle = getCurveAngle(angleFactor);
         if (angle > MIDDLE_ANGLE) {
-        	angle = MIDDLE_ANGLE + (angleFactor - MIDDLE_ANGLE / FIRST_CURVE_ANGLE_COUNT) * 2;
-        	if (angle > MAX_ANGLE) {
-        		angle = MAX_ANGLE - angleFactor * 0.02;
-        	}
-        } 
-        
+            angle = MIDDLE_ANGLE + (angleFactor - MIDDLE_ANGLE / FIRST_CURVE_ANGLE_COUNT) * 2;
+            if (angle > MAX_ANGLE) {
+                angle = MAX_ANGLE - angleFactor * 0.02;
+            }
+        }
+
         double x1 = lastStartpoint.getX();
         double y1 = lastStartpoint.getY();
         double x2 = lastEndpoint.getX();
         double y2 = lastEndpoint.getY();
-        
+
         double mid_x = (x1 + x2) / 2;
         double mid_y = (y1 + y2) / 2;
 
@@ -154,27 +188,27 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
 
         double x3 = mid_x + scaled_vec_x;
         double y3 = mid_y + scaled_vec_y;
-        
-        
+
         if (!Double.isNaN(x3)) {
-        	setControlX(x3);
-        } 
+            setControlX(x3);
+        }
         if (!Double.isNaN(y3)) {
-        	setControlY(y3);
-        }
-        
-        if (attachedLabel != null) {
-    		DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
-    		attachedLabel.xProperty().bind(xPropery);
-    		
-        	DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
-        	attachedLabel.yProperty().bind(yPropery);
-        }
-        
-        if (attachedLabel != null) {
-        	attachedLabel.setRotate(getLineAngle());
+            setControlY(y3);
         }
 
+        if (attachedLabel != null) {
+            attachedLabel.xProperty().unbind();
+            DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
+            attachedLabel.xProperty().bind(xPropery);
+
+            attachedLabel.xProperty().unbind();
+            DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
+            attachedLabel.yProperty().bind(yPropery);
+        }
+
+        if (attachedLabel != null) {
+            attachedLabel.setRotate(getLineAngle());
+        }
     }
 
     /*
@@ -182,27 +216,37 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     TODO: Maybe we can achieve this solely with bindings.
     */
     private void enableListeners() {
-        this.startXProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
-            update();
-        });
-        this.startYProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
-            update();
-        });
-        this.endXProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
-            update();
-        });
-        this.endYProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
-            update();
-        });
+        this.startXProperty()
+                .addListener(
+                        (ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+                            update();
+                        });
+        this.startYProperty()
+                .addListener(
+                        (ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+                            update();
+                        });
+        this.endXProperty()
+                .addListener(
+                        (ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+                            update();
+                        });
+        this.endYProperty()
+                .addListener(
+                        (ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+                            update();
+                        });
     }
 
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
         DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
-    	DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
-    	label.xProperty().bind(xPropery);
-    	label.yProperty().bind(yPropery);
+        label.xProperty().bind(xPropery);
+        DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
+        label.yProperty().bind(yPropery);
+
+        label.setRotate(getLineAngle());
     }
 
     @Override
@@ -227,25 +271,25 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
         Rotate rotation = new Rotate();
         rotation.pivotXProperty().bind(translateXProperty());
         rotation.pivotYProperty().bind(translateYProperty());
-        rotation.angleProperty().bind(UtilitiesBindings.toDegrees(
-                UtilitiesBindings.atan2(endYProperty().subtract(controlYProperty()),
-                        endXProperty().subtract(controlXProperty()))
-        ));
+        rotation.angleProperty()
+                .bind(
+                        UtilitiesBindings.toDegrees(
+                                UtilitiesBindings.atan2(
+                                        endYProperty().subtract(controlYProperty()),
+                                        endXProperty().subtract(controlXProperty()))));
 
         arrow.getTransforms().add(rotation);
 
         /* add translation transform to put the arrow touching the circle's bounds */
         Translate t = new Translate(-outbound.getRadius(), 0);
         arrow.getTransforms().add(t);
-        
-        update();
     }
 
     @Override
     public SmartArrow getAttachedArrow() {
         return this.attachedArrow;
     }
-    
+
     @Override
     public SmartStylableNode getStylableArrow() {
         return this.attachedArrow;
@@ -255,102 +299,113 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     public SmartStylableNode getStylableLabel() {
         return this.attachedLabel;
     }
-    
+
     @Override
     public synchronized void setTextSize(int size) {
-    	String labelStyle = "-fx-font: normal " 
-        		+ size 
-        		+ "pt \"sans-serif\";";
-    	attachedLabel.setStyle(labelStyle);
+        String labelStyle = "-fx-font: normal " + size + "pt \"sans-serif\";";
+        attachedLabel.setStyle(labelStyle);
     }
-    
+
     @Override
     public synchronized void updateLabelText() {
-    	attachedLabel.setText(underlyingEdge.element().toString());
+        attachedLabel.setText(underlyingEdge.element().toString());
     }
-    
+
     @Override
     public synchronized void updateLabelPosition() {
-    	DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
-    	DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
-    	attachedLabel.xProperty().bind(xPropery);
-    	attachedLabel.yProperty().bind(yPropery);    
+        needlabelUpdate = true;
+        attachedLabel.layoutBoundsProperty().addListener(labelBoundsChangeListener);
     }
-    
-    
+
+    @Override
+    public void updateArrowPosition() {
+        attachedArrow.getTransforms().remove(attachedArrow.getTransforms().size() - 1);
+        Translate t = new Translate(-outbound.getRadius(), 0);
+        attachedArrow.getTransforms().add(t);
+    }
+
     private double getLineAngle() {
-        double y2y1 = endYProperty().intValue()-startYProperty().intValue();
-        double x2x1 = endXProperty().intValue()-startXProperty().intValue();
-        double angle = Math.atan(y2y1/x2x1) * (180.0/Math.PI);
-        if(x2x1 < 0.0) {
+        double y2y1 = endYProperty().intValue() - startYProperty().intValue();
+        double x2x1 = endXProperty().intValue() - startXProperty().intValue();
+        double angle = Math.atan(y2y1 / x2x1) * (180.0 / Math.PI);
+        if (x2x1 < 0.0) {
             angle += 360.0;
         } else {
-            if(y2y1 < 0.0) {
-            	angle += 360.0;
+            if (y2y1 < 0.0) {
+                angle += 360.0;
             }
         }
         return angle;
     }
-    
-    
+
     private Point2D getMidPoint() {
-		double midX = (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4 - 8;
-		double midY = (this.getStartY() + 2 * this.getControlY() + this.getEndY()) / 4;
-		 
-		Point2D midPoint = new Point2D(midX, midY);
-		 
-		return midPoint;
+    	double colSubtract = 0;
+    	if (subtractPointLabel > 20) {
+    		colSubtract = subtractPointLabel * 2;
+    	} else if (subtractPointLabel > 10) {
+    		colSubtract = subtractPointLabel * 1.5;
+    	} else {
+    		colSubtract = subtractPointLabel;
+    	}
+    	
+        double midX =
+                (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4
+                        - 16
+                        - colSubtract;
+        double midY = (this.getStartY() + 2 * this.getControlY() + this.getEndY()) / 4;
+
+        Point2D midPoint = new Point2D(midX, midY);
+
+        return midPoint;
     }
-    
+
     private double getCurveAngle(int angleFactor) {
-    	int remain = angleFactor;
-    	int factor = 0;
-    	int minusCount = 0;
-    	int n = 3;
-    	double result = 0;
-    	while (remain != 0) {
-    		if (remain / n == 0) {
-    			factor = remain % n;
-    		} else {
-    			factor = n;
-    		}
-    		remain = remain - factor;
-    		result = result + (FIRST_CURVE_ANGLE_COUNT - minusCount) * factor;
-    		minusCount++;
-    		
-    		if (result > MIDDLE_ANGLE) {
-        		result = MIDDLE_ANGLE + (remain);
-        		remain = 0;
+        int remain = angleFactor;
+        int factor = 0;
+        int minusCount = 0;
+        int n = 3;
+        double result = 0;
+        while (remain != 0) {
+            if (remain / n == 0) {
+                factor = remain % n;
+            } else {
+                factor = n;
             }
-    		
-    		if (result > MAX_ANGLE) {
-        		result = MAX_ANGLE - remain * 0.02;
-        		remain = 0;
-        	}
-    		
-    	}
-    	
-    	return result;
+            remain = remain - factor;
+            result = result + (FIRST_CURVE_ANGLE_COUNT - minusCount) * factor;
+            minusCount++;
+
+            if (result > MIDDLE_ANGLE) {
+                result = MIDDLE_ANGLE + (remain);
+                remain = 0;
+            }
+
+            if (result > MAX_ANGLE) {
+                result = MAX_ANGLE - remain * 0.02;
+                remain = 0;
+            }
+        }
+
+        return result;
     }
-    
+
     private boolean checkStartEndNaN() {
-    	if (Double.isNaN(inbound.getCenterX())) {
-    		return true;
-    	}
-    	
-    	if (Double.isNaN(inbound.getCenterY())) {
-    		return true;
-    	}
-    	
-    	if (Double.isNaN(outbound.getCenterX())) {
-    		return true;
-    	}
-    	
-    	if (Double.isNaN(outbound.getCenterY())) {
-    		return true;
-    	}
-    	
-    	return false;
+        if (Double.isNaN(inbound.getCenterX())) {
+            return true;
+        }
+
+        if (Double.isNaN(inbound.getCenterY())) {
+            return true;
+        }
+
+        if (Double.isNaN(outbound.getCenterX())) {
+            return true;
+        }
+
+        if (Double.isNaN(outbound.getCenterY())) {
+            return true;
+        }
+
+        return false;
     }
-   
 }

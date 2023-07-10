@@ -251,6 +251,7 @@ public class UIIcon {
     public static final DBIcon BUTTON_LAYOUT_VERTICAL = new DBIcon("Vertial_Layout", "visualization/vertical_layout.png"); //$NON-NLS-1$ //$NON-NLS-2$
     public static final DBIcon BUTTON_LAYOUT_TREE_VERTICAL = new DBIcon("Vertial_Tree_Layout", "visualization/vertical_tree_layout.png"); //$NON-NLS-1$ //$NON-NLS-2$
     public static final DBIcon BUTTON_SHORTEST_PATH = new DBIcon("Shortest_Path", "visualization/shortest_path.png"); //$NON-NLS-1$ //$NON-NLS-2$
+    public static final DBIcon BUTTON_DESIGN = new DBIcon("Design", "visualization/design.png"); //$NON-NLS-1$ //$NON-NLS-2$
     public static final DBIcon BUTTON_CAPTURE = new DBIcon("Capture", "visualization/capture.png"); //$NON-NLS-1$ //$NON-NLS-2$
     public static final DBIcon BUTTON_CSV_FILE = new DBIcon("CSV_File", "visualization/csv_file.png"); //$NON-NLS-1$ //$NON-NLS-2$
     public static final DBIcon BUTTON_SEARCH_EXECUTE = new DBIcon("Search_Execute", "visualization/search_execute.png"); //$NON-NLS-1$ //$NON-NLS-2$

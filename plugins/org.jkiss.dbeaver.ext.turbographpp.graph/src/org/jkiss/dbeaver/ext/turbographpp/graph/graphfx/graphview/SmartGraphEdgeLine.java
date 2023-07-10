@@ -164,8 +164,13 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     
     @Override
     public synchronized void updateLabelPosition() {
-    	attachedLabel.xProperty().bind(startXProperty().add(endXProperty()).divide(2).subtract(attachedLabel.getLayoutBounds().getWidth() / 2));
-    	attachedLabel.yProperty().bind(startYProperty().add(endYProperty()).divide(2).add(attachedLabel.getLayoutBounds().getHeight() / 1.5));
+    }
+    
+    @Override
+    public void updateArrowPosition() {
+    	attachedArrow.getTransforms().remove(attachedArrow.getTransforms().size()-1);
+        Translate t = new Translate(-outbound.getRadius(), 0);
+        attachedArrow.getTransforms().add(t);
     }
     
     private void update() {

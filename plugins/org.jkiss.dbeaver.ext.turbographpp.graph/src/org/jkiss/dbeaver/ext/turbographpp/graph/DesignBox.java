@@ -54,7 +54,8 @@ public class DesignBox extends MoveBox {
         DisplayType.ID.name(), DisplayType.TYPE.name(), DisplayType.PROPERTY.name()
     };
 
-    private Object selectItem = null;
+    private Object nodeSelectItem = null;
+    private Object edgeSelectItem = null;
     
     private static final int OVERLAY_WIDTH = 200;
     private static final int OVERLAY_NODE_HEIGHT = 200;
@@ -193,7 +194,7 @@ public class DesignBox extends MoveBox {
         		new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        applyUpdate();
+                        edgeApplyUpdate();
                     }
                 });
         
@@ -288,15 +289,14 @@ public class DesignBox extends MoveBox {
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        applyUpdate();
+                    	nodeApplyUpdate();
                     }
                 });
     }
     
     public void setSelectItem(Object item) {
-        selectItem = item;
         if (item instanceof CyperNode) {
-        	switchWidget(true);
+        	nodeSelectItem = item;
             CyperNode node = (CyperNode) item;
             DisplayType type = node.getDisplayType();
 
@@ -324,7 +324,7 @@ public class DesignBox extends MoveBox {
                 displayProperty.setEnabled(false);
             }
         } else {
-        	switchWidget(false);
+        	edgeSelectItem = item;
         	CyperEdge edge = (CyperEdge) item;
         	this.setTitleText(edge.getType());
         	
@@ -392,10 +392,10 @@ public class DesignBox extends MoveBox {
         return r + g + b;
     }
 
-    private void applyUpdate() {
-        if (selectItem != null) {
-            if (selectItem instanceof CyperNode) {
-                CyperNode node = (CyperNode) selectItem;
+    private void nodeApplyUpdate() {
+    	if (nodeSelectItem != null) {
+            if (nodeSelectItem instanceof CyperNode) {
+                CyperNode node = (CyperNode) nodeSelectItem;
                 compareItem();
                 if (ChangeItem.isChanged()) {
                     Iterator<String> iterator =
@@ -410,6 +410,7 @@ public class DesignBox extends MoveBox {
                             graph.getGraphView()
                                     .getGraphVertex(vertex)
                                     .setNodeRadius(saveNode.getRadius());
+                            graph.getGraphView().updateEdgeArrowForRadius();
                         }
                         if (ChangeItem.changedColor) {
                             String color = ColorToString(colorButton.getBackground());
@@ -448,8 +449,12 @@ public class DesignBox extends MoveBox {
                         }
                     }
                 }
-            } else {
-            	CyperEdge edge = (CyperEdge) selectItem;
+            }
+    	}
+    }
+    private void edgeApplyUpdate() {
+        if (edgeSelectItem != null) {
+            	CyperEdge edge = (CyperEdge) edgeSelectItem;
             	Iterator<String> iterator =
                         graph.getDataModel().getEdgeTypeList(edge.getType()).iterator();
                 final int selecetIndex = edgeTypeList.getSelectionIndex();
@@ -481,16 +486,14 @@ public class DesignBox extends MoveBox {
                     saveEdge.setTextSize(edgeTextSize.getSelection());
                     graph.getGraphView().getGraphEdgeBase(fxEdge.element().getID()).setTextSize(saveEdge.getTextSize());
                    	graph.getGraphView().getGraphEdgeBase(fxEdge.element().getID()).updateLabelPosition();
-                    
                 }
             }
-        }
     }
 
     private void compareItem() {
         ChangeItem.resetStatus();
-        if (selectItem instanceof CyperNode) {
-            CyperNode node = (CyperNode) selectItem;
+        if (nodeSelectItem instanceof CyperNode) {
+            CyperNode node = (CyperNode) nodeSelectItem;
             if (node.getRadius() * 10 != radius.getSelection()) {
                 ChangeItem.changedRadius = true;
             }
@@ -591,4 +594,31 @@ public class DesignBox extends MoveBox {
     	}
     }
 
+    @Override
+    public void remove() {
+        super.remove();
+    }
+    
+    @Override
+    public void show() {
+        super.show();
+        if (nodeSelectItem != null) {
+        	setSelectItem(nodeSelectItem);
+        }
+        
+        if (edgeSelectItem != null) {
+        	setSelectItem(edgeSelectItem);
+        }
+    }
+    
+    @Override
+    public void show(int x, int y) {
+    	 if (nodeSelectItem != null) {
+         	setSelectItem(nodeSelectItem);
+         }
+         
+         if (edgeSelectItem != null) {
+         	setSelectItem(edgeSelectItem);
+         }
+    }
 }
