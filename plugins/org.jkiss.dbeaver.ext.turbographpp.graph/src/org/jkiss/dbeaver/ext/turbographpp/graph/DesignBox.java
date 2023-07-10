@@ -427,7 +427,7 @@ public class DesignBox extends MoveBox {
                             graph.getGraphView().getGraphVertex(vertex).setTextSize(saveNode.getTextSize());
                         }
 
-                        if (ChangeItem.changedType | ChangeItem.changedProperty) {
+                        if (ChangeItem.changedType || ChangeItem.changedProperty) {
 	                        if (selecetIndex == DisplayType.ID.ordinal()) {
 	                        	saveNode.setDisplayType(DisplayType.ID);
 	                        } else if (selecetIndex == DisplayType.TYPE.ordinal()) {
@@ -444,7 +444,7 @@ public class DesignBox extends MoveBox {
 	                        
                         }
                         
-                        if (ChangeItem.changedTextSize | ChangeItem.changedType | ChangeItem.changedProperty) {
+                        if (ChangeItem.changedTextSize || ChangeItem.changedType || ChangeItem.changedProperty) {
                         	graph.getGraphView().getGraphVertex(vertex).updateLabelPosition();
                         }
                     }

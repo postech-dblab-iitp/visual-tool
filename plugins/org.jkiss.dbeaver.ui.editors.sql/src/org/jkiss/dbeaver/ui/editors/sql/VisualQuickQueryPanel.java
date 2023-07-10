@@ -242,76 +242,39 @@ public class VisualQuickQueryPanel extends Composite {
     }
 
     private void createListener() {
-        vTypeCombo
-                .getCombo()
-                .addSelectionListener(
-                        new SelectionAdapter() {
-                            @Override
-                            public void widgetSelected(SelectionEvent e) {
-                                String selectItem = String.valueOf(vTypeCombo.getCombo().getText());
-                                if (vertexList != null && vertexList.get(selectItem) != null) {
-                                    ArrayList<String> array1 =
-                                            new ArrayList<>(vertexList.get(selectItem).keySet());
-                                    vPropertyCombo.setInput(array1);
-                                    vPropertyCombo.getCombo().select(0);
-                                    vOperatorCombo.setInput(getOperator(null));
-                                    vOperatorCombo.getCombo().select(0);
-                                }
-                            }
-                        });
+        vTypeCombo.addSelectionChangedListener(
+                new ISelectionChangedListener() {
 
-        eTypeCombo
-                .getCombo()
-                .addSelectionListener(
-                        new SelectionAdapter() {
-                            @Override
-                            public void widgetSelected(SelectionEvent e) {
-                                String selectItem = String.valueOf(eTypeCombo.getCombo().getText());
-                                if (edgeList != null && edgeList.get(selectItem) != null) {
-                                    ArrayList<String> array1 =
-                                            new ArrayList<>(edgeList.get(selectItem).keySet());
-                                    ePropertyCombo.setInput(array1);
-                                    ePropertyCombo.getCombo().select(0);
-                                    eOperatorCombo.setInput(getOperator(null));
-                                    eOperatorCombo.getCombo().select(0);
-                                }
-                            }
-                        });
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent event) {
+                        vTypeComboSelected();
+                    }
+                });
+
+        eTypeCombo.addSelectionChangedListener(
+                new ISelectionChangedListener() {
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent event) {
+                        eTypeComboSelected();
+                    }
+                });
 
         vPropertyCombo.addSelectionChangedListener(
                 new ISelectionChangedListener() {
 
                     @Override
                     public void selectionChanged(SelectionChangedEvent event) {
-                        String typeSelect = String.valueOf(vTypeCombo.getCombo().getText());
-                        String property = String.valueOf(vPropertyCombo.getCombo().getText());
-                        if (vertexList != null && vertexList.get(typeSelect) != null) {
-                            String dataType = vertexList.get(typeSelect).get(property).toString();
-                            vOperatorCombo.setInput(getOperator(dataType));
-                            vOperatorCombo.getCombo().select(0);
-                            vPropertySearchText.setText(getDefaultTypeString(dataType));
-                        }
+                        vPropertyComboSelected();
                     }
                 });
 
-        ePropertyCombo
-                .getCombo()
-                .addSelectionListener(
-                        new SelectionAdapter() {
-                            @Override
-                            public void widgetSelected(SelectionEvent e) {
-                                String typeSelect = String.valueOf(eTypeCombo.getCombo().getText());
-                                String property =
-                                        String.valueOf(ePropertyCombo.getCombo().getText());
-                                if (edgeList != null && edgeList.get(typeSelect) != null) {
-                                    String dataType =
-                                            edgeList.get(typeSelect).get(property).toString();
-                                    eOperatorCombo.setInput(getOperator(dataType));
-                                    eOperatorCombo.getCombo().select(0);
-                                    ePropertySearchText.setText(getDefaultTypeString(dataType));
-                                }
-                            }
-                        });
+        ePropertyCombo.addSelectionChangedListener(
+                new ISelectionChangedListener() {
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent event) {
+                        ePropertyComboSelected();
+                    }
+                });
     }
 
     private SelectionListener executeListner =
@@ -331,6 +294,8 @@ public class VisualQuickQueryPanel extends Composite {
 
                     String vDataType = null;
                     String eDataType = null;
+
+                    saveItem.saveItem();
 
                     if (vertexList != null
                             && vertexList.get(vLabel) != null
@@ -370,22 +335,22 @@ public class VisualQuickQueryPanel extends Composite {
                         }
                     } else {
                         if (!vKeyword.isEmpty()) {
-                        	if (PropertyType.getType(vDataType) == PropertyType.LIST) {
-                        		query.append("ANY ( x in ")
-                        		.append(needProperetyConvert("r." + vProperties, vDataType))
-                                .append(" WHERE x ")
-                                .append(eOperator)
-                                .append(" ")
-                                .append(needSingleQuotation(vKeyword, vDataType))
-                        		.append(")");
-                        	} else {
-	                            query.append("\nWHERE ")
-	                                    .append(needProperetyConvert("n." + vProperties, vDataType))
-	                                    .append(" ")
-	                                    .append(vOperator)
-	                                    .append(" ")
-	                                    .append(needSingleQuotation(vKeyword, vDataType));
-                        	}
+                            if (PropertyType.getType(vDataType) == PropertyType.LIST) {
+                                query.append("ANY ( x in ")
+                                        .append(needProperetyConvert("r." + vProperties, vDataType))
+                                        .append(" WHERE x ")
+                                        .append(eOperator)
+                                        .append(" ")
+                                        .append(needSingleQuotation(vKeyword, vDataType))
+                                        .append(")");
+                            } else {
+                                query.append("\nWHERE ")
+                                        .append(needProperetyConvert("n." + vProperties, vDataType))
+                                        .append(" ")
+                                        .append(vOperator)
+                                        .append(" ")
+                                        .append(needSingleQuotation(vKeyword, vDataType));
+                            }
                         }
                     }
 
@@ -410,21 +375,25 @@ public class VisualQuickQueryPanel extends Composite {
                             }
                         } else {
                             if (!eKeyword.isEmpty()) {
-                            	if (PropertyType.getType(eDataType) == PropertyType.LIST) {
-                            		query.append("ANY ( x in ")
-                            		.append(needProperetyConvert("r." + eProperties, eDataType))
-                                    .append(" WHERE x ")
-                                    .append(eOperator)
-                                    .append(" ")
-                                    .append(needSingleQuotation(eKeyword, eDataType))
-                            		.append(")");
-                            	} else {
-	                                query.append(needProperetyConvert("r." + eProperties, eDataType))
-	                                        .append(" ")
-	                                        .append(eOperator)
-	                                        .append(" ")
-	                                        .append(needSingleQuotation(eKeyword, eDataType));
-                            	}
+                                if (PropertyType.getType(eDataType) == PropertyType.LIST) {
+                                    query.append("ANY ( x in ")
+                                            .append(
+                                                    needProperetyConvert(
+                                                            "r." + eProperties, eDataType))
+                                            .append(" WHERE x ")
+                                            .append(eOperator)
+                                            .append(" ")
+                                            .append(needSingleQuotation(eKeyword, eDataType))
+                                            .append(")");
+                                } else {
+                                    query.append(
+                                                    needProperetyConvert(
+                                                            "r." + eProperties, eDataType))
+                                            .append(" ")
+                                            .append(eOperator)
+                                            .append(" ")
+                                            .append(needSingleQuotation(eKeyword, eDataType));
+                                }
                             }
                         }
                     }
@@ -471,10 +440,10 @@ public class VisualQuickQueryPanel extends Composite {
 
     private String needProperetyConvert(String value, String type) {
         String result = value;
-        
+
         switch (PropertyType.getType(type)) {
             case PropertyType.LIST:
-            	//result = "TOSTRINGLIST(" + value + ")";
+                // result = "TOSTRINGLIST(" + value + ")";
                 break;
             default:
                 break;
@@ -600,6 +569,11 @@ public class VisualQuickQueryPanel extends Composite {
                         new Runnable() {
                             @Override
                             public void run() {
+
+                                if (vTypeCombo == null) {
+                                    return;
+                                }
+
                                 ArrayList<String> array1 = new ArrayList<>(vertexList.keySet());
                                 vTypeCombo.setInput(array1);
                                 ArrayList<String> array2 = new ArrayList<>(edgeList.keySet());
@@ -609,33 +583,53 @@ public class VisualQuickQueryPanel extends Composite {
                                 sampleArray.add(DEFAULT_ALL_PROPERTIES);
                                 vPropertyCombo.setInput(sampleArray);
                                 ePropertyCombo.setInput(sampleArray);
-                                
+
                                 vTypeCombo.getCombo().select(0);
-                            	eTypeCombo.getCombo().select(0);
-                            	vPropertyCombo.getCombo().select(0);
-                            	ePropertyCombo.getCombo().select(0);
-                                
+                                eTypeCombo.getCombo().select(0);
+                                vPropertyCombo.getCombo().select(0);
+                                ePropertyCombo.getCombo().select(0);
+
                                 if (saveItem.isSaved()) {
-                                	for (int i=0 ; i < vTypeCombo.getCombo().getItemCount(); i++) {
-                                		if (vTypeCombo.getCombo().getItem(i).equals(saveItem.vLabel)) {
-                                			vTypeCombo.getCombo().select(i);
-                                		}
-                                	}
-                                	for (int i=0 ; i < eTypeCombo.getCombo().getItemCount(); i++) {
-                                		if (eTypeCombo.getCombo().getItem(i).equals(saveItem.vProperties)) {
-                                			eTypeCombo.getCombo().select(i);
-                                		}
-                                	}
-                                	for (int i=0 ; i < vPropertyCombo.getCombo().getItemCount(); i++) {
-                                		if (vPropertyCombo.getCombo().getItem(i).equals(saveItem.eType)) {
-                                			vPropertyCombo.getCombo().select(i);
-                                		}
-                                	}
-                                	for (int i=0 ; i < ePropertyCombo.getCombo().getItemCount(); i++) {
-                                		if (ePropertyCombo.getCombo().getItem(i).equals(saveItem.eProperties)) {
-                                			ePropertyCombo.getCombo().select(i);
-                                		}
-                                	}
+                                    for (int i = 0; i < vTypeCombo.getCombo().getItemCount(); i++) {
+                                        if (vTypeCombo
+                                                .getCombo()
+                                                .getItem(i)
+                                                .equals(saveItem.vLabel)) {
+                                            vTypeCombo.getCombo().select(i);
+                                            vTypeComboSelected();
+                                        }
+                                    }
+                                    for (int i = 0; i < eTypeCombo.getCombo().getItemCount(); i++) {
+                                        if (eTypeCombo
+                                                .getCombo()
+                                                .getItem(i)
+                                                .equals(saveItem.eType)) {
+                                            eTypeCombo.getCombo().select(i);
+                                            eTypeComboSelected();
+                                        }
+                                    }
+                                    for (int i = 0;
+                                            i < vPropertyCombo.getCombo().getItemCount();
+                                            i++) {
+                                        if (vPropertyCombo
+                                                .getCombo()
+                                                .getItem(i)
+                                                .equals(saveItem.vProperties)) {
+                                            vPropertyCombo.getCombo().select(i);
+                                            vPropertyComboSelected();
+                                        }
+                                    }
+                                    for (int i = 0;
+                                            i < ePropertyCombo.getCombo().getItemCount();
+                                            i++) {
+                                        if (ePropertyCombo
+                                                .getCombo()
+                                                .getItem(i)
+                                                .equals(saveItem.eProperties)) {
+                                            ePropertyCombo.getCombo().select(i);
+                                            ePropertyComboSelected();
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -756,7 +750,6 @@ public class VisualQuickQueryPanel extends Composite {
     }
 
     private void dataInit() {
-    	saveItem.saveItem();
         vertexList.clear();
         edgeList.clear();
         LinkedHashMap<String, String> nodeProperties = new LinkedHashMap<>();
@@ -769,7 +762,7 @@ public class VisualQuickQueryPanel extends Composite {
 
     private ArrayList<String> getOperator(String type) {
         ArrayList<String> result = new ArrayList<>();
-        
+
         switch (PropertyType.getType(type)) {
             case PropertyType.LIST:
             case PropertyType.STRING:
@@ -806,7 +799,7 @@ public class VisualQuickQueryPanel extends Composite {
             case PropertyType.DATETIME:
             case PropertyType.DATE:
             case PropertyType.TIME:
-                result = "datetime({year: ?, month: ?, day: ?)";
+                result = "datetime({year: ?, month: ?, day: ?})";
                 break;
             default:
                 result = "";
@@ -864,47 +857,97 @@ public class VisualQuickQueryPanel extends Composite {
             return result;
         }
     }
-    
+
     class SaveSelectItem {
-    	public String vLabel;
-    	public String vProperties;
-    	public String vOperator;
-    	public String eType;
-    	public String eProperties;
-    	public String eOperator;
-    	private boolean isSaved = false;
-    	
-    	public SaveSelectItem() {
-    		this.vLabel = "";
-    		this.vProperties = "";
-    		this.vOperator = "";
-    		this.eType = "";
-    		this.eProperties = "";
-    		this.eOperator = "";
+        public String vLabel;
+        public String vProperties;
+        public String vOperator;
+        public String eType;
+        public String eProperties;
+        public String eOperator;
+        private boolean isSaved = false;
+
+        public SaveSelectItem() {
+            this.vLabel = "";
+            this.vProperties = "";
+            this.vOperator = "";
+            this.eType = "";
+            this.eProperties = "";
+            this.eOperator = "";
         }
-    	
-    	public void saveItem() {
-    		Display.getDefault().asyncExec(new Runnable() {
-    			@Override
-    			public void run() {
-    				vLabel = vTypeCombo.getCombo().getText();
-    	    		vProperties = vTypeCombo.getCombo().getText();
-    	    		vOperator = vTypeCombo.getCombo().getText();
-    	    		eType = vTypeCombo.getCombo().getText();
-    	    		eProperties = vTypeCombo.getCombo().getText();
-    	    		eOperator = vTypeCombo.getCombo().getText();
-    			}
-   			});
-    	}
-    	
-    	public boolean isSaved() {
-    		if (!vLabel.isEmpty()) return true;
-    		if (!vProperties.isEmpty()) return true;
-    		if (!vOperator.isEmpty()) return true;
-    		if (!eType.isEmpty()) return true;
-    		if (!eProperties.isEmpty()) return true;
-    		if (!eOperator.isEmpty()) return true;
-    		return false;
-    	}
+
+        public void saveItem() {
+            Display.getDefault()
+                    .asyncExec(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    vLabel = vTypeCombo.getCombo().getText();
+                                    vProperties = vPropertyCombo.getCombo().getText();
+                                    vOperator = vOperatorCombo.getCombo().getText();
+                                    eType = eTypeCombo.getCombo().getText();
+                                    eProperties = ePropertyCombo.getCombo().getText();
+                                    eOperator = eOperatorCombo.getCombo().getText();
+                                }
+                            });
+        }
+
+        public boolean isSaved() {
+            if (!vLabel.isEmpty()) return true;
+            if (!vProperties.isEmpty()) return true;
+            if (!vOperator.isEmpty()) return true;
+            if (!eType.isEmpty()) return true;
+            if (!eProperties.isEmpty()) return true;
+            if (!eOperator.isEmpty()) return true;
+            return false;
+        }
+    }
+
+    private void vTypeComboSelected() {
+        String selectItem = String.valueOf(vTypeCombo.getCombo().getText());
+        if (vertexList != null && vertexList.get(selectItem) != null) {
+            ArrayList<String> array1 = new ArrayList<>(vertexList.get(selectItem).keySet());
+            vPropertyCombo.setInput(array1);
+            vPropertyCombo.getCombo().select(0);
+            vOperatorCombo.setInput(getOperator(null));
+            vOperatorCombo.getCombo().select(0);
+        }
+    }
+
+    private void vPropertyComboSelected() {
+        String typeSelect = String.valueOf(vTypeCombo.getCombo().getText());
+        String property = String.valueOf(vPropertyCombo.getCombo().getText());
+        if (vertexList != null && vertexList.get(typeSelect) != null) {
+            String dataType = String.valueOf(vertexList.get(typeSelect).get(property));
+            if (!dataType.equals("null")) {
+                vOperatorCombo.setInput(getOperator(dataType));
+                vOperatorCombo.getCombo().select(0);
+                vPropertySearchText.setText(getDefaultTypeString(dataType));
+            }
+        }
+    }
+
+    private void eTypeComboSelected() {
+        String selectItem = String.valueOf(eTypeCombo.getCombo().getText());
+        if (edgeList != null && edgeList.get(selectItem) != null) {
+            ArrayList<String> array1 = new ArrayList<>(edgeList.get(selectItem).keySet());
+            ePropertyCombo.setInput(array1);
+            ePropertyCombo.getCombo().select(0);
+            eOperatorCombo.setInput(getOperator(null));
+            eOperatorCombo.getCombo().select(0);
+        }
+    }
+
+    private void ePropertyComboSelected() {
+        String typeSelect = String.valueOf(eTypeCombo.getCombo().getText());
+        String property = String.valueOf(ePropertyCombo.getCombo().getText());
+        if (edgeList != null && edgeList.get(typeSelect) != null) {
+            String dataType = String.valueOf(edgeList.get(typeSelect).get(property));
+            if (!dataType.equals("null")) {
+                eOperatorCombo.setInput(getOperator(dataType));
+                eOperatorCombo.getCombo().select(0);
+                ePropertySearchText.setText(getDefaultTypeString(dataType));
+            }
+        }
     }
 }
