@@ -26,6 +26,7 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.data.GraphDataModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphMessages;
 
 public class DesignBox extends MoveBox {
 
@@ -61,12 +62,8 @@ public class DesignBox extends MoveBox {
     private static final int OVERLAY_NODE_HEIGHT = 200;
     private static final int OVERLAY_EDGE_HEIGHT = 175;
     
-    public static final int DPI_CURRENT = Display.getDefault().getDPI().x;
-    public static final float DPI_DEFAULT = 96.0f;
-    public static final float DPI_SCALE = DPI_CURRENT / DPI_DEFAULT;
-    
     public DesignBox(Control control, FXGraph graph) {
-        super(control, "Design Editor", OVERLAY_WIDTH, OVERLAY_NODE_HEIGHT);
+        super(control, GraphMessages.designbox_title, OVERLAY_WIDTH, OVERLAY_NODE_HEIGHT);
         this.graph = graph;
         
         tabFolder = new TabFolder(this.getShell(), SWT.BORDER);
@@ -326,7 +323,6 @@ public class DesignBox extends MoveBox {
         } else {
         	edgeSelectItem = item;
         	CyperEdge edge = (CyperEdge) item;
-        	this.setTitleText(edge.getType());
         	
         	int index = edgeTypeList.indexOf(edge.getType());
             if (index != -1) {

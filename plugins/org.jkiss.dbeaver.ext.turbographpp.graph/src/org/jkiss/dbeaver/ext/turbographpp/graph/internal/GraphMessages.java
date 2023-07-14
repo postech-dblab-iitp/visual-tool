@@ -30,8 +30,9 @@ public class GraphMessages extends NLS {
 	public static String fxgraph_export_csv_dialog_label_node;
 	public static String fxgraph_export_csv_dialog_label_edge;
 	public static String fxgraph_export_csv_dialog_directory_dialog_title;
-	public static String guidebox_title;
-	public static String guidebox_properties_label;
+	public static String shortest_guidebox_title;
+	public static String shortest_guidebox_properties_label;
+	public static String designbox_title; 
 	public static String designbox_table_col_item;
 	public static String designbox_table_col_value;
 
