@@ -300,5 +300,11 @@ public class MoveBox {
     	overlay_height = height + moveButoon.getSize().y;
     	reSize();
     }
+    
+    public void setOverlaySizeWithOutMoveButton(int width, int height) {
+    	overlay_width = width;
+    	overlay_height = height;
+    	reSize();
+    }
 }
 

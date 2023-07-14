@@ -16,9 +16,7 @@ import org.jkiss.dbeaver.ui.UIIcon;
 public interface GraphBase {
 
 	public enum LayoutStyle {
-		HORIZONTAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_HORIZONTAL), "Horizontal Layout"), 
 		HORIZONTAL_TREE(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_HORIZONTAL), "Horizontal-Tree Layout"), 
-		VERTICAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_VERTICAL), "Vertical Layout"), 
 		VERTICAL_TREE(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_VERTICAL), "Vertical-Tree Layout"), 
 	    GRID(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_GRID), "Grid Layout"),
 	    RADIAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE), "Circle(Radial) Layout"),

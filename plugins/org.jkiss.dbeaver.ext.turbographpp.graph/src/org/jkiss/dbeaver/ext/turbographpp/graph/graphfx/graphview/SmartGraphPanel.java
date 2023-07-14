@@ -1278,7 +1278,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     public void doDefaultVertexStyle(SmartGraphVertex<CyperNode> Node) {
-		Node.setStyle(Node.getUnderlyingVertex().element().getFillColor());
+		Node.setStyle(SmartStyleProxy.DEFAULT_VERTEX + Node.getUnderlyingVertex().element().getFillColor());
 	}
 	
     public void doHighlightVertexStyle(SmartGraphVertex<CyperNode> Node) {

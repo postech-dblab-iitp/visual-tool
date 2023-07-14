@@ -273,7 +273,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		CoolItem buttonItem5 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		
 		Composite composite1 = new Composite(coolBar, SWT.NONE);
-		composite1.setLayout(new GridLayout(7, true));
+		composite1.setLayout(new GridLayout(LayoutStyle.values().length, true));
 
 		Button button1; 
 		
@@ -415,10 +415,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 		int nodesNum = visualGraph.getNumNodes();
 		int sqrt = (int) Math.sqrt(nodesNum);
-		int compositeSizeX = composite.getSize().x - 100;
-        int compositeSizeY = composite.getSize().y - 100;
-        double drawSizeX = sqrt * 162;
-        double drawSizeY = sqrt * 129;
+		int compositeSizeX = graphTopComposite.getSize().x - 100;
+		int compositeSizeY = graphTopComposite.getSize().y - 100;
+		double drawSizeX = sqrt * 162;
+		double drawSizeY = sqrt * 129;
         
 		if (visualGraph != null) {
 			resultLabel.setText("Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());

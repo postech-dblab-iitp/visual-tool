@@ -35,7 +35,9 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 
 import javafx.application.Platform;
 import javafx.embed.swt.FXCanvas;
@@ -132,7 +134,7 @@ public class FXGraph implements GraphBase {
     private SmartGraphVertex<CyperNode> startVertex;
     private SmartGraphVertex<CyperNode> endVertex;
     
-    private GuideBox guideBox;
+    private ShortestGuideBox guideBox;
     private DesignBox designBox;
     
     public FXGraph(Composite parent, int style) {
@@ -170,7 +172,7 @@ public class FXGraph implements GraphBase {
         canvas.setScene(scene);
         
         createMiniMap(canvas);
-        guideBox = new GuideBox(canvas, this);
+        guideBox = new ShortestGuideBox(canvas, this);
         
         designBox = new DesignBox(canvas, this);
         
@@ -192,6 +194,19 @@ public class FXGraph implements GraphBase {
 			}
 		});
         
+        parent.addListener( SWT.Resize, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+            	double parentWidth = parent.getBounds().width;
+            	double parentHeight = parent.getBounds().height;
+            	double graphViewWidth = graphView.getBoundsInParent().getWidth();
+            	double graphViewHeight = graphView.getBoundsInParent().getHeight();
+            	
+            	resize(parentWidth > graphViewWidth ? parentWidth : graphViewWidth, 
+            			parentHeight > graphViewHeight ? parentHeight : graphViewHeight);
+            	
+            }
+        });
     }
 
     private void setCanvasListener() {
@@ -200,16 +215,21 @@ public class FXGraph implements GraphBase {
 			
 			@Override
 			public void paintControl(PaintEvent e) {
-				Double hValue, vValue;
 				
-				lastViewportWidth = scrollPane.getViewportBounds().getWidth();
-				lastViewportHeight = scrollPane.getViewportBounds().getHeight();
-				lastWidth =  graphView.getBoundsInParent().getWidth();
-				lastHeight = graphView.getBoundsInParent().getHeight();
-				hValue = scrollPane.getHvalue();
-				vValue = scrollPane.getVvalue();
-			
-				miniMap.setPointRectAngel(lastWidth, lastHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
+				if (miniMap.isShowing()) {
+				
+					Double hValue, vValue;
+					
+					lastViewportWidth = scrollPane.getViewportBounds().getWidth();
+					lastViewportHeight = scrollPane.getViewportBounds().getHeight();
+					lastWidth =  graphView.getBoundsInParent().getWidth();
+					lastHeight = graphView.getBoundsInParent().getHeight();
+					hValue = scrollPane.getHvalue();
+					vValue = scrollPane.getVvalue();
+				
+					miniMap.setPointRectAngel(lastWidth, lastHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
+					
+				}
 			}
 		});
     	
@@ -1020,7 +1040,18 @@ public class FXGraph implements GraphBase {
 			}
 			
 			shortestList = null;
+		} else {
+			if (startVertex != null) {
+				graphView.doDefaultVertexStyle(startVertex);
+				startVertex = null;
+			}
+			
+			if (endVertex != null) {
+				graphView.doDefaultVertexStyle(endVertex);
+				endVertex = null;
+			}
 		}
+		
 	}
 	
 	private boolean isEmptyStartVertex() {
