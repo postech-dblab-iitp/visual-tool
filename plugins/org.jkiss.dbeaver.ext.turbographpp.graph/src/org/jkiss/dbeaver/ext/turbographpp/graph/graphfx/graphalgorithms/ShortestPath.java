@@ -155,7 +155,7 @@ public class ShortestPath {
         for (Vertex<CypherNode> vertex : d.keySet()) {
             if (vertex != startVertex) {
                 for (FxEdge<CypherEdge, CypherNode> edge :
-                        digraph.incidentEdges(vertex)) { // consider the incoming edges
+                        digraph.incomingEdges(vertex)) { // consider the incoming edges
                     Vertex<CypherNode> u = digraph.opposite(vertex, edge);
                     int wgt = 1;
                     try {
@@ -198,7 +198,7 @@ public class ShortestPath {
                     .setStyle(SmartStyleProxy.HIGHLIGHT_VERTEX + node.getFillColor());
             graphView.update();
 
-            for (FxEdge<CypherEdge, CypherNode> edge : digraph.incidentEdges(vertexInPath)) {
+            for (FxEdge<CypherEdge, CypherNode> edge : digraph.incomingEdges(vertexInPath)) {
                 Vertex<CypherNode> u = digraph.opposite(vertexInPath, edge);
                 if (oldVertexInPath != null
                         && !oldVertexInPath.equals(vertexInPath)

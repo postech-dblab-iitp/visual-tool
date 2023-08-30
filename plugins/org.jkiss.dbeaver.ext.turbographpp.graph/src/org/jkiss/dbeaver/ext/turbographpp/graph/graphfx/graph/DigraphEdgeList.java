@@ -35,7 +35,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     
     
     @Override
-    public synchronized Collection<FxEdge<E, V>> incidentEdges(Vertex<V> inbound) throws InvalidVertexException {
+    public synchronized Collection<FxEdge<E, V>> incomingEdges(Vertex<V> inbound) throws InvalidVertexException {
         checkVertex(inbound);
 
         List<FxEdge<E, V>> incidentEdges = new ArrayList<>();
@@ -181,7 +181,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         V element = v.element();
 
         //remove incident edges
-        Collection<FxEdge<E, V>> inOutEdges = incidentEdges(v);
+        Collection<FxEdge<E, V>> inOutEdges = incomingEdges(v);
         inOutEdges.addAll(outboundEdges(v));
         
         for (FxEdge<E, V> edge : inOutEdges) {

@@ -80,7 +80,7 @@ public interface Graph<V, E> {
      * 
      * @return      collection of edges
      */
-    public Collection<FxEdge<E, V>> incidentEdges(Vertex<V> v)
+    public Collection<FxEdge<E, V>> incomingEdges(Vertex<V> v)
             throws InvalidVertexException;
 
     

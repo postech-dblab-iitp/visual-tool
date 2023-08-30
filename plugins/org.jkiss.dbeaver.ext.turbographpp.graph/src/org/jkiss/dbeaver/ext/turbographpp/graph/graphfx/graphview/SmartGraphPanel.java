@@ -44,7 +44,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -57,7 +56,8 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Digraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
-import org.openide.loaders.InstanceSupport.Instance;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartRandomPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import static org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.UtilitiesJavaFX.pick;
 import static org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.UtilitiesPoint2D.attractiveForce;
@@ -131,14 +131,15 @@ public class SmartGraphPanel<V, E> extends Pane {
     //This value was obtained experimentally
     private static final int AUTOMATIC_LAYOUT_ITERATIONS = 10;
     
-    private String displayProperyName = null;
-    
     private Vertex<V> highlighNode = null;
 
     private double vertexPosionX = 0;
     private double vertexPosionY = 0;
     
     private Set<Vertex<V>> visitedVertexList = new HashSet<>(); 
+    
+    private double initWidth = 0;
+    private double initHeight = 0;
     
     /**
      * Constructs a visualization of the graph referenced by
@@ -292,13 +293,13 @@ public class SmartGraphPanel<V, E> extends Pane {
         if (placementStrategy != null) {
 			placementStrategy.place(this.getMinWidth(),
 									this.getMaxHeight(),
-									this.theGraph,
+									this,
 									this.vertexNodes.values());
         } else {
             //apply random placement
             new SmartRandomPlacementStrategy().place(this.widthProperty().doubleValue(),
                     this.heightProperty().doubleValue(),
-                    this.theGraph,
+                    this,
                     this.vertexNodes.values());
 
             //start automatic layout
@@ -463,7 +464,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         for (Vertex<V> vertex : vertexNodes.keySet()) {
 
-            Iterable<FxEdge<E, V>> incidentEdges = theGraph.incidentEdges(vertex);
+            Iterable<FxEdge<E, V>> incidentEdges = theGraph.incomingEdges(vertex);
 
             for (FxEdge<E, V> edge : incidentEdges) {
 
@@ -602,7 +603,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 //Place new nodes in the vicinity of existing adjacent ones;
                 //Place them in the middle of the plot, otherwise.
                 double x, y;
-                Collection<FxEdge<E, V>> incidentEdges = theGraph.incidentEdges(vertex);
+                Collection<FxEdge<E, V>> incidentEdges = theGraph.incomingEdges(vertex);
                 if (incidentEdges.isEmpty()) {
                     /* not (yet) connected, put in the middle of the plot */
                     x = mx;
@@ -1370,13 +1371,33 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
     
     public void setSmartPlacementStrategy (SmartPlacementStrategy placementStrategy) {
-    	placementStrategy.place(this.getMinWidth(),
-				this.getMaxHeight(),
-				this.theGraph,
+    	placementStrategy.place(initWidth,
+				initHeight,
+				this,
 				this.vertexNodes.values());
     }
     
     public SmartGraphProperties getSmartGraphProperties() {
     	return graphProperties;
     }
+    
+    public Graph<V, E> getGraph() {
+    	return this.theGraph;
+    }
+    
+    public void setInitSize(double width, double height) {
+    	initWidth = width;
+    	initHeight = height;
+    	System.out.println("Init Size width : " + width);
+    	System.out.println("Init Size height : " + height);
+    }
+    
+    public double getInitWidth() {
+    	return initWidth;
+    }
+    
+    public double getInitHeight() {
+    	return initHeight;
+    }
+    
 }
