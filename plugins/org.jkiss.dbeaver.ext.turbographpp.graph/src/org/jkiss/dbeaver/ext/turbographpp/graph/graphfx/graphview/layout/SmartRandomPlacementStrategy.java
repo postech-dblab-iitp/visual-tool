@@ -42,8 +42,8 @@ public class SmartRandomPlacementStrategy implements SmartPlacementStrategy {
     public <V, E> void place(double width, double height, SmartGraphPanel<V, E> smartGraphPanel,
     		Collection<? extends SmartGraphVertex<V>> vertices) {
         
-    	smartGraphPanel.setMinSize(width, height);
-		smartGraphPanel.setMaxSize(width, height);
+        smartGraphPanel.setMinSize(width, height);
+        smartGraphPanel.setMaxSize(width, height);
     	
         Random rand = new Random();
 
