@@ -9,12 +9,12 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVert
 
 public class DeleteGraphElement {
 
-	private SmartGraphVertex<CyperNode> node;
-	private Collection<FxEdge<CyperEdge, CyperNode>> edges;
+	private SmartGraphVertex<CypherNode> node;
+	private Collection<FxEdge<CypherEdge, CypherNode>> edges;
 	private double positionX, positionY;
-	private Vertex<CyperNode> vertex;
+	private Vertex<CypherNode> vertex;
 	
-	public DeleteGraphElement(SmartGraphVertex<CyperNode> node, double positionX, double positionY) {
+	public DeleteGraphElement(SmartGraphVertex<CypherNode> node, double positionX, double positionY) {
     	this.node = node;
         this.positionX = positionX;
         this.positionY = positionY;
@@ -24,11 +24,11 @@ public class DeleteGraphElement {
         this.vertex = null;
     }
 	
-	public void addEdges(Collection<FxEdge<CyperEdge, CyperNode>> edges) {
+	public void addEdges(Collection<FxEdge<CypherEdge, CypherNode>> edges) {
 		this.edges.addAll(edges);
 	}
 
-	public SmartGraphVertex<CyperNode> getNode() {
+	public SmartGraphVertex<CypherNode> getNode() {
 		return this.node;
 	}
 	
@@ -40,15 +40,15 @@ public class DeleteGraphElement {
 		return this.positionY;
 	}
 	
-	public Collection<FxEdge<CyperEdge, CyperNode>> getEdges() {
+	public Collection<FxEdge<CypherEdge, CypherNode>> getEdges() {
 		return this.edges;
 	}
 
-	public void setVertex(Vertex<CyperNode> v) {
+	public void setVertex(Vertex<CypherNode> v) {
 		this.vertex = v;
 	}
 	
-	public Vertex<CyperNode> getVertex() {
+	public Vertex<CypherNode> getVertex() {
 		return this.vertex;
 	}
 }

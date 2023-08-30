@@ -53,8 +53,8 @@ import javafx.scene.text.Text;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Digraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.openide.loaders.InstanceSupport.Instance;
@@ -551,8 +551,8 @@ public class SmartGraphPanel<V, E> extends Pane {
             v.attachLabel(label);
         }
         
-        if (v.getUnderlyingVertex().element() instanceof CyperNode) {
-        	CyperNode node = (CyperNode) v.getUnderlyingVertex().element();
+        if (v.getUnderlyingVertex().element() instanceof CypherNode) {
+        	CypherNode node = (CypherNode) v.getUnderlyingVertex().element();
         	String fillColor = node.getFillColor();
         	v.setStyle(fillColor);
         }
@@ -562,8 +562,8 @@ public class SmartGraphPanel<V, E> extends Pane {
         //edges to the back
         this.getChildren().add(0, (Node) e);
         edgeNodes.put(edge, e);
-        if (e.getUnderlyingEdge().element() instanceof CyperEdge) {
-        	CyperEdge tempElement = (CyperEdge)e.getUnderlyingEdge().element();
+        if (e.getUnderlyingEdge().element() instanceof CypherEdge) {
+        	CypherEdge tempElement = (CypherEdge)e.getUnderlyingEdge().element();
         	edgeNodesForID.put(tempElement.getID(), e);
         }
 
@@ -631,9 +631,9 @@ public class SmartGraphPanel<V, E> extends Pane {
                     }
                 }
 
-                if (vertex.element() instanceof CyperNode) {
-                	double lastPositionX = ((CyperNode) vertex.element()).getLastPositionX();
-                	double lastPositionY = ((CyperNode) vertex.element()).getLastPositionY();
+                if (vertex.element() instanceof CypherNode) {
+                	double lastPositionX = ((CypherNode) vertex.element()).getLastPositionX();
+                	double lastPositionY = ((CypherNode) vertex.element()).getLastPositionY();
                 	if (lastPositionX != -1) {
                 		x = lastPositionX;
                 	}
@@ -1277,11 +1277,11 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
-    public void doDefaultVertexStyle(SmartGraphVertex<CyperNode> Node) {
+    public void doDefaultVertexStyle(SmartGraphVertex<CypherNode> Node) {
 		Node.setStyle(SmartStyleProxy.DEFAULT_VERTEX + Node.getUnderlyingVertex().element().getFillColor());
 	}
 	
-    public void doHighlightVertexStyle(SmartGraphVertex<CyperNode> Node) {
+    public void doHighlightVertexStyle(SmartGraphVertex<CypherNode> Node) {
 		Node.setStyle(SmartStyleProxy.HIGHLIGHT_VERTEX + Node.getUnderlyingVertex().element().getFillColor());
 	}
     
@@ -1324,8 +1324,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     	
     	SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
     	
-    	if (graphVertexIn.getUnderlyingVertex().element() instanceof CyperNode) {
-    		CyperNode node = (CyperNode) graphVertexIn.getUnderlyingVertex().element();
+    	if (graphVertexIn.getUnderlyingVertex().element() instanceof CypherNode) {
+    		CypherNode node = (CypherNode) graphVertexIn.getUnderlyingVertex().element();
     		//Set Vertex Style
     		graphVertexIn.setStyle(vertexStyle + node.getFillColor());
         }
@@ -1336,8 +1336,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     		if (highlight) {
     			edgeStyle = SmartStyleProxy.HIGHLIGHT_EDGE;
     		} else {
-    			if (edge.element() instanceof CyperEdge) {
-    				CyperEdge cyperEdge = (CyperEdge)edge.element();
+    			if (edge.element() instanceof CypherEdge) {
+    				CypherEdge cyperEdge = (CypherEdge)edge.element();
 	    			edgeStyle = SmartStyleProxy.getEdgeStyleInputValue(
 	    					cyperEdge.getLineColor(),
 	    					cyperEdge.getLineStyle(),
@@ -1351,8 +1351,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     		Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
 
     		SmartGraphVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
-    		if (graphVertexOppositeOut.getUnderlyingVertex().element() instanceof CyperNode) {
-    			CyperNode node = (CyperNode) graphVertexOppositeOut.getUnderlyingVertex().element();
+    		if (graphVertexOppositeOut.getUnderlyingVertex().element() instanceof CypherNode) {
+    			CypherNode node = (CypherNode) graphVertexOppositeOut.getUnderlyingVertex().element();
     			//Set Vertex Style
     			graphVertexOppositeOut.setStyle(vertexStyle + node.getFillColor());
     		}

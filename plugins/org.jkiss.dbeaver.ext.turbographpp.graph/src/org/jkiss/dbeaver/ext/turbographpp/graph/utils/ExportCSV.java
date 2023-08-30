@@ -8,16 +8,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 
 public class ExportCSV {
 
 	public static boolean exportCSV(String folderPath, String nodeFileName, String edgeFilename, 
-			Collection<Vertex<CyperNode>> vertices,
-			Collection<FxEdge<CyperEdge, CyperNode>> edges) {
+			Collection<Vertex<CypherNode>> vertices,
+			Collection<FxEdge<CypherEdge, CypherNode>> edges) {
 		try {
 		    BufferedWriter nodeWriter = new BufferedWriter(new FileWriter(folderPath + File.separator + nodeFileName));
 		    nodeWriter.write(writeNodes(vertices));
@@ -36,16 +36,16 @@ public class ExportCSV {
 	}
 	
 	
-	private static String writeEdges(Collection<FxEdge<CyperEdge, CyperNode>> edges) {
+	private static String writeEdges(Collection<FxEdge<CypherEdge, CypherNode>> edges) {
 		StringBuilder strBuilder = new StringBuilder();
 		
 		LinkedHashMap<String,String> data = new LinkedHashMap<String, String>();
 		
 		if (!edges.isEmpty()) {
-			Iterator<FxEdge<CyperEdge, CyperNode>> itr = edges.iterator();
+			Iterator<FxEdge<CypherEdge, CypherNode>> itr = edges.iterator();
 			strBuilder.append("ID,Type,StartNodeID,EndNodeID");
 			while(itr.hasNext()) {
-				CyperEdge cyperEdge = itr.next().element();
+				CypherEdge cyperEdge = itr.next().element();
 				for (String key : cyperEdge.getProperties().keySet()) {
 					data.put(key, "");
 				}
@@ -60,7 +60,7 @@ public class ExportCSV {
 			itr = edges.iterator();
 			
 			while(itr.hasNext()) {
-				CyperEdge cyperEdge = itr.next().element();
+				CypherEdge cyperEdge = itr.next().element();
 				strBuilder.append(cyperEdge.getID() + ",");
 				strBuilder.append(cyperEdge.getType() + ",");
 				strBuilder.append(cyperEdge.getStartNodeID() + ",");
@@ -85,16 +85,16 @@ public class ExportCSV {
 		return strBuilder.toString();
 	}
 	
-	private static String writeNodes(Collection<Vertex<CyperNode>> vertices) {
+	private static String writeNodes(Collection<Vertex<CypherNode>> vertices) {
 		StringBuilder strBuilder = new StringBuilder();
 		
 		LinkedHashMap<String,String> data = new LinkedHashMap<String, String>();
 		
 		if (!vertices.isEmpty()) {
-			Iterator<Vertex<CyperNode>> itr = vertices.iterator();
+			Iterator<Vertex<CypherNode>> itr = vertices.iterator();
 			strBuilder.append("ID,Label");
 			while(itr.hasNext()) {
-				CyperNode cyperNode = itr.next().element();
+				CypherNode cyperNode = itr.next().element();
 				for (String key : cyperNode.getProperties().keySet()) {
 					data.put(key, "");
 				}
@@ -109,7 +109,7 @@ public class ExportCSV {
 			itr = vertices.iterator();
 			
 			while(itr.hasNext()) {
-				CyperNode cyperNode = itr.next().element();
+				CypherNode cyperNode = itr.next().element();
 				strBuilder.append(cyperNode.getID() + ",");
 				strBuilder.append(cyperNode.getLabel());
 				
