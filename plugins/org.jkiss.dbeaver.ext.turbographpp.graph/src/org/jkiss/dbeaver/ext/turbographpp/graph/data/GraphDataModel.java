@@ -8,12 +8,12 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 
 public class GraphDataModel {
 	
-    private HashMap<String, Vertex<CyperNode>> nodes = new HashMap<>();
-    private HashMap<String, FxEdge<CyperEdge, CyperNode>> edges = new HashMap<>();
+    private HashMap<String, Vertex<CypherNode>> nodes = new HashMap<>();
+    private HashMap<String, FxEdge<CypherEdge, CypherNode>> edges = new HashMap<>();
     private HashMap<String, ArrayList<String>> nodeLabelList = new HashMap<>();
     private HashMap<String, ArrayList<String>> edgeTypeList = new HashMap<>();
 
-    public void putNode(String id, String label, Vertex<CyperNode> node) {
+    public void putNode(String id, String label, Vertex<CypherNode> node) {
     	nodes.put(id, node);
     	if (nodeLabelList.get(label) == null) {
     		ArrayList<String> list = new ArrayList<>();
@@ -24,7 +24,7 @@ public class GraphDataModel {
     	}
     }
     
-    public void putEdge(String id, String type, FxEdge<CyperEdge, CyperNode> edge) {
+    public void putEdge(String id, String type, FxEdge<CypherEdge, CypherNode> edge) {
     	edges.put(id, edge);
     	if (edgeTypeList.get(type) == null) {
     		ArrayList<String> list = new ArrayList<>();
@@ -35,11 +35,11 @@ public class GraphDataModel {
     	}
     }
     
-    public Vertex<CyperNode> getNode(String id) {
+    public Vertex<CypherNode> getNode(String id) {
     	return nodes.get(id);
     }
     
-    public FxEdge<CyperEdge, CyperNode> getEdge(String id) {
+    public FxEdge<CypherEdge, CypherNode> getEdge(String id) {
     	return edges.get(id);
     }
     

@@ -1,6 +1,6 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphalgorithms;
 
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.NodesEdges;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Entry;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
@@ -9,7 +9,7 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphList;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 
 import java.util.*;
 
@@ -32,12 +32,12 @@ public class ShortestPath {
      *     algorithm
      */
     public static NodesEdges start(
-            TurboGraphList<CyperNode, CyperEdge> digraph,
-            SmartGraphPanel<CyperNode, CyperEdge> graphView,
-            Vertex<CyperNode> startVertex,
-            Vertex<CyperNode> endVertex,
+            TurboGraphList<CypherNode, CypherEdge> digraph,
+            SmartGraphPanel<CypherNode, CypherEdge> graphView,
+            Vertex<CypherNode> startVertex,
+            Vertex<CypherNode> endVertex,
             String propertyName) {
-        LinkedHashMap<Vertex<CyperNode>, Integer> d = new LinkedHashMap<>();
+        LinkedHashMap<Vertex<CypherNode>, Integer> d = new LinkedHashMap<>();
 
         int[] weight = {1};
         digraph.setlastWeight(0);
@@ -64,21 +64,21 @@ public class ShortestPath {
      * @param weight The weight count of the shortest path
      */
     private static boolean dijkstra(
-            TurboGraphList<CyperNode, CyperEdge> digraph,
-            Vertex<CyperNode> startVertex,
-            Vertex<CyperNode> endVertex,
-            LinkedHashMap<Vertex<CyperNode>, Integer> d,
+            TurboGraphList<CypherNode, CypherEdge> digraph,
+            Vertex<CypherNode> startVertex,
+            Vertex<CypherNode> endVertex,
+            LinkedHashMap<Vertex<CypherNode>, Integer> d,
             int[] weight,
             String propertyName) {
 
-        Map<Vertex<CyperNode>, Integer> cloud = new LinkedHashMap<>();
-        HeapAdaptablePriorityQueue<Integer, Vertex<CyperNode>> pq =
+        Map<Vertex<CypherNode>, Integer> cloud = new LinkedHashMap<>();
+        HeapAdaptablePriorityQueue<Integer, Vertex<CypherNode>> pq =
                 new HeapAdaptablePriorityQueue<>();
-        Map<Vertex<CyperNode>, Entry<Integer, Vertex<CyperNode>>> pqTokens = new LinkedHashMap<>();
+        Map<Vertex<CypherNode>, Entry<Integer, Vertex<CypherNode>>> pqTokens = new LinkedHashMap<>();
         // for each vertex of the graph, add an entry to the priority queue with the
         // source having
         // distance 0 and all others having infinite distance
-        for (Vertex<CyperNode> v : digraph.vertices()) {
+        for (Vertex<CypherNode> v : digraph.vertices()) {
             if (v.equals(startVertex)) {
                 d.put(v, 0);
             } else {
@@ -90,14 +90,14 @@ public class ShortestPath {
 
         // Add all the reachable vertices to the Map cloud
         while (!pq.isEmpty()) {
-            Entry<Integer, Vertex<CyperNode>> entry = pq.removeMin();
+            Entry<Integer, Vertex<CypherNode>> entry = pq.removeMin();
             int key = entry.getKey();
-            Vertex<CyperNode> u = entry.getValue();
+            Vertex<CypherNode> u = entry.getValue();
             cloud.put(u, key); // the actual distance to u
             pqTokens.remove(u); // remove u from pq
 
-            for (FxEdge<CyperEdge, CyperNode> edge : digraph.outboundEdges(u)) {
-                Vertex<CyperNode> v = digraph.opposite(u, edge);
+            for (FxEdge<CypherEdge, CypherNode> edge : digraph.outboundEdges(u)) {
+                Vertex<CypherNode> v = digraph.opposite(u, edge);
 
                 if (cloud.get(v) == null) {
                     // perform the relaxation step on edge (u,v)
@@ -142,21 +142,21 @@ public class ShortestPath {
      * @param graphView Graph visualization object
      */
     private static NodesEdges generatePath(
-            TurboGraphList<CyperNode, CyperEdge> digraph,
-            Vertex<CyperNode> startVertex,
-            Vertex<CyperNode> endVertex,
-            LinkedHashMap<Vertex<CyperNode>, Integer> d,
-            SmartGraphPanel<CyperNode, CyperEdge> graphView,
+            TurboGraphList<CypherNode, CypherEdge> digraph,
+            Vertex<CypherNode> startVertex,
+            Vertex<CypherNode> endVertex,
+            LinkedHashMap<Vertex<CypherNode>, Integer> d,
+            SmartGraphPanel<CypherNode, CypherEdge> graphView,
             String propertyName) {
-        Map<Vertex<CyperNode>, FxEdge<CyperEdge, CyperNode>> tree = new LinkedHashMap<>();
-        Map<Vertex<CyperNode>, Vertex<CyperNode>> parentsOfVertices = new HashMap<>();
+        Map<Vertex<CypherNode>, FxEdge<CypherEdge, CypherNode>> tree = new LinkedHashMap<>();
+        Map<Vertex<CypherNode>, Vertex<CypherNode>> parentsOfVertices = new HashMap<>();
         NodesEdges nodesEdges = new NodesEdges();
 
-        for (Vertex<CyperNode> vertex : d.keySet()) {
+        for (Vertex<CypherNode> vertex : d.keySet()) {
             if (vertex != startVertex) {
-                for (FxEdge<CyperEdge, CyperNode> edge :
+                for (FxEdge<CypherEdge, CypherNode> edge :
                         digraph.incidentEdges(vertex)) { // consider the incoming edges
-                    Vertex<CyperNode> u = digraph.opposite(vertex, edge);
+                    Vertex<CypherNode> u = digraph.opposite(vertex, edge);
                     int wgt = 1;
                     try {
                         wgt = Integer.valueOf(edge.element().getProperty(propertyName));
@@ -170,9 +170,9 @@ public class ShortestPath {
                 }
             }
         }
-        Stack<Vertex<CyperNode>> path = new Stack<>(); // set of vertices on the path
-        Vertex<CyperNode> vertexInPath;
-        Vertex<CyperNode> oldVertexInPath;
+        Stack<Vertex<CypherNode>> path = new Stack<>(); // set of vertices on the path
+        Vertex<CypherNode> vertexInPath;
+        Vertex<CypherNode> oldVertexInPath;
 
         // push the vertex or vertices on path into the stack
         for (vertexInPath = endVertex;
@@ -192,14 +192,14 @@ public class ShortestPath {
             oldVertexInPath = vertexInPath;
             vertexInPath = path.pop();
             nodesEdges.addNode(vertexInPath);
-            CyperNode node = graphView.getGraphVertex(vertexInPath).getUnderlyingVertex().element();
+            CypherNode node = graphView.getGraphVertex(vertexInPath).getUnderlyingVertex().element();
             graphView
                     .getStylableVertex(vertexInPath)
                     .setStyle(SmartStyleProxy.HIGHLIGHT_VERTEX + node.getFillColor());
             graphView.update();
 
-            for (FxEdge<CyperEdge, CyperNode> edge : digraph.incidentEdges(vertexInPath)) {
-                Vertex<CyperNode> u = digraph.opposite(vertexInPath, edge);
+            for (FxEdge<CypherEdge, CypherNode> edge : digraph.incidentEdges(vertexInPath)) {
+                Vertex<CypherNode> u = digraph.opposite(vertexInPath, edge);
                 if (oldVertexInPath != null
                         && !oldVertexInPath.equals(vertexInPath)
                         && oldVertexInPath.equals(u)) {

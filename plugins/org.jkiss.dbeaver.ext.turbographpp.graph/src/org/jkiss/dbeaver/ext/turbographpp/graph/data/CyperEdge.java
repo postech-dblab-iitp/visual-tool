@@ -6,7 +6,7 @@ import java.util.Set;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartLabelSource;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 
-public class CyperEdge {
+public class CypherEdge {
     private String id;
     private String type;
     private HashMap<String, String> property;
@@ -19,7 +19,7 @@ public class CyperEdge {
     private String lineStyle = SmartStyleProxy.DEFAULT_EDGE_LINE_STYLE;
     private int textSize = SmartStyleProxy.DEFAULT_EDGE_LABEL_SIZE;
     
-    public CyperEdge(
+    public CypherEdge(
             String id,
             String type,
             HashMap<String, String> property,

@@ -56,8 +56,8 @@ import javafx.scene.layout.VBox;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartCircularSortedPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.DeleteGraphElement;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.GraphDataModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.NodesEdges;
@@ -85,8 +85,8 @@ public class FXGraph implements GraphBase {
 	public static final int Y_KEYCODE = 0x79;
 	
     private FXCanvas canvas;
-    private TurboGraphList<CyperNode, CyperEdge> graph;
-    private SmartGraphPanel<CyperNode, CyperEdge> graphView;
+    private TurboGraphList<CypherNode, CypherEdge> graph;
+    private SmartGraphPanel<CypherNode, CypherEdge> graphView;
     Group graphGroup;
     private ScrollPane scrollPane;
     private VBox vBox;
@@ -116,7 +116,7 @@ public class FXGraph implements GraphBase {
     private MenuItem deteleMenu;
     private MenuItem designMenu;
 
-    private SmartGraphVertex<CyperNode> selectNode = null;
+    private SmartGraphVertex<CypherNode> selectNode = null;
     
     private boolean statusCanvasFocus = false;
     
@@ -131,8 +131,8 @@ public class FXGraph implements GraphBase {
     private NodesEdges shortestList = new NodesEdges();
     
     private boolean shortestMode = false;
-    private SmartGraphVertex<CyperNode> startVertex;
-    private SmartGraphVertex<CyperNode> endVertex;
+    private SmartGraphVertex<CypherNode> startVertex;
+    private SmartGraphVertex<CypherNode> endVertex;
     
     private ShortestGuideBox guideBox;
     private DesignBox designBox;
@@ -280,7 +280,7 @@ public class FXGraph implements GraphBase {
     
     private void setGraphViewListener() {
         graphView.setVertexDoubleClickAction(
-                (SmartGraphVertex<CyperNode> graphVertex) -> {
+                (SmartGraphVertex<CypherNode> graphVertex) -> {
                     if (shortestMode) {
                         if (isEmptyStartVertex()) {
                             startVertex = graphVertex;
@@ -311,9 +311,9 @@ public class FXGraph implements GraphBase {
                         selectNode = graphVertex;
                         graphView.doHighlightVertexStyle(graphVertex);
 
-                        if (graphVertex.getUnderlyingVertex().element() instanceof CyperNode) {
-                            CyperNode node =
-                                    (CyperNode) graphVertex.getUnderlyingVertex().element();
+                        if (graphVertex.getUnderlyingVertex().element() instanceof CypherNode) {
+                            CypherNode node =
+                                    (CypherNode) graphVertex.getUnderlyingVertex().element();
                             String ID = node.getID();
                             if (nodeIDConsumer == null) {
                                 return;
@@ -326,9 +326,9 @@ public class FXGraph implements GraphBase {
         graphView.setEdgeDoubleClickAction(graphEdge -> {});
 
         graphView.setVertexSelectAction(
-                (SmartGraphVertex<CyperNode> graphVertex) -> {
-                    if (graphVertex.getUnderlyingVertex().element() instanceof CyperNode) {
-                        CyperNode node = (CyperNode) graphVertex.getUnderlyingVertex().element();
+                (SmartGraphVertex<CypherNode> graphVertex) -> {
+                    if (graphVertex.getUnderlyingVertex().element() instanceof CypherNode) {
+                        CypherNode node = (CypherNode) graphVertex.getUnderlyingVertex().element();
                         String ID = node.getID();
                         if (nodeIDConsumer == null) {
                             return;
@@ -340,8 +340,8 @@ public class FXGraph implements GraphBase {
 
         graphView.setEdgeSelectAction(
                 graphEdge -> {
-                    if (graphEdge.getUnderlyingEdge().element() instanceof CyperEdge) {
-                        CyperEdge edge = (CyperEdge) graphEdge.getUnderlyingEdge().element();
+                    if (graphEdge.getUnderlyingEdge().element() instanceof CypherEdge) {
+                        CypherEdge edge = (CypherEdge) graphEdge.getUnderlyingEdge().element();
                         String ID = edge.getID();
                         if (edgeIDConsumer == null) {
                             return;
@@ -451,22 +451,22 @@ public class FXGraph implements GraphBase {
     		nodesGroup.put(label, ramdomColor());
     	}
     	String fillColor = nodesGroup.get(label);
-    	CyperNode node = new CyperNode(id, label, attr, fillColor);
+    	CypherNode node = new CypherNode(id, label, attr, fillColor);
     	Object v = graph.insertVertex(node);
-    	dataModel.putNode(id, label, (Vertex<CyperNode>)v);
+    	dataModel.putNode(id, label, (Vertex<CypherNode>)v);
         return v;
     }
 
     @Override
     public Object addEdge(String id, String label, String startNodeID, String endNodeID,
             HashMap<String, String> attr) {
-    	CyperEdge edge = new CyperEdge(id, label, attr, startNodeID, endNodeID);
+    	CypherEdge edge = new CypherEdge(id, label, attr, startNodeID, endNodeID);
     	Object e = graph.insertEdge(dataModel.getNode(startNodeID), dataModel.getNode(endNodeID), edge);
-    	dataModel.putEdge(id, label, (FxEdge<CyperEdge, CyperNode>)e);
+    	dataModel.putEdge(id, label, (FxEdge<CypherEdge, CypherNode>)e);
         return e;
     }
 
-    private boolean removeNode(SmartGraphVertex<CyperNode> node) {
+    private boolean removeNode(SmartGraphVertex<CypherNode> node) {
     	if (node != null) {
 	    	graph.removeVertex(node.getUnderlyingVertex());
 	    	return true;
@@ -475,16 +475,16 @@ public class FXGraph implements GraphBase {
     	return false;
     }
     
-    private Vertex<CyperNode> restoreNode(SmartGraphVertex<CyperNode> node, double x, double y) {
+    private Vertex<CypherNode> restoreNode(SmartGraphVertex<CypherNode> node, double x, double y) {
     	if (node != null) {
     		node.getUnderlyingVertex().element().setLastPosition(x, y);
-    		Vertex<CyperNode> v = graph.insertVertex(node.getUnderlyingVertex().element());
+    		Vertex<CypherNode> v = graph.insertVertex(node.getUnderlyingVertex().element());
 	    	return v;
     	}
     	return null;
     }
     
-    private boolean restoreEdge(CyperEdge edge) {
+    private boolean restoreEdge(CypherEdge edge) {
     	if (edge != null) {
     		graph.insertEdge(dataModel.getNode(edge.getStartNodeID()), dataModel.getNode(edge.getEndNodeID()), edge);
 	    	return true;
@@ -843,11 +843,11 @@ public class FXGraph implements GraphBase {
 		if (undoList.size() != 0) {
 			int idx = undoList.size() -1;
 			DeleteGraphElement deleteModel = undoList.get(idx); 
-			Vertex<CyperNode> vertex = restoreNode(deleteModel.getNode(), deleteModel.getPositionX(), deleteModel.getPositionY());
+			Vertex<CypherNode> vertex = restoreNode(deleteModel.getNode(), deleteModel.getPositionX(), deleteModel.getPositionY());
 			deleteModel.setVertex(vertex);
-			Iterator<FxEdge<CyperEdge, CyperNode>> itr = deleteModel.getEdges().iterator();
+			Iterator<FxEdge<CypherEdge, CypherNode>> itr = deleteModel.getEdges().iterator();
 			while(itr.hasNext()) {
-				CyperEdge cyperEdge = itr.next().element();
+				CypherEdge cyperEdge = itr.next().element();
 				restoreEdge(cyperEdge);
 			}
 			
@@ -1025,13 +1025,13 @@ public class FXGraph implements GraphBase {
 	
 	private void unShortestMode() {
 		if (shortestList != null) {
-			for(Vertex<CyperNode> node : shortestList.getNodes()) {
+			for(Vertex<CypherNode> node : shortestList.getNodes()) {
 				graphView.getStylableVertex(node).setStyle(SmartStyleProxy.DEFAULT_VERTEX + node.element().getFillColor());
 			}
 					
 					
-			for(FxEdge<CyperEdge, CyperNode> edge : shortestList.getEdges()) {
-				CyperEdge cyperEdge = edge.element();
+			for(FxEdge<CypherEdge, CypherNode> edge : shortestList.getEdges()) {
+				CypherEdge cyperEdge = edge.element();
 				graphView.getStylableEdge(edge).setStyle(
 						SmartStyleProxy.getEdgeStyleInputValue(
 								cyperEdge.getLineColor(), 
@@ -1068,12 +1068,12 @@ public class FXGraph implements GraphBase {
 		return false;
 	}
 	
-	private Set<String> getincidentEdgesProperies(Vertex<CyperNode> vertex) {
-		Collection<FxEdge<CyperEdge, CyperNode>> edges;
+	private Set<String> getincidentEdgesProperies(Vertex<CypherNode> vertex) {
+		Collection<FxEdge<CypherEdge, CypherNode>> edges;
 		Set<String> properties = new HashSet <>();
 		if (vertex != null) {
 			edges = graph.incidentEdges(vertex);
-			for (FxEdge<CyperEdge, CyperNode> edge : edges) {
+			for (FxEdge<CypherEdge, CypherNode> edge : edges) {
 				properties.addAll(edge.element().getProperties().keySet());
 			}
 			
@@ -1089,11 +1089,11 @@ public class FXGraph implements GraphBase {
 		return dataModel;
 	}
 	
-	public SmartGraphPanel<CyperNode, CyperEdge> getGraphView() {
+	public SmartGraphPanel<CypherNode, CypherEdge> getGraphView() {
 		return graphView;
 	}
 	
-	public TurboGraphList<CyperNode, CyperEdge> getGraph() {
+	public TurboGraphList<CypherNode, CypherEdge> getGraph() {
 		return graph;
 	}
 	

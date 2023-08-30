@@ -48,7 +48,7 @@ GQL (Graph Query Language)
 GQL은 속성(Property) 그래프를 위한 질의 언어이다.
 SQL을 보완하기 위한 독립 실행형 그래프 질의 언어로 기존 OpenCypher, PGQL, G-CORE등에 언어에서 입증된 아이디어를 통해 공식 ISO프로젝트로 차세대 선언적 그래프 질의 표준을 개발 진행 중에 있다.
 
-본 과제에서는 OpenCyper를 사용하며 자동 완성 기능등이 제공 될 것이다.
+본 과제에서는 OpenCypher를 사용하며 자동 완성 기능등이 제공 될 것이다.
 
 .. image:: /images/gql.png
 

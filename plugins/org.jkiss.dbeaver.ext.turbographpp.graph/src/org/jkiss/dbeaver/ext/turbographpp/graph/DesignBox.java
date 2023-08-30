@@ -19,8 +19,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperEdge;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CyperNode;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.DisplayType;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.GraphDataModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
@@ -292,9 +292,9 @@ public class DesignBox extends MoveBox {
     }
     
     public void setSelectItem(Object item) {
-        if (item instanceof CyperNode) {
+        if (item instanceof CypherNode) {
         	nodeSelectItem = item;
-            CyperNode node = (CyperNode) item;
+            CypherNode node = (CypherNode) item;
             DisplayType type = node.getDisplayType();
 
             int labelIndex = nodeLableList.indexOf(node.getLabel());
@@ -322,7 +322,7 @@ public class DesignBox extends MoveBox {
             }
         } else {
         	edgeSelectItem = item;
-        	CyperEdge edge = (CyperEdge) item;
+        	CypherEdge edge = (CypherEdge) item;
         	
         	int index = edgeTypeList.indexOf(edge.getType());
             if (index != -1) {
@@ -390,8 +390,8 @@ public class DesignBox extends MoveBox {
 
     private void nodeApplyUpdate() {
     	if (nodeSelectItem != null) {
-            if (nodeSelectItem instanceof CyperNode) {
-                CyperNode node = (CyperNode) nodeSelectItem;
+            if (nodeSelectItem instanceof CypherNode) {
+                CypherNode node = (CypherNode) nodeSelectItem;
                 compareItem();
                 if (ChangeItem.isChanged()) {
                     Iterator<String> iterator =
@@ -399,8 +399,8 @@ public class DesignBox extends MoveBox {
                     final int selecetIndex = displayType.getSelectionIndex();
                     while (iterator.hasNext()) {
                         String id = iterator.next();
-                        Vertex<CyperNode> vertex = graph.getDataModel().getNode(id);
-                        CyperNode saveNode = vertex.element();
+                        Vertex<CypherNode> vertex = graph.getDataModel().getNode(id);
+                        CypherNode saveNode = vertex.element();
                         if (ChangeItem.changedRadius) {
                             saveNode.setRadius(radius.getSelection() / 10);
                             graph.getGraphView()
@@ -450,14 +450,14 @@ public class DesignBox extends MoveBox {
     }
     private void edgeApplyUpdate() {
         if (edgeSelectItem != null) {
-            	CyperEdge edge = (CyperEdge) edgeSelectItem;
+            	CypherEdge edge = (CypherEdge) edgeSelectItem;
             	Iterator<String> iterator =
                         graph.getDataModel().getEdgeTypeList(edge.getType()).iterator();
                 final int selecetIndex = edgeTypeList.getSelectionIndex();
                 while (iterator.hasNext()) {
                     String id = iterator.next();
-                    FxEdge<CyperEdge, CyperNode> fxEdge = graph.getDataModel().getEdge(id);
-                    CyperEdge saveEdge = fxEdge.element();
+                    FxEdge<CypherEdge, CypherNode> fxEdge = graph.getDataModel().getEdge(id);
+                    CypherEdge saveEdge = fxEdge.element();
                     String color = ColorToString(lineColor.getBackground());
                     saveEdge.setLineColor(color);
                     
@@ -488,8 +488,8 @@ public class DesignBox extends MoveBox {
 
     private void compareItem() {
         ChangeItem.resetStatus();
-        if (nodeSelectItem instanceof CyperNode) {
-            CyperNode node = (CyperNode) nodeSelectItem;
+        if (nodeSelectItem instanceof CypherNode) {
+            CypherNode node = (CypherNode) nodeSelectItem;
             if (node.getRadius() * 10 != radius.getSelection()) {
                 ChangeItem.changedRadius = true;
             }
@@ -570,7 +570,7 @@ public class DesignBox extends MoveBox {
         	if (nodeLableList.getItemCount() > 0) {
         		String label = nodeLableList.getText();
         		if (label != null) {
-        			CyperNode node = g.getNode(g.getNodeLabelList(label).get(0)).element();
+        			CypherNode node = g.getNode(g.getNodeLabelList(label).get(0)).element();
         			if (node != null) {
                 		setSelectItem(node);
                 	}
@@ -581,7 +581,7 @@ public class DesignBox extends MoveBox {
         	if (edgeTypeList.getItemCount() > 0) {
         		String type = edgeTypeList.getText();
         		if (type != null) {
-        			CyperEdge edge = g.getEdge(g.getEdgeTypeList(type).get(0)).element();
+        			CypherEdge edge = g.getEdge(g.getEdgeTypeList(type).get(0)).element();
         			if (edge != null) {
                 		setSelectItem(edge);
                 	}

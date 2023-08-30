@@ -7,27 +7,27 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 
 public class NodesEdges {
-    List<Vertex<CyperNode>> nodes;
-    List<FxEdge<CyperEdge, CyperNode>> edges;
+    List<Vertex<CypherNode>> nodes;
+    List<FxEdge<CypherEdge, CypherNode>> edges;
 
     public NodesEdges() {
         nodes = new ArrayList<>();
         edges = new ArrayList<>();
     }
 
-    public void addNode(Vertex<CyperNode> node) {
+    public void addNode(Vertex<CypherNode> node) {
         nodes.add(node);
     }
 
-    public void addEdge(FxEdge<CyperEdge, CyperNode> edge) {
+    public void addEdge(FxEdge<CypherEdge, CypherNode> edge) {
         edges.add(edge);
     }
 
-    public List<FxEdge<CyperEdge, CyperNode>> getEdges() {
+    public List<FxEdge<CypherEdge, CypherNode>> getEdges() {
         return edges;
     }
 
-    public List<Vertex<CyperNode>> getNodes() {
+    public List<Vertex<CypherNode>> getNodes() {
         return nodes;
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphProperties;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 
-public class CyperNode {
+public class CypherNode {
 
     public static final int DEFAULT_DISPLAY_TYPE_ID = 0;
     public static final int DEFAULT_DISPLAY_TYPE_LABLE = 1;
@@ -26,7 +26,7 @@ public class CyperNode {
     private DisplayType displayType = DisplayType.PROPERTY;
     private String displayPropertyName = null;
 
-    public CyperNode(String id, String label, HashMap<String, Object> property, String fillColor) {
+    public CypherNode(String id, String label, HashMap<String, Object> property, String fillColor) {
         this.id = id;
         this.label = label;
         this.display = label;
