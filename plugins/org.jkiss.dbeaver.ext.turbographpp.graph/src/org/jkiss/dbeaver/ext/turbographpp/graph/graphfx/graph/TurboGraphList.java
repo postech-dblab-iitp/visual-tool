@@ -199,7 +199,7 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public synchronized Collection<FxEdge<E, V>> incidentEdges(Vertex<V> v)
+    public synchronized Collection<FxEdge<E, V>> incomingEdges(Vertex<V> v)
             throws InvalidVertexException {
         DVertex vertex = validateVertex(v);
         return vertex.getIncomingEdges();

@@ -54,7 +54,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartCircularSortedPlacementStrategy;
+
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
@@ -66,8 +66,9 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphList;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphalgorithms.ShortestPath;
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartPlacementStrategy;
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartRandomPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartRandomPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartCircularSortedPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
 
@@ -420,23 +421,24 @@ public class FXGraph implements GraphBase {
     }
     
     public void resize(double width, double height) {
-    	graphView.setMinSize(width, height);
-    	graphView.setMaxSize(width, height);
-    	
-    	lastWidth = width;
-    	lastHeight = height;
+        graphView.setMinSize(width, height);
+        graphView.setMaxSize(width, height);
+        
+        lastWidth = width;
+        lastHeight = height;
+        graphView.setInitSize(width, height);
     }
     
     private void graphInit() {
-    	zoomManager.setDefaultZoom();
-    	graphView.init();
-    	graphView.update();
-    	layoutUpdatethread = new LayoutUpdateThread();
-    	layoutUpdatethread.start();
-    	selectNode = null;
-    	shortestMode = false;
-    	startVertex = null;
-    	endVertex = null;
+        zoomManager.setDefaultZoom();
+        graphView.init();
+        graphView.update();
+        layoutUpdatethread = new LayoutUpdateThread();
+        layoutUpdatethread.start();
+        selectNode = null;
+        shortestMode = false;
+        startVertex = null;
+        endVertex = null;
     }
     
     public void drawGraph(double width, double height) {
@@ -808,8 +810,8 @@ public class FXGraph implements GraphBase {
 	private void doDelete(boolean delete) {
 		if (selectNode != null) {
 			DeleteGraphElement deleteModel = new DeleteGraphElement(selectNode, selectNode.getPositionCenterX(), selectNode.getPositionCenterY());
-			deleteModel.addEdges(graph.incidentEdges(selectNode.getUnderlyingVertex()));
-			deleteModel.addEdges(graph.outboundEdges(selectNode.getUnderlyingVertex()));
+            deleteModel.addEdges(graph.incomingEdges(selectNode.getUnderlyingVertex()));
+            deleteModel.addEdges(graph.outboundEdges(selectNode.getUnderlyingVertex()));
 			removeNode(selectNode);
 			if (undoList.size() > 4) {
 				undoList.remove(0);
@@ -959,8 +961,8 @@ public class FXGraph implements GraphBase {
 	
 	private void setGraphScaleForCapture() {
 		if (lastHeight * lastWidth > 480000) {
-			graphView.setScaleX(800/lastWidth);
-			graphView.setScaleX(600/lastHeight);
+		    graphView.setScaleX(800 / lastWidth);
+		    graphView.setScaleY(600 / lastHeight);
 		}
 	}
 	
@@ -1072,7 +1074,7 @@ public class FXGraph implements GraphBase {
 		Collection<FxEdge<CypherEdge, CypherNode>> edges;
 		Set<String> properties = new HashSet <>();
 		if (vertex != null) {
-			edges = graph.incidentEdges(vertex);
+            edges = graph.incomingEdges(vertex);
 			for (FxEdge<CypherEdge, CypherNode> edge : edges) {
 				properties.addAll(edge.element().getProperties().keySet());
 			}

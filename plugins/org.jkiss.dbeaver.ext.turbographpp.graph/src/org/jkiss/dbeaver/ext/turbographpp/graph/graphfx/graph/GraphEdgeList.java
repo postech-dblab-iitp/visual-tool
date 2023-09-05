@@ -84,7 +84,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public Collection<FxEdge<E, V>> incidentEdges(Vertex<V> v) throws InvalidVertexException {
+    public Collection<FxEdge<E, V>> incomingEdges(Vertex<V> v) throws InvalidVertexException {
 
         checkVertex(v);
 
@@ -212,7 +212,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
         V element = v.element();
 
         //remove incident edges
-        Iterable<FxEdge<E, V>> incidentEdges = incidentEdges(v);
+        Iterable<FxEdge<E, V>> incidentEdges = incomingEdges(v);
         for (FxEdge<E, V> edge : incidentEdges) {
             edges.remove(edge.element());
         }

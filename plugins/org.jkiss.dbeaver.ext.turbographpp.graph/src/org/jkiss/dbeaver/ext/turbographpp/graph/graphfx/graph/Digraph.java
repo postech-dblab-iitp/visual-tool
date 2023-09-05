@@ -56,7 +56,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * @return            collection of edges
      */
     @Override
-    public Collection<FxEdge<E, V>> incidentEdges(Vertex<V> inbound)
+    public Collection<FxEdge<E, V>> incomingEdges(Vertex<V> inbound)
             throws InvalidVertexException;
 
     /**
