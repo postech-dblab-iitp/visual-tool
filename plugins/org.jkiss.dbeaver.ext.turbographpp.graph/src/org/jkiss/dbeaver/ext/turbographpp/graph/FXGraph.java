@@ -69,6 +69,9 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphalgorithms.Shortest
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartRandomPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartCircularSortedPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartGridPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartHorizotalTreePlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartVerticalTreePlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
 
@@ -524,18 +527,35 @@ public class FXGraph implements GraphBase {
     public void clear() {
     }
     
-	@Override
-	public void setLayoutAlgorithm(LayoutStyle layoutStyle) {
-		setAutomaticLayout(false);
-		
-		if (LayoutStyle.RADIAL == layoutStyle) {
-			graphView.setSmartPlacementStrategy(new SmartCircularSortedPlacementStrategy());
-		} else if (LayoutStyle.SPRING == layoutStyle) {
-			setAutomaticLayout(true);
-			graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());
-		}
-		
-	}
+    @Override
+    public void setLayoutAlgorithm(LayoutStyle layoutStyle) {
+        setAutomaticLayout(false);
+
+        switch (layoutStyle) {
+            case RADIAL:
+                graphView.setSmartPlacementStrategy(new SmartCircularSortedPlacementStrategy());
+                break;
+            case SPRING:
+                if (!miniMap.isShowing()) {
+                    setAutomaticLayout(true);
+                }
+                graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());
+                break;
+            case HORIZONTAL_TREE:
+                graphView.setSmartPlacementStrategy(new SmartHorizotalTreePlacementStrategy());
+                break;
+            case VERTICAL_TREE:
+                graphView.setSmartPlacementStrategy(new SmartVerticalTreePlacementStrategy());
+                break;
+            case GRID:
+                graphView.setSmartPlacementStrategy(new SmartGridPlacementStrategy());
+                break;
+            default:
+                break;
+        }
+        
+        miniMapUpdate();
+    }
 	
 	public void setDefaultLayoutAlgorithm() {
 		graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());

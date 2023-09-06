@@ -465,7 +465,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 						prvKey = tempValue[i].substring(0, idx);
 						propertyList.add(tempValue[i].substring(0, idx));
 					} else {
-						attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
+					    if (attrList.size() == 0) { //Multi Label
+					        tempValue[1] = tempValue[1] + "," + tempValue[i];
+					    } else {
+					        attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
+					    }
 					}
 				}
 			}
@@ -765,8 +769,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	}
     
     private void setShortestMode(boolean status) {
-    	visualGraph.setShortestMode(status);
-    	setColorShortestButton(status);
+        if (visualGraph != null) {
+            visualGraph.setShortestMode(status);
+            setColorShortestButton(status);
+        }
     	
     }
 
