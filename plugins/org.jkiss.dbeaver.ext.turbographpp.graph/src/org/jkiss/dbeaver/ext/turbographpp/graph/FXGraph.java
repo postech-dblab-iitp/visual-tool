@@ -1,6 +1,5 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,7 +53,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
@@ -68,14 +66,13 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphalgorithms.ShortestPath;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartRandomPlacementStrategy;
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartCircularSortedPlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartCircularGroupPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartGridPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartHorizotalTreePlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartVerticalTreePlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
-
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 
 public class FXGraph implements GraphBase {
     
@@ -223,15 +220,15 @@ public class FXGraph implements GraphBase {
 				if (miniMap.isShowing()) {
 				
 					Double hValue, vValue;
-					
+					double inParentWidth, inParentHeight;
 					lastViewportWidth = scrollPane.getViewportBounds().getWidth();
 					lastViewportHeight = scrollPane.getViewportBounds().getHeight();
-					lastWidth =  graphView.getBoundsInParent().getWidth();
-					lastHeight = graphView.getBoundsInParent().getHeight();
+					inParentWidth =  graphView.getBoundsInParent().getWidth();
+					inParentHeight = graphView.getBoundsInParent().getHeight();
 					hValue = scrollPane.getHvalue();
 					vValue = scrollPane.getVvalue();
 				
-					miniMap.setPointRectAngel(lastWidth, lastHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
+					miniMap.setPointRectAngel(inParentWidth, inParentHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
 					
 				}
 			}
@@ -529,11 +526,12 @@ public class FXGraph implements GraphBase {
     
     @Override
     public void setLayoutAlgorithm(LayoutStyle layoutStyle) {
+        resize(lastWidth, lastHeight);
         setAutomaticLayout(false);
 
         switch (layoutStyle) {
             case RADIAL:
-                graphView.setSmartPlacementStrategy(new SmartCircularSortedPlacementStrategy());
+                graphView.setSmartPlacementStrategy(new SmartCircularGroupPlacementStrategy());
                 break;
             case SPRING:
                 if (!miniMap.isShowing()) {
