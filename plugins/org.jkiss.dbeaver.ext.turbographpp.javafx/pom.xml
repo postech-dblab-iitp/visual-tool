@@ -13,7 +13,7 @@
     <packaging>eclipse-plugin</packaging>
 
     <properties>
-        <javafx-version>11.0.2</javafx-version>
+        <javafx-version>17.0.2</javafx-version>
     </properties>
 
     <build>

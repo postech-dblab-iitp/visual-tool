@@ -50,7 +50,7 @@ public class SmartStyleProxy implements SmartStylableNode {
     		+ DEFAULT_VERTEX_LABEL_SIZE 
     		+ "pt \"sans-serif\";";
     
-    public static final int DEFAULT_EDGE_LABEL_SIZE = 5;
+    public static final int DEFAULT_EDGE_LABEL_SIZE = 6;
     public static final String DEFAULT_EDGE_LABEL = "-fx-font: normal " 
     		+ DEFAULT_EDGE_LABEL_SIZE 
     		+ "pt \"sans-serif\";";
