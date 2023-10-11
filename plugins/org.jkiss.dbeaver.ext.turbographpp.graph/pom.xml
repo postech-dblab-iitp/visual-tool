@@ -24,7 +24,7 @@
                   <extraClasspathElement>
                     <groupId>org.openjfx</groupId>
                     <artifactId>javafx-controls</artifactId>
-                    <version>11.0.2</version>
+                    <version>17.0.2</version>
                   </extraClasspathElement>
                 </extraClasspathElements>
               </configuration>

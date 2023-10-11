@@ -13,6 +13,10 @@ public class GraphDataModel {
     private HashMap<String, ArrayList<String>> nodeLabelList = new HashMap<>();
     private HashMap<String, ArrayList<String>> edgeTypeList = new HashMap<>();
 
+    public HashMap<String, Vertex<CypherNode>> getNodes() {
+        return nodes;
+    }
+
     public void putNode(String id, String label, Vertex<CypherNode> node) {
     	nodes.put(id, node);
     	if (nodeLabelList.get(label) == null) {

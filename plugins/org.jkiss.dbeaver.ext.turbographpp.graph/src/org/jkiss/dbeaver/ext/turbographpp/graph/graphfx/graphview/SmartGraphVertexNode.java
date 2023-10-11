@@ -32,7 +32,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 
@@ -279,7 +278,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     private void enableDrag() {
         final PointVector dragDelta = new PointVector(0, 0);
 
-        setOnMousePressed((MouseEvent mouseEvent) -> {
+        setOnMousePressed((mouseEvent) -> {
             if (mouseEvent.isPrimaryButtonDown()) {
                 // record a delta distance for the drag and drop operation.
                 dragDelta.x = getCenterX() - mouseEvent.getX();
@@ -292,14 +291,14 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
 
         });
 
-        setOnMouseReleased((MouseEvent mouseEvent) -> {
+        setOnMouseReleased((mouseEvent) -> {
             getScene().setCursor(Cursor.HAND);
             isDragging = false;
 
             mouseEvent.consume();
         });
 
-        setOnMouseDragged((MouseEvent mouseEvent) -> {
+        setOnMouseDragged((mouseEvent) -> {
             if (mouseEvent.isPrimaryButtonDown()) {
                 double newX = mouseEvent.getX() + dragDelta.x;
                 double x = boundCenterCoordinate(newX, 0, getParent().getLayoutBounds().getWidth());
@@ -313,14 +312,14 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
 
         });
 
-        setOnMouseEntered((MouseEvent mouseEvent) -> {
+        setOnMouseEntered((mouseEvent) -> {
             if (!mouseEvent.isPrimaryButtonDown()) {
                 getScene().setCursor(Cursor.HAND);
             }
 
         });
 
-        setOnMouseExited((MouseEvent mouseEvent) -> {
+        setOnMouseExited((mouseEvent) -> {
             if (!mouseEvent.isPrimaryButtonDown()) {
                 getScene().setCursor(Cursor.DEFAULT);
             }
