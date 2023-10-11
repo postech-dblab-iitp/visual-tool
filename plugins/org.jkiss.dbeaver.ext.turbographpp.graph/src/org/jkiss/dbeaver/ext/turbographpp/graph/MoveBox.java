@@ -225,12 +225,12 @@ public class MoveBox {
 
         overlayShell.setVisible(true);
         
-//        for (Composite parent : parents) {
-//        	if (parent.getClass().equals(Composite.class)) {
+        for (Composite parent : parents) {
+        	if (parent.getClass().equals(Composite.class)) {
 //        		System.out.println("parent " + parent.toString());
-//        		parent.addPaintListener(paintListener);
-//        	}
-//        }
+        		parent.addPaintListener(paintListener);
+        	}
+        }
         
         showing = true;
     }

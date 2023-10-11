@@ -106,6 +106,10 @@ public class CypherNode {
     public Object getProperty(String key) {
         return this.property.get(key);
     }
+    
+    public String getPropertyType(String key) {
+        return this.property.get(key).getClass().getTypeName();
+    }
 
     public String toString() {
         return getDisplay();

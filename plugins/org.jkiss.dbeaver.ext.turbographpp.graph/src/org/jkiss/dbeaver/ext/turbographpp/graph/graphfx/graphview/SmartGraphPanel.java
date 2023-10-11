@@ -46,7 +46,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.geometry.Point2D;
@@ -1172,7 +1171,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     private void enableMouseListener() {
-        setOnMouseClicked((MouseEvent mouseEvent) -> {
+        setOnMouseClicked((mouseEvent) -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
 
             	Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
@@ -1224,7 +1223,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             }
         });
         
-        setOnMouseMoved((MouseEvent mouseEvent) -> {
+        setOnMouseMoved((mouseEvent) -> {
         	Node node = mouseEvent.getPickResult().getIntersectedNode();
         	if (node instanceof SmartGraphVertex) {
         		vertexPosionX = ((SmartGraphVertex) node).getPositionCenterX();
