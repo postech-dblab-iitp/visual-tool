@@ -1,26 +1,84 @@
-Visual-Tool For IITP GDBMS [Project 비트(ViT)] 
-======
-IITP-차세대 DBMS 과제 중 GDBMS를 위한 시각화 도구를 개발하기 위한 것이다.    
-시각화 도구는 DBeaver( https://github.com/dbeaver/dbeaver )를 Base (v21.2.2)로  
-Gephi 등 Open Source Lib를 사용하여 확장하여 개발하는 것을 목표로 한다.  
+[![English](
+https://img.shields.io/badge/language-English-orange.svg)](README_EN.md)
+[![Korean](
+https://img.shields.io/badge/language-Korean-blue.svg)](README.md)
+
+## GDBMS Visual-Tool For TurboGraph++ 
+
+ViT (Visual Tool)는 대화형 환경에서 그래프 DBMS에 질의를 수행하고 결과를 시각적으로 표현하고 분석할 수 있는 위한 프로그램이다.
+
+ViT는 다양한 DBMS를 지원하는 오픈 소스 도구인 DBeaver v21.2.2 ( https://github.com/dbeaver/dbeaver ) 기반으로 그래프 DBMS의 결과를 시각화하기 위해 Gephi 등의 추가 오픈 소스를 사용하여 개발되었다.
+
+그래프 DBMS를 위해 추가된 기능은 다음과 같다.
+
+* 연결 부분 : 그래프 DBMS 연결 및 연결 테스트
+* 네비게이션 부분 : 연결된 그래프 DB의 정점과 간선 정보 표시
+* 질의 창  : 연결된 그래프 DB의 질의 작성 및 요청
+* 시각화 창
+   - 질의의 결과를 그래프로 시각화 표현 (정점, 간선 및 레이블 표시)
+   - 그래프 편집 (이동, 하이라이트, 속성 변경 등)
+   - 미니맵 
+   - 레이아웃 변경
+   - 분석 기능 (shortest path 등) 
+
 개발 관련 문서등은 ViT_docs 폴더에서 관리된다.
 
-* 1차년도 개발 계획 (2021년도) - 관련 연구 조사및 분석, 시각화 주요 기능 정의, 구조분석 및 설계
-  - 시각화 도구 개발 위한 GDBMS 관련 사항 Survey (~9월27일)  
-    1. 그래프 DBMS 전반적인 사항
-    2. 타 그래프 DBMS의 도구
-    3. Open Source Graph Library
-  - 요구사항 명세서 작성 (~10월13일)
-  - 기초 구조 설계 (~10월29일)
-  - 화면 설계 (~11월19일)
-  - Task단위 모듈 정의 (~12월10일)
-  - WBS 작성 (~12월17일)
-  - 최종 마무리 (~12월24일)
+## 시작하기
 
-* 2차년도 개발 계획 (2022년도) - GDBMS 질의 결과 시각화 방안 개발
-* 3차년도 개발 계획 (2023년도) - GDBMS 시각화 도구의 선택, 검색 및 확장/축소 기능 개발
-* 4차년도 개발 계획 (2024년도) - 시각화 도구 최적화 작업 및 실증 평가
+ViT는 리눅스 환경에서 소스 코드를 다운로드 받은 후 빌드 스크립트를 통해 빌드할 수 있다.
 
-### 참고 사항
-  - [DBEAVER README](DBEAVER_README.md)
- 
+## 소스 다운로드
+
+```
+git https://github.com/postech-dblab-iitp/visual-tool.git
+```
+
+## 프로그램 빌드
+
+### 빌드 요구 사항
+
+현재 ViT의 빌드는 Linux 환경에서만 지원한다.
+
+빌드에 필요한 프로그램은 다음과 같다
+
+ - JDK 11
+ - Apache Maven 3.8.6+
+ - git
+ - 인터넷 연결
+
+
+## 빌드 실행 방법
+
+```
+git clone https://github.com/postech-dblab-iitp/visual-tool.git
+cd visual-tool
+sh build.sh
+```
+
+## 참고 사항
+
+- DBeaver
+    - https://github.com/dbeaver/dbeaver.git
+
+
+## 라이센스
+
+- Apache license 2.0
+
+### 프로젝트 디렉토리
+
+- ViT_Manual/ : rst 형태의 ViT 메뉴얼
+- ViT_docs/ : ViT 설계 문서
+- bundles/ : 기본 플러그인
+- docs/ : 원본 DBeaver 문서
+- features/ : 프로그램의 plugin, dependencies를 구조화 하는데 사용
+- gephi-toolkit/ : 그래프 표시에 사용되는 시각화 라이브러리
+- plugins/ : 원본 소스, 상세 내용은 DBeaver wiki 참조 ( https://github.com/dbeaver/dbeaver/wiki/Develop-in-Eclipse) 
+- product/ : 최종 프로그램의 설정
+- test/ : 원본 DBeaver test 코드
+
+## 도움 받기
+
+http://jira.iitp.cubrid.org/secure/Dashboard.jspa
+
+버그, 개선 사항, 질문이 있는 경우 위 jira에 내용을 남기면 지원을 받을 수 있다.
