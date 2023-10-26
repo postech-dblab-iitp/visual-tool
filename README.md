@@ -27,6 +27,8 @@ ViT는 다양한 DBMS를 지원하는 오픈 소스 도구인 DBeaver v21.2.2 ( 
 
 ViT는 리눅스 환경에서 소스 코드를 다운로드 받은 후 빌드 스크립트를 통해 빌드할 수 있다.
 
+Vit 사용 방법등은 [사용자 메뉴얼](https://hwany7seo.github.io/vit_manual/start.html)을 참고 할 수 있다.
+
 ## 소스 다운로드
 
 ```
@@ -60,6 +62,8 @@ sh build.sh
 - DBeaver
     - https://github.com/dbeaver/dbeaver.git
 
+- User Manual
+    - https://hwany7seo.github.io/vit_manual
 
 ## 라이센스
 
