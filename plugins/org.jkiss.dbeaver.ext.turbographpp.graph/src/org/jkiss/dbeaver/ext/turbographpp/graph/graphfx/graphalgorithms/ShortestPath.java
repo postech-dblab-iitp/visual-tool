@@ -43,7 +43,9 @@ public class ShortestPath {
         digraph.setlastWeight(0);
         digraph.clearLastPathString();
 
-        dijkstra(digraph, startVertex, endVertex, d, weight, propertyName);
+        if (!dijkstra(digraph, startVertex, endVertex, d, weight, propertyName)) {
+            return null;
+        }
 
         digraph.setlastWeight(weight[0]);
 

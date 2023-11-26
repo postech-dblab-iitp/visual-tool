@@ -21,7 +21,7 @@
     <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -showsplash"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+IgnoreUnrecognizedVMOptions --add-modules=ALL-SYSTEM -Xms64m -Xmx1024m -Dsun.java2d.opengl=true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+IgnoreUnrecognizedVMOptions --add-modules=ALL-SYSTEM -Xms64m -Xmx1024m -Dsun.java2d.opengl=true -Dosgi.framework.extensions=org.eclipse.fx.osgi -Defxclipse.java-modules.dir=${workspace_loc:org.jkiss.dbeaver.ext.turbographpp.graph/lib/javafx} -Dprism.verbose=true"/>
     <stringAttribute key="pde.version" value="3.3"/>
     <stringAttribute key="product" value="org.jkiss.dbeaver.ui.app.standalone.product"/>
     <stringAttribute key="productFile" value="\org.jkiss.dbeaver.ce.standalone\DBeaver.product"/>
@@ -335,6 +335,7 @@
         <setEntry value="org.jkiss.dbeaver.ext.teradata@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.turbographpp.ui@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.turbographpp@default:default"/>
+        <setEntry value="org.jkiss.dbeaver.ext.turbographpp.graph@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.ui.colortheme@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.ui.locks@default:default"/>
         <setEntry value="org.jkiss.dbeaver.ext.ui.svg@default:default"/>

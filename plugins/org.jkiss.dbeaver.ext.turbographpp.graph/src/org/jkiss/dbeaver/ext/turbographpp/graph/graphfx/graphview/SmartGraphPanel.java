@@ -404,7 +404,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private synchronized void updateNodes() {
         removeNodes();
         insertNodes();
-        updateLabels();
+        //updateLabels();
     }
 
     public synchronized void updateLabel() {

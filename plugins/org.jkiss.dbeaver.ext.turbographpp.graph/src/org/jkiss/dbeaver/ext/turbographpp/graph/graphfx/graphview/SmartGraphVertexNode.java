@@ -342,8 +342,10 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
+        cutLabel();
         label.xProperty().bind(centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2.0 ));
         label.yProperty().bind(centerYProperty().add(label.getLayoutBounds().getHeight() / 2.0));
+        attachedLabel.layoutBoundsProperty().addListener(labelBoundsChangeListener);
     }
 
     @Override
@@ -391,13 +393,14 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     
     @Override
     public synchronized void updateLabelText() {
-    	attachedLabel.setText(underlyingVertex.element().toString());
+        String label = underlyingVertex.element().toString();
+        attachedLabel.setText(label);
+        cutLabel();
     }
     
     @Override
     public synchronized void updateLabelPosition() {
     	needlabelUpdate = true;
-    	attachedLabel.layoutBoundsProperty().addListener(labelBoundsChangeListener);
     }
     
     /**
@@ -411,6 +414,19 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         public PointVector(double x, double y) {
             this.x = x;
             this.y = y;
+        }
+    }
+    
+    private void cutLabel() {
+        if (attachedLabel != null) {
+            double nodeWidth = this.getLayoutBounds().getWidth();
+            double labelWidth = attachedLabel.getLayoutBounds().getWidth();
+            
+            if (nodeWidth < labelWidth) {
+                double oneTextSize = labelWidth / attachedLabel.getText().length();
+                attachedLabel.setText(attachedLabel.getText().
+                        substring(0, (int)(nodeWidth/oneTextSize - 1)) + ".");
+            }
         }
     }
 }

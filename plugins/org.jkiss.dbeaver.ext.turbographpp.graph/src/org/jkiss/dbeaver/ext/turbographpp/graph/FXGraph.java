@@ -291,8 +291,11 @@ public class FXGraph implements GraphBase {
                         } else if (isEmptyEndVertex()) {
                             endVertex = graphVertex;
                             graphView.doHighlightVertexStyle(endVertex);
-                            runShortest(guideBox.getSelectedProperty());
-                            guideBox.setText("Please Select StartNode(Vertex)\n"
+                            String result = "";
+                            if (!runShortest(guideBox.getSelectedProperty())) {
+                                result = "Shortest Path does not exist.\n";
+                            }
+                            guideBox.setText(result + "Please Select StartNode(Vertex)\n"
                             		+ "path Count = " + graph.getPathCount() + " weight = " + graph.getLastWeight() + "\n"
                             		+ graph.getLastPathString());
                         } else {
@@ -675,7 +678,7 @@ public class FXGraph implements GraphBase {
 			
 			if (miniMap.isShowing()) {
 				try {
-					Thread.sleep(300);
+					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -1029,17 +1032,19 @@ public class FXGraph implements GraphBase {
 		return shortestMode;
 	}
 	
-	public void runShortest(String propertyName) {
+	public boolean runShortest(String propertyName) {
 		if(startVertex != null && endVertex != null) {
 			shortestList = ShortestPath.start(graph, graphView, startVertex.getUnderlyingVertex(), endVertex.getUnderlyingVertex(), propertyName);
-			if (shortestList.getEdges().size() == 0) {
-				guideBox.setText("Path is not exist");
+			if (shortestList == null || shortestList.getEdges().size() == 0) {
 				graphView.getStylableVertex(startVertex.getUnderlyingVertex()).setStyle(SmartStyleProxy.DEFAULT_VERTEX + startVertex.getUnderlyingVertex().element().getFillColor());
 				graphView.getStylableVertex(endVertex.getUnderlyingVertex()).setStyle(SmartStyleProxy.DEFAULT_VERTEX + endVertex.getUnderlyingVertex().element().getFillColor());
-				
+				return false;
+			} else {
+			    return true;
 			}
         } else{
         	guideBox.setText("Please select two vertices to compute the shortest path between them.\n\n");
+        	return false;
         }
 	}
 	
