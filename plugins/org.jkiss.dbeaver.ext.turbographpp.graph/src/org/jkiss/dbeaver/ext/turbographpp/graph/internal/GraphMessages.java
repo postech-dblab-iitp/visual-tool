@@ -35,6 +35,10 @@ public class GraphMessages extends NLS {
 	public static String designbox_title; 
 	public static String designbox_table_col_item;
 	public static String designbox_table_col_value;
+	public static String graphbox_title;
+	public static String graphbox_radio_by_visualGraph;
+	public static String graphbox_radio_by_all;
+	public static String graphbox_radio_by_query;
 
 
     static {

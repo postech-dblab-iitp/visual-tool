@@ -73,6 +73,7 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartVe
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
+import org.jkiss.dbeaver.model.DBPDataSource;
 
 public class FXGraph implements GraphBase {
     
@@ -137,9 +138,17 @@ public class FXGraph implements GraphBase {
     
     private ShortestGuideBox guideBox;
     private DesignBox designBox;
+    private GraphChart chartBox;
+    
+    private DBPDataSource parentDataSource;
     
     public FXGraph(Composite parent, int style) {
-        control = parent;
+    	this(parent, style, null);
+    }
+    
+    public FXGraph(Composite parent, int style, DBPDataSource dataSource) {
+        this.control = parent;
+        this.parentDataSource = dataSource; 
         //this default option are true then fx thread issue when changed Presentation.
         Platform.setImplicitExit(false);
 
@@ -177,6 +186,8 @@ public class FXGraph implements GraphBase {
         
         designBox = new DesignBox(canvas, this);
         
+        chartBox = new GraphChart(canvas, this, parentDataSource);
+        
         parent.addDisposeListener(new DisposeListener() {
 			
 			@Override
@@ -191,6 +202,10 @@ public class FXGraph implements GraphBase {
 				
 				if (designBox != null) {
 					designBox.remove();
+				}
+				
+				if (chartBox != null) {
+				    chartBox.remove();
 				}
 			}
 		});
@@ -450,11 +465,16 @@ public class FXGraph implements GraphBase {
     }
 
     @Override
-    public Object addNode(String id, String label, HashMap<String, Object> attr, Color color) {
+    public Object addNode(String id, String label, HashMap<String, Object> attr) {
     	//For Group Color
     	if (nodesGroup.get(label) == null) {
     		nodesGroup.put(label, ramdomColor());
     	}
+    	
+    	if (dataModel.getNode(id) != null) {
+    	    return null;
+    	}
+    	
     	String fillColor = nodesGroup.get(label);
     	CypherNode node = new CypherNode(id, label, attr, fillColor);
     	Object v = graph.insertVertex(node);
@@ -465,6 +485,10 @@ public class FXGraph implements GraphBase {
     @Override
     public Object addEdge(String id, String label, String startNodeID, String endNodeID,
             HashMap<String, String> attr) {
+        if (dataModel.getEdge(id) != null) {
+            return null;
+        }
+        
     	CypherEdge edge = new CypherEdge(id, label, attr, startNodeID, endNodeID);
     	Object e = graph.insertEdge(dataModel.getNode(startNodeID), dataModel.getNode(endNodeID), edge);
     	dataModel.putEdge(id, label, (FxEdge<CypherEdge, CypherNode>)e);
@@ -521,6 +545,8 @@ public class FXGraph implements GraphBase {
         graph.clearElement();
         graphView.clear();
         nodesGroup.clear();
+        
+        subClose();
     }
 
     @Override
@@ -817,7 +843,6 @@ public class FXGraph implements GraphBase {
 		if (contextMenu != null) {
 			contextMenu.hide();	
 		}
-		
 	}
 	
 	private void clearSelectNode() {
@@ -1125,5 +1150,31 @@ public class FXGraph implements GraphBase {
 	public void designEditorShow() {
 		designBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
 	}
+	
+	public void chartShow() {
+	    chartBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
+	}
+	
+	public void setCurrentQuery(String query, int rowCount) {
+	    chartBox.setCurrentQuery(query, rowCount);
+	}
+	
+//	public void updateChart(HashMap<String, Object> data) {
+//        Platform.runLater(
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        chartBox.updateChart(data);
+//                    }
+//                });
+//   
+//	}
+
+	private void subClose() {
+		if (chartBox != null) chartBox.remove();
+		if (designBox != null) designBox.remove();
+		if (guideBox != null) guideBox.remove();
+	}
+	
 }
 

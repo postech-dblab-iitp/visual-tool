@@ -1,6 +1,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseWheelListener;
@@ -51,7 +52,7 @@ public interface GraphBase {
 	public void addMouseWheelListener(MouseWheelListener mouseWheelListener);
 	
     public Control getGraphModel();
-    public Object addNode(String id, String label, HashMap<String, Object> attr, Color color);
+    public Object addNode(String id, String label, HashMap<String, Object> attr);
     public Object addEdge(String id, String label, String startNodeID, String endNodeID, HashMap<String, String> attr);
     public boolean setHighlight(String nodeID);
     public boolean unHighlight();
@@ -59,4 +60,11 @@ public interface GraphBase {
     public void clearGraph();
     public void clear();
     public void finalize();
+    
+    public void setVertexSelectAction(Consumer<String> action);
+    public void setEdgeSelectAction(Consumer<String> action);
+    public void setDefaultLayoutAlgorithm();
+    public void drawGraph(double width, double height);
+    public int getNumNodes();
+    public int getNumEdges();
 }

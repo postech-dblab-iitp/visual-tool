@@ -114,7 +114,7 @@ public class TurboGraphPPEdge implements DBSObject, DBPRefreshableObject, DBPSav
         }
        
         try (JDBCSession session = DBUtils.openMetaSession(monitor, this, "Load Edges Propeties")) {
-            String gql = "Match (n)-[r]->(m) where type(r) = '" + edgeType + "' Return keys(r)";
+            String gql = "Match (n)-[r]->(m) where type(r) = '" + edgeType + "' Return DISTINCT keys(r)";
             try (JDBCPreparedStatement dbStat = session.prepareStatement(gql)) {
                 try (JDBCResultSet dbResult = dbStat.executeQuery()) {
                     //List<TurboGraphPPEdge> edgeList = new ArrayList<>();

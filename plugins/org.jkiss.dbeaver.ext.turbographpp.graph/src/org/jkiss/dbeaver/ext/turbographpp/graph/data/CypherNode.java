@@ -35,7 +35,14 @@ public class CypherNode {
         this.lastPositionX = -1;
         this.lastPositionY = -1;
         if (property != null) {
-            this.property.putAll(property);
+            for (String importKey : property.keySet()) {
+                if ( property.get(importKey) instanceof String) {
+                    this.property.put(importKey, 
+                            String.valueOf(property.get(importKey)).strip());
+                } else {
+                    this.property.put(importKey,property.get(importKey));
+                }
+            }
         }
         List<String> keyList = new ArrayList<>(property.keySet());
         Collections.sort(keyList);
