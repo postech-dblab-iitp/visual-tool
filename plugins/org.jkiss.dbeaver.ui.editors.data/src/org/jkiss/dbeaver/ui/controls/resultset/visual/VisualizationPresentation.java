@@ -18,6 +18,8 @@
 package org.jkiss.dbeaver.ui.controls.resultset.visual;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
@@ -32,7 +34,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -49,13 +50,20 @@ import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.ModelPreferences;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.GraphBase.LayoutStyle;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.GephiModel;
+import org.jkiss.dbeaver.ext.turbographpp.graph.chart.jobs.GetChartInfoQueryJob;
 import org.jkiss.dbeaver.model.DBConstants;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.data.DBDAttributeBinding;
 import org.jkiss.dbeaver.model.data.DBDDisplayFormat;
+import org.jkiss.dbeaver.model.exec.DBCException;
+import org.jkiss.dbeaver.model.exec.jdbc.JDBCPreparedStatement;
+import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
+import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
 import org.jkiss.dbeaver.model.impl.data.DBDValueError;
+import org.jkiss.dbeaver.model.impl.jdbc.JDBCUtils;
 import org.jkiss.dbeaver.model.preferences.DBPPreferenceStore;
+import org.jkiss.dbeaver.model.runtime.AbstractJob;
+import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.ui.DBeaverIcons;
 import org.jkiss.dbeaver.ui.UIIcon;
 import org.jkiss.dbeaver.ui.UIStyles;
@@ -64,20 +72,32 @@ import org.jkiss.dbeaver.ui.controls.resultset.*;
 import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 public class VisualizationPresentation extends AbstractPresentation implements IAdaptable {
 
+    private IResultSetController controller;
 	// for Other ImageButton
-	private enum ImageButton {
-		SHORTEST, DESIGN, CAPTURE, TO_CSV
-	}
-	
+    private enum ImageButton {
+        SHORTEST,
+        DESIGN,
+        CHART,
+        CAPTURE,
+        TO_CSV
+    }
+
 	private Composite composite;
 	private Composite mainComposite;
 	private Composite menuBarComposite;
@@ -88,8 +108,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	public boolean activated;
 	private boolean showNulls;
 	private Font monoFont;
-	private GephiModel gephiModel = new GephiModel();
-	
+
 	private FXGraph visualGraph;
 	
 	private CoolBar coolBar;
@@ -98,8 +117,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	private Button shortestButton;
 	
-	private Color[] colors;
-	private HashSet<String> propertyList = new HashSet<>();
+    private HashSet<Object> propertyList = new HashSet<>();
 	private HashMap<String, DBDAttributeBinding> DBDAttributeNodeList = new HashMap<>();
 	private HashMap<String, DBDAttributeBinding> DBDAttributeEdgeList = new HashMap<>();
 	private HashMap<String, ResultSetRow> resultSetRowNodeList = new HashMap<>();
@@ -109,14 +127,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	
 	private boolean init = false;
 	
+    private String currentQuery = "";
 	@Override
-	public void createPresentation(@NotNull final IResultSetController controller, @NotNull Composite parent) {
-		super.createPresentation(controller, parent);
+    public void createPresentation(
+            @NotNull final IResultSetController controller, @NotNull Composite parent) {
+        super.createPresentation(controller, parent);
 
-		colors = new Color[] { new Color(new RGB(158, 204, 255)), new Color(new RGB(204, 178, 255)),
-				new Color(new RGB(204, 255, 255)), new Color(new RGB(102, 255, 178)), new Color(new RGB(192, 192, 192)),
-				new Color(new RGB(204, 255, 102)), new Color(new RGB(255, 255, 153)), new Color(new RGB(255, 153, 153)),
-				new Color(new RGB(204, 255, 103)), new Color(new RGB(255, 153, 255)), };
+        this.controller = controller;
+
 		composite = parent;
 		GridLayout layout = new GridLayout(1, false);
         layout.marginHeight = 5;
@@ -138,7 +156,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         addMenuCoolbar(menuBarComposite);
 
-		visualGraph = new FXGraph(graphTopComposite, SWT.NONE);
+		visualGraph = new FXGraph(graphTopComposite, SWT.NONE, controller.getDataContainer().getDataSource());
 		visualGraph.setCursor(graphTopComposite.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
 		visualGraph.setForeground(UIStyles.getDefaultTextForeground());
 		visualGraph.setBackground(UIStyles.getDefaultTextBackground());
@@ -149,7 +167,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		
 		createHorizontalLine(parent, 1, 0); 
 
-		TextEditorUtils.enableHostEditorKeyBindingsSupport(controller.getSite(), visualGraph.getControl());
+        TextEditorUtils.enableHostEditorKeyBindingsSupport(
+                controller.getSite(), visualGraph.getControl());
 		applyCurrentThemeSettings();
 
 		if (visualGraph != null) {
@@ -206,10 +225,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	@Override
 	public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
 		if (refreshMetadata) {
-			if (gephiModel != null) {
-    			gephiModel.clear();
-    			gephiModel.clearGraph(visualGraph);
-			}
+            if (visualGraph != null) {
+                visualGraph.clearGraph();
+            }
 			setShortestMode(false);
 			setDefaultLayoutManager();
 			propertyList.clear();
@@ -240,7 +258,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 				switch((ImageButton) e.widget.getData()) {
 					case DESIGN :
 						visualGraph.designEditorShow();
-						break;
+                                break;
+                            case CHART:
+                                visualGraph.chartShow();
+                                break;
 					case CAPTURE :
 					    saveImage();
 					    setShortestMode(false);
@@ -308,7 +329,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		buttonItem2.setSize(buttonItem2.computeSize(size.x, size.y));
 
 		Composite composite3 = new Composite(coolBar, SWT.NONE);
-		composite3.setLayout(new GridLayout(3, true));
+        composite3.setLayout(new GridLayout(4, true));
 
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DESIGN));
@@ -317,6 +338,13 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
 		
+        button1 = new Button(composite3, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
+        button1.setToolTipText("Chart");
+        button1.setData(ImageButton.CHART);
+        button1.addSelectionListener(imageButtonListener);
+        button1.pack();
+
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
 		button1.setToolTipText("Visualization Capture");
@@ -381,14 +409,22 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		DBPPreferenceStore prefs = getController().getPreferenceStore();
 		String graphType = "";
 
-		DBDDisplayFormat displayFormat = DBDDisplayFormat
-				.safeValueOf(prefs.getString(ResultSetPreferences.RESULT_TEXT_VALUE_FORMAT));
+        DBDDisplayFormat displayFormat =
+                DBDDisplayFormat.safeValueOf(
+                        prefs.getString(ResultSetPreferences.RESULT_TEXT_VALUE_FORMAT));
 
 		ResultSetModel model = controller.getModel();
 		List<DBDAttributeBinding> attrs = model.getVisibleAttributes();
 
 		List<ResultSetRow> allRows = model.getAllRows();
 
+        if (visualGraph != null) {
+            if (controller != null && controller.getDataContainer() != null) {
+                visualGraph.setCurrentQuery(controller.getDataContainer().getName(), allRows.size());
+                currentQuery = controller.getDataContainer().getName();
+            }
+        }
+        
 		for (int i = 0; i < attrs.size(); i++) {
 			DBDAttributeBinding attr = attrs.get(i);
 			graphType = attrs.get(i).getTypeName();
@@ -396,7 +432,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			if (graphType == "NODE") {
 				for (ResultSetRow row : allRows) {
 					String displayString = getCellString(model, attr, row, displayFormat);
-					addNode(attr, row, displayString, colors[(i % 10)]);
+                    addNode(model, attr, row, displayString);
 				}
 			}
 		}
@@ -421,7 +457,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		double drawSizeY = sqrt * 129;
         
 		if (visualGraph != null) {
-			resultLabel.setText("Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
+            resultLabel.setText(
+                    "Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
 			
 			if ( compositeSizeX > drawSizeX){
 			    drawSizeX = compositeSizeX;
@@ -445,83 +482,116 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		
 	}
 
-	private boolean addNode(DBDAttributeBinding attrs, ResultSetRow row, String cellString, Color color) {
-		int idx = 0;
-		HashMap<String, Object> attrList = new HashMap<>();
-		String regex = "[\\[\\]\\{\\}]";
-		String tempCellString = cellString.replaceAll(regex, "");
-		String[] tempValue = tempCellString.split(", ");
-		String prvKey = "";
+    private boolean addNode(DBDAttributeBinding attrs, ResultSetRow row, String cellString) {
+        int idx = 0;
+        HashMap<String, Object> attrList = new HashMap<>();
+        String regex = "[\\[\\]\\{\\}]";
+        String tempCellString = cellString.replaceAll(regex, "");
+        String[] tempValue = tempCellString.split(", ");
+        String prvKey = "";
 
-		try {
-			for (int i = 0; i < tempValue.length; i++) {
-				idx = tempValue[i].indexOf("=");
-				if (i < 2) {
-					tempValue[i] = tempValue[i].substring(idx + 1, tempValue[i].length());
-				} else {
-					if (idx > 0) {
-						attrList.put(tempValue[i].substring(0, idx),
-								tempValue[i].substring(idx + 1, tempValue[i].length()));
-						prvKey = tempValue[i].substring(0, idx);
-						propertyList.add(tempValue[i].substring(0, idx));
-					} else {
-					    if (attrList.size() == 0) { //Multi Label
-					        tempValue[1] = tempValue[1] + "," + tempValue[i];
-					    } else {
-					        attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
-					    }
-					}
-				}
-			}
-			DBDAttributeNodeList.put(tempValue[0], attrs);
-			resultSetRowNodeList.put(tempValue[0], row);
-			displayStringNodeList.put(tempValue[0], cellString);
+        try {
+            for (int i = 0; i < tempValue.length; i++) {
+                idx = tempValue[i].indexOf("=");
+                if (i < 2) {
+                    tempValue[i] = tempValue[i].substring(idx + 1, tempValue[i].length());
+                } else {
+                    if (idx > 0) {
+                        attrList.put(
+                                tempValue[i].substring(0, idx),
+                                tempValue[i].substring(idx + 1, tempValue[i].length()));
+                        prvKey = tempValue[i].substring(0, idx);
+                        propertyList.add(tempValue[i].substring(0, idx));
+                    } else {
+                        if (attrList.size() == 0) { // Multi Label
+                            tempValue[1] = tempValue[1] + "," + tempValue[i];
+                        } else {
+                            attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
+                        }
+                    }
+                }
+            }
+            DBDAttributeNodeList.put(tempValue[0], attrs);
+            resultSetRowNodeList.put(tempValue[0], row);
+            displayStringNodeList.put(tempValue[0], cellString);
 
-			return gephiModel.addNode(visualGraph, tempValue[0], tempValue[1], attrList, color);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+            return visualGraph.addNode(tempValue[0], tempValue[1], attrList) == null ? false : true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-	private boolean addEdge(DBDAttributeBinding attrs, ResultSetRow row, String cellString) {
-		String[] tempValue;
-		int idx = 0;
-		int i = 0;
-		String regex = "[\\{\\}]";
-		String tempCellString = cellString.replaceAll(regex, "");
-		HashMap<String, String> attrList = new HashMap<>();
-		String prvKey = "";
+    private boolean addNode(
+            ResultSetModel model, DBDAttributeBinding attrs, ResultSetRow row, String cellString) {
+    	final String ID_KEY = "_id";
+    	final String LABEL_KEY = "_labels";
+    	
+    	LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
+        Object cellValue = model.getCellValue(attrs, row);
 
-		do {
-			tempValue = tempCellString.split(", ");
-		} while (tempCellString.length() == 0);
+        String id = "";
+        String label = "";
+        
+        if (cellValue instanceof LinkedHashMap) {
+        	attrList.putAll((LinkedHashMap)cellValue);
+        }
+        
+        String regex = "[\\[\\]]";
+        id = String.valueOf(attrList.get(ID_KEY)).replaceAll(regex, "");
+        label = String.valueOf(attrList.get(LABEL_KEY)).replaceAll(regex, "");
+        
+        attrList.remove(ID_KEY);
+        attrList.remove(LABEL_KEY);
 
-		try {
-			for (i = 0; i < tempValue.length; i++) {
-				idx = tempValue[i].indexOf("=");
-				if (i < 4) {
-					tempValue[i] = tempValue[i].substring(idx + 1, tempValue[i].length());
-				} else {
-					if (idx > 0) {
-						attrList.put(tempValue[i].substring(0, idx),
-								tempValue[i].substring(idx + 1, tempValue[i].length()));
-						prvKey = tempValue[i].substring(0, idx);
-					} else {
-						attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        DBDAttributeNodeList.put(id, attrs);
+        resultSetRowNodeList.put(id, row);
+        displayStringNodeList.put(id, cellString);
+        return visualGraph.addNode(id, label, attrList) == null ? false : true;
+    }
 
-		DBDAttributeEdgeList.put(tempValue[0], attrs);
-		resultSetRowEdgeList.put(tempValue[0], row);
-		displayStringEdgeList.put(tempValue[0], cellString);
+    private boolean addEdge(DBDAttributeBinding attrs, ResultSetRow row, String cellString) {
+        String[] tempValue;
+        int idx = 0;
+        int i = 0;
+        String regex = "[\\{\\}]";
+        String tempCellString = cellString.replaceAll(regex, "");
+        HashMap<String, String> attrList = new HashMap<>();
+        String prvKey = "";
 
-		return gephiModel.addEdge(visualGraph, tempValue[0], tempValue[1], tempValue[2], tempValue[3], attrList);
-	}
+        do {
+            tempValue = tempCellString.split(", ");
+        } while (tempCellString.length() == 0);
+
+        try {
+            for (i = 0; i < tempValue.length; i++) {
+                idx = tempValue[i].indexOf("=");
+                if (i < 4) {
+                    tempValue[i] = tempValue[i].substring(idx + 1, tempValue[i].length());
+                } else {
+                    if (idx > 0) {
+                        attrList.put(
+                                tempValue[i].substring(0, idx),
+                                tempValue[i].substring(idx + 1, tempValue[i].length()));
+                        prvKey = tempValue[i].substring(0, idx);
+                    } else {
+                        attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        DBDAttributeEdgeList.put(tempValue[0], attrs);
+        resultSetRowEdgeList.put(tempValue[0], row);
+        displayStringEdgeList.put(tempValue[0], cellString);
+
+        return visualGraph.addEdge(tempValue[0], tempValue[1], tempValue[2], tempValue[3], attrList)
+                        == null
+                ? false
+                : true;
+    }
 
 	StringBuilder fixBuffer = new StringBuilder();
 
@@ -698,22 +768,23 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		visualGraph.setDefaultLayoutAlgorithm();
 	}
 
-	private void createGraphListner() {
-		visualGraph.setVertexSelectAction((String id) -> {
-			curSelection = displayStringNodeList.get(id);
-			controller.setCurrentRow(resultSetRowNodeList.get(id));
-			curAttribute = DBDAttributeNodeList.get(id);
-			fireSelectionChanged(new VisualizationSelectionImpl());
-        });
-		
-		visualGraph.setEdgeSelectAction((String id) -> {
-            curSelection = displayStringEdgeList.get(id);
-			controller.setCurrentRow(resultSetRowEdgeList.get(id));
-			curAttribute = DBDAttributeEdgeList.get(id);
-			fireSelectionChanged(new VisualizationSelectionImpl());
-        });
-	}
-	
+    private void createGraphListner() {
+        visualGraph.setVertexSelectAction(
+                (String id) -> {
+                    curSelection = displayStringNodeList.get(id);
+                    controller.setCurrentRow(resultSetRowNodeList.get(id));
+                    curAttribute = DBDAttributeNodeList.get(id);
+                    fireSelectionChanged(new VisualizationSelectionImpl());
+                });
+
+        visualGraph.setEdgeSelectAction(
+                (String id) -> {
+                    curSelection = displayStringEdgeList.get(id);
+                    controller.setCurrentRow(resultSetRowEdgeList.get(id));
+                    curAttribute = DBDAttributeEdgeList.get(id);
+                    fireSelectionChanged(new VisualizationSelectionImpl());
+                });
+    }
 	private void saveImage() {
 	    
 		if(visualGraph != null) {

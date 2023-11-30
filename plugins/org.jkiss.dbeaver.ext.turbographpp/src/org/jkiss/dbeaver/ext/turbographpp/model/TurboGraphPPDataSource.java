@@ -99,7 +99,7 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
 
     private Set<TurboGraphPPEdge> loadEdges(DBRProgressMonitor monitor) throws DBException {
         try (JDBCSession session = DBUtils.openMetaSession(monitor, this, "Load Edges")) {
-            try (JDBCPreparedStatement dbStat = session.prepareStatement("Match (n)-[r]->(m) Return type(r)")) {
+            try (JDBCPreparedStatement dbStat = session.prepareStatement("Match (n)-[r]->(m) Return DISTINCT type(r)")) {
                 try (JDBCResultSet dbResult = dbStat.executeQuery()) {
                     //List<TurboGraphPPEdge> edgeList = new ArrayList<>();
                     Set<TurboGraphPPEdge> edgeList = new HashSet<>();
