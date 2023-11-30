@@ -50,7 +50,7 @@ public class TurboGraphPPMetaModelDescriptor extends AbstractDescriptor {
         implType = new ObjectType(TurboGraphPPMetaModel.class.getName());
         instance = new TurboGraphPPMetaModel();
         instance.descriptor = this;
-        dialectId = GenericSQLDialect.GENERIC_DIALECT_ID;
+        dialectId = TurboPPSQLDialect.TURBOGRAPHPP_DIALECT_ID;
     }
 
     public TurboGraphPPMetaModelDescriptor(IConfigurationElement cfg) {

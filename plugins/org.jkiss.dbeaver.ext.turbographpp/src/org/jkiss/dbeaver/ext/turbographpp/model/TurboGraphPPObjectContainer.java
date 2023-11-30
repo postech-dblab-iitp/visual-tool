@@ -77,12 +77,12 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
     }
 
     @Override
-    public List<? extends TurboGraphPPTable> getPhysicalTables(DBRProgressMonitor monitor) throws DBException {
+    public List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor) throws DBException {
         List<? extends TurboGraphPPTableBase> tables = getTables(monitor);
         if (tables != null) {
             List<TurboGraphPPTable> filtered = new ArrayList<>();
             for (TurboGraphPPTableBase table : tables) {
-                if (table.isPhysicalTable()) {
+                if (table.isPhysicalTable() && table.isNode()) {
                     filtered.add((TurboGraphPPTable) table);
                 }
             }
@@ -91,6 +91,21 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
         return null;
     }
 
+    @Override
+    public List<? extends TurboGraphPPTable> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException {
+        List<? extends TurboGraphPPTableBase> tables = getTables(monitor);
+        if (tables != null) {
+            List<TurboGraphPPTable> filtered = new ArrayList<>();
+            for (TurboGraphPPTableBase table : tables) {
+                if (table.isPhysicalTable() && table.isEdge()) {
+                    filtered.add((TurboGraphPPTable) table);
+                }
+            }
+            return filtered;
+        }
+        return null;
+    }
+    
     @Override
     public List<? extends TurboGraphPPTableBase> getTables(DBRProgressMonitor monitor)
         throws DBException {

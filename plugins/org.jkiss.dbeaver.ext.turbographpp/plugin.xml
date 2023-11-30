@@ -28,7 +28,7 @@
             dialect="turbographpp">
             <tree path="turbographpp" label="GTurboGraph++ data source" supportsEntityMerge="true">
                 <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTable" label="%tree.table.node.name" icon="#folder_table" description="%tree.tables.node.tip">
-                    <items label="%tree.table.node.name" path="nodes" property="physicalTables" icon="#table">
+                    <items label="%tree.table.node.name" path="nodes" property="PhysicalNode" icon="#table">
                         <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.node.name" icon="#columns" description="%tree.columns.node.tip">
                             <items label="%tree.column.node.name" path="nodeproperties" property="attributes" icon="#column">
                             </items>
@@ -36,9 +36,9 @@
                     </items>
                 </folder>
                 <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPEdge" label="%tree.table.edge.name" icon="#folder_table" description="%tree.table.edge.tip">
-                    <items label="%tree.table.edge.name" path="edges" property="Edges" icon="#table">
+                    <items label="%tree.table.edge.name" path="edges" property="PhysicalEdge" icon="#table">
                         <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPEdgesProperty" label="%tree.column.edge.name" icon="#columns" description="%tree.columns.edge.tip">
-                            <items label="%tree.column.edge.name" path="edgeproperties" property="Properties" icon="#column">
+                            <items label="%tree.column.edge.name" path="edgeproperties" property="attributes" icon="#column">
                             </items>
                         </folder>
                     </items>
@@ -68,6 +68,40 @@
                     </parameter>
                     <property name="@dbeaver-default-sql.parameter.enabled" value="false"/>
                 </driver>
+                <driver
+                        id="cubrid_jdbc"
+                        label="TurboGraph++(New)"
+                        icon="icons/turbo_plus_plus_icon_16.png"
+                        iconBig="icons/turbo_plus_plus_icon_64.png"
+                        class="cubrid.jdbc.driver.CUBRIDDriver"
+                        sampleURL="jdbc:CUBRID:{host}:{port}:{database}:::"
+                        defaultPort="30000"
+                        description="CUBRID JDBC driver"
+                        supportedConfigurationTypes="MANUAL,URL"
+                        webURL="https://www.cubrid.org/manual/en/11.2/api/jdbc.html#configuration-connection"
+                        categories="vit_graph">
+                    <file type="jar" path="maven:/cubrid:cubrid-jdbc:RELEASE"/>
+                    <replace provider="generic" driver="cubrid_jdbc"/>
+
+                    <property name="altHosts" value=""/>
+                    <property name="rcTime" value="600"/>
+                    <property name="loadBalance" value="false"/>
+                    <property name="connectTimeout" value="30"/>
+                    <property name="queryTimeout" value="0"/>
+                    <property name="charset" value="utf-8"/>
+                    <property name="zeroDateTimeBehavior" value="exception"/>
+                    <property name="logFile" value="cubrid_jdbc.log"/>
+                    <property name="logOnException" value="false"/>
+                    <property name="logSlowQueries" value="false"/>
+                    <property name="slowQueryThresholdMillis" value="60000"/>
+                    <property name="useLazyConnection" value="false"/>
+                    <property name="useSSL" value="false"/>
+                    <property name="clientCacheSize" value="1"/>
+                    <property name="usePreparedStmtCache" value="false"/>
+                    <property name="preparedStmtCacheSize" value="25"/>
+                    <property name="preparedStmtCacheSqlLimit" value="256"/>
+                    <property name="hold_cursor" value="true"/>
+                </driver>
             </drivers>
         </datasource>
     </extension>
@@ -75,6 +109,12 @@
     <extension point="org.jkiss.dbeaver.sqlDialect">
         <dialect id="turbographpp" parent="basic" class="org.jkiss.dbeaver.ext.turbographpp.model.TurboPPSQLDialect" label="TurboGraph++" description="TurboGraph++ dialect." icon="icons/turbo_plus_plus_icon_16.png">
         </dialect>
+    </extension>
+
+	<extension point="org.jkiss.dbeaver.mavenRepository">
+        <repository id="cubrid-maven-repo" name="Cubrid Repository" url="https://maven.cubrid.org">
+            <scope group="cubrid"/>
+        </repository>
     </extension>
 
 </plugin>

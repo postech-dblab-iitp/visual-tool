@@ -123,7 +123,7 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
         dataTypeCache.getAllObjects(monitor, this);
         dataTypeCache.cacheObject(new JDBCDataType<>(this, java.sql.Types.OTHER, "json", "json", false, false, 0, 0, 0));
         this.structureContainer = new DataSourceObjectContainer();
-        loadEdges(monitor);
+        //loadEdges(monitor);
     }
 
     @NotNull
@@ -207,9 +207,15 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
     }
 
     @Override
-    public List<? extends TurboGraphPPTable> getPhysicalTables(DBRProgressMonitor monitor) throws DBException {
+    public List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor) throws DBException {
         // TODO Auto-generated method stub
-        return structureContainer == null ? null : structureContainer.getPhysicalTables(monitor);
+        return structureContainer == null ? null : structureContainer.getPhysicalNode(monitor);
+    }
+    
+    @Override
+    public List<? extends TurboGraphPPTable> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException {
+        // TODO Auto-generated method stub
+        return structureContainer == null ? null : structureContainer.getPhysicalEdge(monitor);
     }
 
     @Override

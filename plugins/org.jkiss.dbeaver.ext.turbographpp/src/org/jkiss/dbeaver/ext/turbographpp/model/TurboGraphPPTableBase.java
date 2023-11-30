@@ -63,6 +63,9 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
     private String description;
     private Long rowCount;
 
+    private static final String NODE_TABLE_TYPE = "TABLE";
+    private static final String EDGE_TABLE_TYPE = "VIEW";
+    
     public TurboGraphPPTableBase(
         TurboGraphPPStructContainer container,
         @Nullable String tableName,
@@ -314,6 +317,20 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
         } finally {
             dataReceiver.close();
         }
+    }
+    
+    public boolean isNode() {
+    	if (tableType.equals(NODE_TABLE_TYPE)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean isEdge() {
+    	if (tableType.equals(EDGE_TABLE_TYPE)) {
+    		return true;
+    	}
+    	return false;
     }
     
 }
