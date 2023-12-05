@@ -16,7 +16,7 @@ public class CypherNode {
 
     private String display;
     private String id;
-    private String label;
+    private List<String> labels;
     private String fillColor;
     private double radius = SmartGraphProperties.DEFAULT_VERTEX_RADIUS;
     private int textSize = SmartStyleProxy.DEFAULT_VERTEX_LABEL_SIZE;
@@ -26,10 +26,10 @@ public class CypherNode {
     private DisplayType displayType = DisplayType.PROPERTY;
     private String displayPropertyName = null;
 
-    public CypherNode(String id, String label, HashMap<String, Object> property, String fillColor) {
+    public CypherNode(String id, List<String> labels, HashMap<String, Object> property, String fillColor) {
         this.id = id;
-        this.label = label;
-        this.display = label;
+        this.labels = labels;
+        this.display = String.valueOf(labels);
         this.fillColor = fillColor;
         this.property = new HashMap<>();
         this.lastPositionX = -1;
@@ -75,8 +75,8 @@ public class CypherNode {
         return this.id;
     }
 
-    public String getLabel() {
-        return this.label;
+    public List<String> getLabels() {
+        return labels;
     }
 
     public String getFillColor() {
@@ -96,12 +96,12 @@ public class CypherNode {
         	display = String.valueOf(this.property.get(displayPropertyName));
         	if (display == null || display.isEmpty() || display.contains("null")) {
             	displayType = DisplayType.TYPE;
-                display = label;
+                display = String.valueOf(labels);
         	}
         } else if (displayType == DisplayType.ID){
             display = id;
         } else {
-        	display = label;
+        	display = String.valueOf(labels);
         }
         return display;
     }

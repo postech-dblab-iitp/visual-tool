@@ -127,7 +127,7 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
                                 DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
                                 attachedLabel.yProperty().bind(yPropery);
                             }
-                            needlabelUpdate = false;
+                            //needlabelUpdate = false;
                         }
                     }
                 };

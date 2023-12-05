@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -54,6 +55,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
+import org.jkiss.dbeaver.ext.turbographpp.graph.chart.GraphChart;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.DeleteGraphElement;
@@ -139,6 +141,7 @@ public class FXGraph implements GraphBase {
     private ShortestGuideBox guideBox;
     private DesignBox designBox;
     private GraphChart chartBox;
+    private ValueBox valBox;
     
     private DBPDataSource parentDataSource;
     
@@ -187,6 +190,8 @@ public class FXGraph implements GraphBase {
         designBox = new DesignBox(canvas, this);
         
         chartBox = new GraphChart(canvas, this, parentDataSource);
+        
+        valBox = new ValueBox(canvas);
         
         parent.addDisposeListener(new DisposeListener() {
 			
@@ -354,6 +359,8 @@ public class FXGraph implements GraphBase {
                         }
                         nodeIDConsumer.accept(ID);
                         designBox.setSelectItem(node);
+                        valBox.updateItem(node);
+                        valBox.show();
                     }
                 });
 
@@ -367,6 +374,7 @@ public class FXGraph implements GraphBase {
                         }
                         edgeIDConsumer.accept(ID);
                         designBox.setSelectItem(edge);
+                        valBox.updateItem(edge);
                     }
                 });
 
@@ -465,33 +473,38 @@ public class FXGraph implements GraphBase {
     }
 
     @Override
-    public Object addNode(String id, String label, HashMap<String, Object> attr) {
+    public Object addNode(String id, List<String> labels, HashMap<String, Object> attr) {
     	//For Group Color
-    	if (nodesGroup.get(label) == null) {
-    		nodesGroup.put(label, ramdomColor());
+    	Object v = null;
+    	String fillColor = "";
+    	for (String label : labels) {
+	    	if (nodesGroup.get(label) == null) {
+	    		nodesGroup.put(label, ramdomColor());
+	    	}
+	    	
+	    	if (dataModel.getNode(id) != null) {
+	    	    return null;
+	    	}
+	    	
+	    	fillColor = nodesGroup.get(label);
+	    	
     	}
-    	
-    	if (dataModel.getNode(id) != null) {
-    	    return null;
-    	}
-    	
-    	String fillColor = nodesGroup.get(label);
-    	CypherNode node = new CypherNode(id, label, attr, fillColor);
-    	Object v = graph.insertVertex(node);
-    	dataModel.putNode(id, label, (Vertex<CypherNode>)v);
-        return v;
+    	CypherNode node = new CypherNode(id, labels, attr, fillColor);
+    	v = graph.insertVertex(node);
+    	dataModel.putNode(id, labels, (Vertex<CypherNode>)v);
+    	return v;
     }
 
     @Override
-    public Object addEdge(String id, String label, String startNodeID, String endNodeID,
-            HashMap<String, String> attr) {
+    public Object addEdge(String id, List<String> types, String startNodeID, String endNodeID,
+            HashMap<String, Object> attr) {
         if (dataModel.getEdge(id) != null) {
             return null;
         }
         
-    	CypherEdge edge = new CypherEdge(id, label, attr, startNodeID, endNodeID);
+    	CypherEdge edge = new CypherEdge(id, types, attr, startNodeID, endNodeID);
     	Object e = graph.insertEdge(dataModel.getNode(startNodeID), dataModel.getNode(endNodeID), edge);
-    	dataModel.putEdge(id, label, (FxEdge<CypherEdge, CypherNode>)e);
+    	dataModel.putEdge(id, types, (FxEdge<CypherEdge, CypherNode>)e);
         return e;
     }
 
@@ -1174,6 +1187,7 @@ public class FXGraph implements GraphBase {
 		if (chartBox != null) chartBox.remove();
 		if (designBox != null) designBox.remove();
 		if (guideBox != null) guideBox.remove();
+		if (valBox != null) valBox.remove();
 	}
 	
 }

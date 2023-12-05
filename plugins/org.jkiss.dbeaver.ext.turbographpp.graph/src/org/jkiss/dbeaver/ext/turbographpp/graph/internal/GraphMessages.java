@@ -39,7 +39,12 @@ public class GraphMessages extends NLS {
 	public static String graphbox_radio_by_visualGraph;
 	public static String graphbox_radio_by_all;
 	public static String graphbox_radio_by_query;
-
+	public static String valbox_title; 
+	public static String valbox_table_value;
+	public static String valbox_table_name;
+	public static String valbox_copy_value;
+	public static String valbox_copy_name;
+	public static String valbox_tooltip_msg;
 
     static {
 		// initialize resource bundle

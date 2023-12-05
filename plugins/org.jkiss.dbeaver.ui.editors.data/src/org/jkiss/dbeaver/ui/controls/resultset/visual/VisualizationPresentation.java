@@ -18,8 +18,6 @@
 package org.jkiss.dbeaver.ui.controls.resultset.visual;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
@@ -50,20 +48,12 @@ import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.ModelPreferences;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.GraphBase.LayoutStyle;
-import org.jkiss.dbeaver.ext.turbographpp.graph.chart.jobs.GetChartInfoQueryJob;
 import org.jkiss.dbeaver.model.DBConstants;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.data.DBDAttributeBinding;
 import org.jkiss.dbeaver.model.data.DBDDisplayFormat;
-import org.jkiss.dbeaver.model.exec.DBCException;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCPreparedStatement;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
 import org.jkiss.dbeaver.model.impl.data.DBDValueError;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCUtils;
 import org.jkiss.dbeaver.model.preferences.DBPPreferenceStore;
-import org.jkiss.dbeaver.model.runtime.AbstractJob;
-import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.ui.DBeaverIcons;
 import org.jkiss.dbeaver.ui.UIIcon;
 import org.jkiss.dbeaver.ui.UIStyles;
@@ -72,10 +62,6 @@ import org.jkiss.dbeaver.ui.controls.resultset.*;
 import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,8 +70,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 public class VisualizationPresentation extends AbstractPresentation implements IAdaptable {
 
     private IResultSetController controller;
@@ -406,132 +391,20 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	}
 
 	private void ShowVisualizaion(boolean append) {
-		DBPPreferenceStore prefs = getController().getPreferenceStore();
-		String graphType = "";
-
-        DBDDisplayFormat displayFormat =
-                DBDDisplayFormat.safeValueOf(
-                        prefs.getString(ResultSetPreferences.RESULT_TEXT_VALUE_FORMAT));
-
-		ResultSetModel model = controller.getModel();
-		List<DBDAttributeBinding> attrs = model.getVisibleAttributes();
-
-		List<ResultSetRow> allRows = model.getAllRows();
-
-        if (visualGraph != null) {
-            if (controller != null && controller.getDataContainer() != null) {
-                visualGraph.setCurrentQuery(controller.getDataContainer().getName(), allRows.size());
-                currentQuery = controller.getDataContainer().getName();
-            }
-        }
-        
-		for (int i = 0; i < attrs.size(); i++) {
-			DBDAttributeBinding attr = attrs.get(i);
-			graphType = attrs.get(i).getTypeName();
-
-			if (graphType == "NODE") {
-				for (ResultSetRow row : allRows) {
-					String displayString = getCellString(model, attr, row, displayFormat);
-                    addNode(model, attr, row, displayString);
-				}
-			}
-		}
-
-		for (int i = 0; i < attrs.size(); i++) {
-			DBDAttributeBinding attr = attrs.get(i);
-			graphType = attrs.get(i).getTypeName();
-
-			if (graphType == "RELATIONSHIP") {
-				for (ResultSetRow row : allRows) {
-					String displayString = getCellString(model, attr, row, displayFormat);
-					addEdge(attr, row, displayString);
-				}
-			}
-		}
-
-		int nodesNum = visualGraph.getNumNodes();
-		int sqrt = (int) Math.sqrt(nodesNum);
-		int compositeSizeX = graphTopComposite.getSize().x - 100;
-		int compositeSizeY = graphTopComposite.getSize().y - 100;
-		double drawSizeX = sqrt * 162;
-		double drawSizeY = sqrt * 129;
-        
-		if (visualGraph != null) {
-            resultLabel.setText(
-                    "Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
-			
-			if ( compositeSizeX > drawSizeX){
-			    drawSizeX = compositeSizeX;
-			}
-			
-			if ( compositeSizeY > drawSizeY){
-			    drawSizeY = compositeSizeY;
-            }
-			
-			InfoLabel.setText(drawSizeX + " X " + drawSizeY); 
-			
-			if (!init) {
-			    visualGraph.drawGraph(drawSizeX, drawSizeY);
-			    init = true;
-			} else {
-			    visualGraph.drawGraph(drawSizeX, drawSizeY);
-			    //visualGraph.redraw();
-			}
-			
-		}
-		
+		dataSet();
+		drawGraph();
 	}
 
-    private boolean addNode(DBDAttributeBinding attrs, ResultSetRow row, String cellString) {
-        int idx = 0;
-        HashMap<String, Object> attrList = new HashMap<>();
-        String regex = "[\\[\\]\\{\\}]";
-        String tempCellString = cellString.replaceAll(regex, "");
-        String[] tempValue = tempCellString.split(", ");
-        String prvKey = "";
+    private boolean addNeo4jNode(
+            ResultSetModel model, DBDAttributeBinding attr, ResultSetRow row, String cellString) {
+        Object cellValue = model.getCellValue(attr, row);
 
-        try {
-            for (int i = 0; i < tempValue.length; i++) {
-                idx = tempValue[i].indexOf("=");
-                if (i < 2) {
-                    tempValue[i] = tempValue[i].substring(idx + 1, tempValue[i].length());
-                } else {
-                    if (idx > 0) {
-                        attrList.put(
-                                tempValue[i].substring(0, idx),
-                                tempValue[i].substring(idx + 1, tempValue[i].length()));
-                        prvKey = tempValue[i].substring(0, idx);
-                        propertyList.add(tempValue[i].substring(0, idx));
-                    } else {
-                        if (attrList.size() == 0) { // Multi Label
-                            tempValue[1] = tempValue[1] + "," + tempValue[i];
-                        } else {
-                            attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
-                        }
-                    }
-                }
-            }
-            DBDAttributeNodeList.put(tempValue[0], attrs);
-            resultSetRowNodeList.put(tempValue[0], row);
-            displayStringNodeList.put(tempValue[0], cellString);
-
-            return visualGraph.addNode(tempValue[0], tempValue[1], attrList) == null ? false : true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private boolean addNode(
-            ResultSetModel model, DBDAttributeBinding attrs, ResultSetRow row, String cellString) {
     	final String ID_KEY = "_id";
     	final String LABEL_KEY = "_labels";
-    	
-    	LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
-        Object cellValue = model.getCellValue(attrs, row);
-
+        
+        LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
         String id = "";
-        String label = "";
+        List<String> labels;
         
         if (cellValue instanceof LinkedHashMap) {
         	attrList.putAll((LinkedHashMap)cellValue);
@@ -539,55 +412,64 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         
         String regex = "[\\[\\]]";
         id = String.valueOf(attrList.get(ID_KEY)).replaceAll(regex, "");
-        label = String.valueOf(attrList.get(LABEL_KEY)).replaceAll(regex, "");
+        if (attrList.get(LABEL_KEY) instanceof String) {
+        	List<String> tempLabels = new ArrayList<>();
+        	tempLabels.add(String.valueOf(attrList.get(LABEL_KEY)));
+        	labels = tempLabels;
+        } else {
+        	labels = (List<String>)attrList.get(LABEL_KEY);
+        }
         
         attrList.remove(ID_KEY);
         attrList.remove(LABEL_KEY);
 
-        DBDAttributeNodeList.put(id, attrs);
+        DBDAttributeNodeList.put(id, attr);
         resultSetRowNodeList.put(id, row);
         displayStringNodeList.put(id, cellString);
-        return visualGraph.addNode(id, label, attrList) == null ? false : true;
+        return visualGraph.addNode(id, labels, attrList) == null ? false : true;
     }
 
-    private boolean addEdge(DBDAttributeBinding attrs, ResultSetRow row, String cellString) {
-        String[] tempValue;
-        int idx = 0;
-        int i = 0;
-        String regex = "[\\{\\}]";
-        String tempCellString = cellString.replaceAll(regex, "");
-        HashMap<String, String> attrList = new HashMap<>();
-        String prvKey = "";
+    private boolean addNeo4jEdge(ResultSetModel model,
+    		DBDAttributeBinding attr, ResultSetRow row, String cellString) {
+    	final String ID_KEY = "_id";
+    	final String LABEL_KEY = "_type";
+    	final String SID_KEY = "_startId";
+    	final String TID_KEY = "_endId";
+    	
+    	LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
+        Object cellValue = model.getCellValue(attr, row);
 
-        do {
-            tempValue = tempCellString.split(", ");
-        } while (tempCellString.length() == 0);
+        String id = "", sId = "", tId = "";
+        List<String> types;
 
-        try {
-            for (i = 0; i < tempValue.length; i++) {
-                idx = tempValue[i].indexOf("=");
-                if (i < 4) {
-                    tempValue[i] = tempValue[i].substring(idx + 1, tempValue[i].length());
-                } else {
-                    if (idx > 0) {
-                        attrList.put(
-                                tempValue[i].substring(0, idx),
-                                tempValue[i].substring(idx + 1, tempValue[i].length()));
-                        prvKey = tempValue[i].substring(0, idx);
-                    } else {
-                        attrList.put(prvKey, attrList.get(prvKey) + ", " + tempValue[i]);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (cellValue instanceof LinkedHashMap) {
+        	attrList.putAll((LinkedHashMap)cellValue);
+        } else {
+        	return false;
         }
+        
+        String regex = "[\\[\\]]";
+        id = String.valueOf(attrList.get(ID_KEY)).replaceAll(regex, "");
+        if (attrList.get(LABEL_KEY) instanceof String) {
+        	List<String> tempTypes = new ArrayList<>();
+        	tempTypes.add(String.valueOf(attrList.get(LABEL_KEY)));
+        	types = tempTypes;
+        } else {
+        	types = (List<String>)attrList.get(LABEL_KEY);
+        }
+        sId = String.valueOf(attrList.get(SID_KEY)).replaceAll(regex, "");
+        tId = String.valueOf(attrList.get(TID_KEY)).replaceAll(regex, "");
+        
+        attrList.remove(ID_KEY);
+        attrList.remove(LABEL_KEY);
+        attrList.remove(SID_KEY);
+        attrList.remove(TID_KEY);
 
-        DBDAttributeEdgeList.put(tempValue[0], attrs);
-        resultSetRowEdgeList.put(tempValue[0], row);
-        displayStringEdgeList.put(tempValue[0], cellString);
+        DBDAttributeEdgeList.put(id, attr);
+        resultSetRowEdgeList.put(id, row);
+        displayStringEdgeList.put(id, cellString);
 
-        return visualGraph.addEdge(tempValue[0], tempValue[1], tempValue[2], tempValue[3], attrList)
+        return visualGraph.addEdge(id, types, sId, tId, attrList)
                         == null
                 ? false
                 : true;
@@ -855,5 +737,177 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                 shortestButton.setBackground(null);
             }
         }
+    }
+    
+    class TurboRowData {
+    	public boolean isEdge;
+    	public String label;
+    	public int startIdx;
+    	public int endIdx;
+    	
+    	TurboRowData(String label, boolean isEdge, int startIdx, int endIdx) {
+    		this.label = label;
+			this.isEdge = isEdge; 
+			this.startIdx = startIdx;
+			this.endIdx = endIdx;
+		}
+    	
+    	TurboRowData(String label, boolean isEdge, int startIdx) {
+    		this.label = label;
+			this.isEdge = isEdge; 
+			this.startIdx = startIdx;
+			this.endIdx = 0;
+		}
+    }
+    
+    class NEO4JRowData {
+    	public int idx;
+    	public boolean isEdge;
+    	public DBDAttributeBinding attr;
+    	
+    	NEO4JRowData(int idx, boolean isEdge, DBDAttributeBinding attr) {
+    		this.idx = idx;
+			this.isEdge = isEdge; 
+			this.attr = attr;
+		}
+    }
+    
+    private void dataSet() {
+    	DBPPreferenceStore prefs = getController().getPreferenceStore();
+		String graphType = "";
+
+        DBDDisplayFormat displayFormat =
+                DBDDisplayFormat.safeValueOf(
+                        prefs.getString(ResultSetPreferences.RESULT_TEXT_VALUE_FORMAT));
+
+		ResultSetModel model = controller.getModel();
+		List<DBDAttributeBinding> attrs = model.getVisibleAttributes();
+
+		List<ResultSetRow> allRows = model.getAllRows();
+
+        if (visualGraph != null) {
+            if (controller != null && controller.getDataContainer() != null) {
+                visualGraph.setCurrentQuery(controller.getDataContainer().getName(), allRows.size());
+                currentQuery = controller.getDataContainer().getName();
+            }
+        }
+        
+        List<Object> nodeRowData = new ArrayList<>();
+        List<Object> edgeRowData = new ArrayList<>();
+        TurboRowData temp = null;
+        
+        for (int i = 0; i < attrs.size(); i++) { // classify 
+        	DBDAttributeBinding attr = attrs.get(i);
+        	graphType = attrs.get(i).getTypeName();
+        	
+        	if (graphType == "NODE") { // Neo4j Node
+        		nodeRowData.add(new NEO4JRowData(i, false, attr));
+        	} else if (graphType == "RELATIONSHIP") { // Neo4j Edge
+        		edgeRowData.add(new NEO4JRowData(i, true, attr));
+        	} else { //TurboGraph++
+        		String label = attrs.get(i).getMetaAttribute().getEntityName();
+        		if (!label.isEmpty()) {
+	            	if (attrs.get(i).getName().equals("_id")
+	            			&& attrs.get(i+1).getName().equals("_startid")) {
+	            		temp = new TurboRowData(label, true, i);
+	            		edgeRowData.add(temp);
+	            	} else if (attrs.get(i).getName().equals("_id")) {
+	            		temp = new TurboRowData(label, false, i);
+	            		nodeRowData.add(temp);
+	            	} 
+	            	else {
+	            		if (temp != null) {
+	            			temp.endIdx = i;
+	            		}
+	            	}
+        		}
+        	}
+        }
+        
+        
+    	for (ResultSetRow row : allRows) { // Add Node
+    		for (Object obj : nodeRowData) {
+    			if (obj instanceof NEO4JRowData) {
+    				NEO4JRowData data = (NEO4JRowData)obj;
+    				String displayString = getCellString(model, data.attr, row, displayFormat);
+                    addNeo4jNode(model, data.attr, row, displayString);
+    			} else if (obj instanceof TurboRowData) {
+    				TurboRowData data = (TurboRowData)obj;
+    				List<String> multiLabel = new ArrayList<>(); //temp
+    				multiLabel.add(data.label);
+        			HashMap<String, Object> attrMap = new HashMap<>();
+        			String id = "";
+    				for (int j = data.startIdx ; j <= data.endIdx ; j++) {
+    					if (j == data.startIdx) {
+    						id = row.getValues()[j].toString();
+    					} else {
+    						attrMap.put(attrs.get(j).getLabel(), row.getValues()[j]);
+    					}
+    				}
+    				visualGraph.addNode(id, multiLabel, attrMap);
+    			}
+    		}
+        }
+    	
+    	for (ResultSetRow row : allRows) { // Add Edge
+    		for (Object obj : edgeRowData) {
+    			if (obj instanceof NEO4JRowData) {
+    				NEO4JRowData data = (NEO4JRowData)obj;
+    				String displayString = getCellString(model, data.attr, row, displayFormat);
+                    addNeo4jEdge(model, data.attr, row, displayString);
+    			} else if (obj instanceof TurboRowData) {
+    				TurboRowData data = (TurboRowData)obj;
+    				List<String> multiLabel = new ArrayList<>(); //temp
+    				multiLabel.add(data.label);
+        			HashMap<String, Object> attrMap = new HashMap<>();
+        			String id = "" , sid = "", tid = "";
+    				for (int j = data.startIdx ; j <= data.endIdx ; j++) {
+    					if (j == data.startIdx) {
+    						id = row.getValues()[j].toString();
+    						j++;
+    						sid = row.getValues()[j].toString();
+    						j++;
+    						tid = row.getValues()[j].toString();
+    					} else {
+    						attrMap.put(attrs.get(j).getLabel(), row.getValues()[j]);
+    					}
+    				}
+    				visualGraph.addEdge(id, multiLabel, sid, tid, attrMap);
+    			}
+    		}
+        }
+    }
+    
+    private void drawGraph() {
+    	int nodesNum = visualGraph.getNumNodes();
+		int sqrt = (int) Math.sqrt(nodesNum);
+		int compositeSizeX = graphTopComposite.getSize().x - 100;
+		int compositeSizeY = graphTopComposite.getSize().y - 100;
+		double drawSizeX = sqrt * 162;
+		double drawSizeY = sqrt * 129;
+        
+		if (visualGraph != null) {
+            resultLabel.setText(
+                    "Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
+			
+			if ( compositeSizeX > drawSizeX){
+			    drawSizeX = compositeSizeX;
+			}
+			
+			if ( compositeSizeY > drawSizeY){
+			    drawSizeY = compositeSizeY;
+            }
+			
+			InfoLabel.setText(drawSizeX + " X " + drawSizeY); 
+			
+			if (!init) {
+			    visualGraph.drawGraph(drawSizeX, drawSizeY);
+			    init = true;
+			} else {
+			    visualGraph.drawGraph(drawSizeX, drawSizeY);
+			    //visualGraph.redraw();
+			}
+			
+		}
     }
 }

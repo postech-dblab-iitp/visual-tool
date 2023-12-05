@@ -1,15 +1,14 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.data;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.List;
 
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartLabelSource;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 
 public class CypherEdge {
     private String id;
-    private String type;
-    private HashMap<String, String> property;
+    private List<String> types;
+    private HashMap<String, Object> property;
     private String startNodeID;
     private String endNodeID;
     private DisplayType displayType;
@@ -21,12 +20,12 @@ public class CypherEdge {
     
     public CypherEdge(
             String id,
-            String type,
-            HashMap<String, String> property,
+            List<String> types,
+            HashMap<String, Object> property,
             String startNodeID,
             String endNodeID) {
         this.id = id;
-        this.type = type;
+        this.types = types;
         this.property = new HashMap<>();
         if (property != null) {
             this.property.putAll(property);
@@ -40,16 +39,16 @@ public class CypherEdge {
         return this.id;
     }
 
-    public String getType() {
-        return this.type;
+    public List<String> getTypes() {
+        return this.types;
     }
 
-    public HashMap<String, String> getProperties() {
+    public HashMap<String, Object> getProperties() {
         return this.property;
     }
 
     public String getProperty(String key) {
-        return this.property.get(key);
+        return String.valueOf(this.property.get(key));
     }
 
     public String getStartNodeID() {
@@ -65,11 +64,11 @@ public class CypherEdge {
             case ID:
             	return id;
             case PROPERTY:
-            	return property.get(displayProperty);
+            	return String.valueOf(property.get(displayProperty));
             case TYPE:
-            	return type;
+            	return String.valueOf(types);
             default:
-                return type;
+                return String.valueOf(types);
         }
     }
     

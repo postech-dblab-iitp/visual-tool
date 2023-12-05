@@ -1,9 +1,8 @@
-package org.jkiss.dbeaver.ext.turbographpp.graph.chart.jobs;
+package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jkiss.dbeaver.ext.turbographpp.graph.GraphChart;
 import org.jkiss.dbeaver.model.DBPDataSource;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.exec.DBCException;

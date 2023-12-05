@@ -2,6 +2,7 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
@@ -17,25 +18,29 @@ public class GraphDataModel {
         return nodes;
     }
 
-    public void putNode(String id, String label, Vertex<CypherNode> node) {
+    public void putNode(String id, List<String> labels, Vertex<CypherNode> node) {
     	nodes.put(id, node);
-    	if (nodeLabelList.get(label) == null) {
-    		ArrayList<String> list = new ArrayList<>();
-    		list.add(id);
-    		nodeLabelList.put(label, list);
-    	} else {
-    		nodeLabelList.get(label).add(id);
+    	for (String label : labels) {
+	    	if (nodeLabelList.get(label) == null) {
+	    		ArrayList<String> list = new ArrayList<>();
+	    		list.add(id);
+	    		nodeLabelList.put(label, list);
+	    	} else {
+	    		nodeLabelList.get(label).add(id);
+	    	}
     	}
     }
     
-    public void putEdge(String id, String type, FxEdge<CypherEdge, CypherNode> edge) {
+    public void putEdge(String id, List<String> types, FxEdge<CypherEdge, CypherNode> edge) {
     	edges.put(id, edge);
-    	if (edgeTypeList.get(type) == null) {
-    		ArrayList<String> list = new ArrayList<>();
-    		list.add(id);
-    		edgeTypeList.put(type, list);
-    	} else {
-    		edgeTypeList.get(type).add(id);
+    	for (String type : types) {
+	    	if (edgeTypeList.get(type) == null) {
+	    		ArrayList<String> list = new ArrayList<>();
+	    		list.add(id);
+	    		edgeTypeList.put(type, list);
+	    	} else {
+	    		edgeTypeList.get(type).add(id);
+	    	}
     	}
     }
     
@@ -62,7 +67,7 @@ public class GraphDataModel {
     	return edgeTypeList.get(type);
     }
     
-    public String[] getNodeLableList () {
+    public String[] getNodeLabelList () {
     	return nodeLabelList.keySet().toArray(new String[nodeLabelList.size()]);
     }
     
