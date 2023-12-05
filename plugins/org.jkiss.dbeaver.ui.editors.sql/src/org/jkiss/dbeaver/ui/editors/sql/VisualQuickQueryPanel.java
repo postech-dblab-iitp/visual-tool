@@ -17,6 +17,7 @@
 
 package org.jkiss.dbeaver.ui.editors.sql;
 
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,7 +32,6 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -51,6 +51,7 @@ import org.jkiss.dbeaver.model.exec.jdbc.JDBCDatabaseMetaData;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCPreparedStatement;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
+import org.jkiss.dbeaver.model.exec.jdbc.JDBCStatement;
 import org.jkiss.dbeaver.model.impl.jdbc.JDBCUtils;
 import org.jkiss.dbeaver.model.runtime.AbstractJob;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
@@ -81,34 +82,6 @@ public class VisualQuickQueryPanel extends Composite {
 
     private LinkedHashMap<String, LinkedHashMap<String, String>> vertexList = new LinkedHashMap<>();
     private LinkedHashMap<String, LinkedHashMap<String, String>> edgeList = new LinkedHashMap<>();
-
-    private static final String QUERY_GET_VERTEX_LABEL =
-            "MATCH (n) RETURN DISTINCT labels(n) AS label";
-    private static final String QUERY_GET_VERTEX_PROPERTIES =
-            "MATCH (n) "
-                    + "UNWIND keys(n) AS key "
-                    + "UNWIND labels(n) AS label "
-                    + "UNWIND properties(n) AS property "
-                    + "RETURN DISTINCT key, label";
-    private static final String QUERY_GET_VERTEX_PROPERTIES_WITH_AOCP =
-            "MATCH (n) "
-                    + "UNWIND keys(n) AS key "
-                    + "UNWIND labels(n) AS label "
-                    + "UNWIND properties(n) AS property "
-                    + "RETURN DISTINCT key, label, apoc.meta.types(property) AS typelist";
-    private static final String QUERY_GET_EDGE_TYPE =
-            "MATCH ()-[r]-() RETURN DISTINCT type(r) AS type";
-    private static final String QUERY_GET_EDGE_PROPERTIES =
-            "MATCH ()-[r]-() "
-                    + "UNWIND keys(r) AS key "
-                    + "UNWIND properties(n) AS property"
-                    + "RETURN DISTINCT key, type(r) AS type";
-
-    private static final String QUERY_GET_EDGE_PROPERTIES_WITH_AOCP =
-            "MATCH ()-[r]-() "
-                    + "UNWIND keys(r) AS key "
-                    + "UNWIND properties(r) AS property "
-                    + "RETURN DISTINCT key, type(r) AS type, apoc.meta.types(property) AS typelist";
 
     private static final String DEFAULT_ALL_LABEL = "ALL(Label)";
     private static final String DEFAULT_ALL_TYPE = "ALL(Type)";
@@ -461,8 +434,12 @@ public class VisualQuickQueryPanel extends Composite {
 
         if (this.editor != null && this.editor.getDataSourceContainer() != null) {
             databaseName = this.editor.getDataSourceContainer().getId();
-            if (databaseName.contains("turbograph_jdbc")) {
-                return true;
+//            if (databaseName.contains("turbograph_jdbc")) {
+//                return true;
+//            }
+            
+            if (databaseName.contains("cubrid_jdbc")) {
+            	return true;
             }
         }
 
@@ -638,64 +615,85 @@ public class VisualQuickQueryPanel extends Composite {
 
         private void getNodeProperties(DBRProgressMonitor monitor) {
             String vertexLabel;
-            String vertexPropertyName;
-            String typeList;
-            String query = QUERY_GET_VERTEX_PROPERTIES_WITH_AOCP;
-
+            
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Nodes properties")) {
-                JDBCPreparedStatement dbStat = session.prepareStatement(query);
-                try (JDBCResultSet dbResult = dbStat.executeQuery()) {
-                    while (dbResult.next()) {
-                        vertexLabel = JDBCUtils.safeGetString(dbResult, "label");
-                        vertexPropertyName = JDBCUtils.safeGetString(dbResult, "key");
-                        typeList = JDBCUtils.safeGetString(dbResult, "typelist");
-                        LinkedHashMap<String, String> proprties = vertexList.get(vertexLabel);
-                        if (proprties == null) {
-                            proprties = new LinkedHashMap<>();
-                            proprties.put(DEFAULT_ALL_PROPERTIES, null);
-                            vertexList.put(vertexLabel, proprties);
-                        }
-
-                        proprties.put(
-                                vertexPropertyName, searchTypeInJson(typeList, vertexPropertyName));
+            	JDBCDatabaseMetaData meta = session.getMetaData();
+            	JDBCResultSet dbResult = meta.getTables(null, null, null, new String[] {"TABLE"});
+            	
+                while (dbResult.next()) {
+            		vertexLabel = JDBCUtils.safeGetString(dbResult, "TABLE_NAME");
+                    JDBCResultSet propertyResultSet = meta.getColumns(null, null, vertexLabel, "node");
+                    LinkedHashMap<String, String> proprties = vertexList.get(vertexLabel);
+                    if (proprties == null) {
+                    	proprties = new LinkedHashMap<>();
+                        proprties.put(DEFAULT_ALL_PROPERTIES, null);
+                        vertexList.put(vertexLabel, proprties);
                     }
-                }
+                    
+                    while (propertyResultSet.next()) {
+                    	String propertyName = propertyResultSet.getString("COLUMN_NAME");
+                    	String typeName = propertyResultSet.getString("TYPE_NAME");
+//                        System.out.println("Property : " + propertyName);
+//                        System.out.println("DataType : " + propertyResultSet.getInt("DATA_TYPE"));
+//                        System.out.println("SQL DataType : " + propertyResultSet.getInt("SQL_DATA_TYPE"));
+//                        System.out.println("DataType : " + propertyResultSet.getString("TYPE_NAME"));
+                        proprties.put(
+                        		propertyName, typeName);
 
+                    }
+                    
+                    if (propertyResultSet.getStatement() != null) {
+                    	propertyResultSet.getStatement().close(); 
+                    }
+            	}
+
+                if (dbResult.getStatement() != null) dbResult.getStatement().close();
+                
             } catch (DBCException | SQLException e) {
                 error = e;
                 e.printStackTrace();
-            }
+            } 
         }
 
         private void getEdgeProperties(DBRProgressMonitor monitor) {
             String edgeType;
-            String edgePropertyName;
-            String typeList;
-            String query = QUERY_GET_EDGE_PROPERTIES_WITH_AOCP;
 
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Edges Propreties")) {
-                try (JDBCPreparedStatement dbStat = session.prepareStatement(query)) {
-                    try (JDBCResultSet dbResult = dbStat.executeQuery()) {
-                        while (dbResult.next()) {
-                            edgeType = JDBCUtils.safeGetString(dbResult, "type");
-                            edgePropertyName = JDBCUtils.safeGetString(dbResult, "key");
-                            typeList = JDBCUtils.safeGetString(dbResult, "typelist");
-                            LinkedHashMap<String, String> proprties = edgeList.get(edgeType);
-                            if (proprties == null) {
-                                proprties = new LinkedHashMap<>();
-                                proprties.put(DEFAULT_ALL_PROPERTIES, null);
-                                edgeList.put(edgeType, proprties);
-                            }
-
-                            proprties.put(
-                                    edgePropertyName, searchTypeInJson(typeList, edgePropertyName));
-                        }
+            	JDBCDatabaseMetaData meta = session.getMetaData();
+            	JDBCResultSet dbResult = meta.getTables(null, null, null, new String[] {"VIEW"});
+                while (dbResult.next()) {
+            		edgeType = JDBCUtils.safeGetString(dbResult, "TABLE_NAME");
+                    JDBCResultSet propertyResultSet = meta.getColumns(null, null, edgeType, "node");
+                    LinkedHashMap<String, String> proprties = edgeList.get(edgeType);
+                    if (proprties == null) {
+                    	proprties = new LinkedHashMap<>();
+                        proprties.put(DEFAULT_ALL_PROPERTIES, null);
+                        edgeList.put(edgeType, proprties);
                     }
-                }
+                    
+                    while (propertyResultSet.next()) {
+                    	String propertyName = propertyResultSet.getString("COLUMN_NAME");
+                    	String typeName = propertyResultSet.getString("TYPE_NAME");
+//                        System.out.println("Property : " + propertyName);
+//                        System.out.println("DataType : " + propertyResultSet.getInt("DATA_TYPE"));
+//                        System.out.println("SQL DataType : " + propertyResultSet.getInt("SQL_DATA_TYPE"));
+//                        System.out.println("DataType : " + propertyResultSet.getString("TYPE_NAME"));
+                        proprties.put(
+                        		propertyName, typeName);
+
+                    }
+                    
+                    if (propertyResultSet.getStatement() != null) {
+                    	propertyResultSet.getStatement().close();
+                    }
+            	}                
+            	
+                if (dbResult.getStatement() != null) dbResult.getStatement().close();
+                
             } catch (DBCException | SQLException e) {
                 error = e;
                 e.printStackTrace();
@@ -703,26 +701,70 @@ public class VisualQuickQueryPanel extends Composite {
         }
 
         @SuppressWarnings("unused")
-        private void getVertexInfo(DBRProgressMonitor monitor) {
+        private void testPrepareStatement(DBRProgressMonitor monitor) {
             String vertexLabel;
             String vertexProperty;
 
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Nodes And Edges")) {
-                session.setNetworkTimeout(null, 300);
-                JDBCDatabaseMetaData meta = session.getMetaData();
-                JDBCResultSet tableResultSet =
-                        meta.getTables(null, null, null, new String[] {"TABLE"});
-                while (tableResultSet.next()) {
-                    vertexLabel = JDBCUtils.safeGetString(tableResultSet, "TABLE_NAME");
-                    vertexList.put(vertexLabel, null);
-                    JDBCResultSet columsResultSet = meta.getColumns(null, null, vertexLabel, null);
-                    while (columsResultSet.next()) {
-                        vertexProperty = JDBCUtils.safeGetString(columsResultSet, "COLUMN_NAME");
-                        vertexList.put(vertexLabel, null);
-                    }
-                }
+            	String query = "MATCH (n:person) WHERE name = ? and age = ? RETURN n.born, n.name";
+            	JDBCPreparedStatement dbStat = null;
+
+            	dbStat = session.prepareStatement(query);
+        		dbStat.setString(1, "Kim");
+        		dbStat.setInt(2, 30);
+
+        		JDBCResultSet dbResult = dbStat.executeQuery();
+        		ResultSetMetaData meta = dbResult.getMetaData();
+        		int count = meta.getColumnCount();
+
+        		while (dbResult.next()) {
+        			for (int j = 1; j < count + 1; j++) {
+        					System.out.println("Label : " + meta.getTableName(j));
+        					System.out.println("Property : " + meta.getColumnName(j));
+        			       	System.out.println("Values : " + dbResult.getString(j));
+        			    }
+        		}
+
+                if (dbResult != null) dbResult.close();
+                if (dbStat != null) dbStat.close();
+                
+            } catch (DBCException | SQLException e) {
+                error = e;
+            }
+        }
+        
+        @SuppressWarnings("unused")
+        private void testCreateStatement(DBRProgressMonitor monitor) {
+            String vertexLabel;
+            String vertexProperty;
+
+            try (JDBCSession session =
+                    DBUtils.openMetaSession(
+                            monitor, editor.getDataSourceContainer(), "Load Nodes And Edges")) {
+            	//String query = "MATCH (n:) RETURN n.born, n.name";
+            	String query = "Match (n:CUSTOMER)-[r]->(m) return n,r,m";
+            	JDBCStatement dbStat = session.createStatement();
+            	boolean ret = dbStat.execute(query);
+            	JDBCResultSet dbResult;
+            	if (ret) {
+            		dbResult = dbStat.getResultSet();
+            		ResultSetMetaData meta = dbResult.getMetaData();
+            		int count = meta.getColumnCount();
+
+            		while (dbResult.next()) {
+            			for (int j = 1; j < count + 1; j++) {
+            					System.out.println("Label : " + meta.getTableName(j));
+            					System.out.println("Property : " + meta.getColumnName(j));
+            			       	System.out.println("Values : " + dbResult.getString(j));
+            			    }
+            		}
+            		if (dbResult != null) dbResult.close();
+            	}
+
+                if (dbStat != null) dbStat.close();
+                
             } catch (DBCException | SQLException e) {
                 error = e;
             }

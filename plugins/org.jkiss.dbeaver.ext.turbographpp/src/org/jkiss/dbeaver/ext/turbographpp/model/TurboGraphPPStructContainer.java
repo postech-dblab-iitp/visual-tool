@@ -37,7 +37,9 @@ public interface TurboGraphPPStructContainer extends DBSObjectContainer
 
     TableCache getTableCache();
 
-    List<? extends TurboGraphPPTable> getPhysicalTables(DBRProgressMonitor monitor) throws DBException;
+    List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor) throws DBException;
     List<? extends TurboGraphPPTableBase> getTables(DBRProgressMonitor monitor) throws DBException;
     TurboGraphPPTableBase getTable(DBRProgressMonitor monitor, String name) throws DBException;
+    
+    List<? extends TurboGraphPPTable> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException;
 }
