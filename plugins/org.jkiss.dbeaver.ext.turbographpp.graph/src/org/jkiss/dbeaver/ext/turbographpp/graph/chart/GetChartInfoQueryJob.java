@@ -1,4 +1,4 @@
-package org.jkiss.dbeaver.ext.turbographpp.graph.chart.jobs;
+package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.jkiss.dbeaver.ext.turbographpp.graph.GraphChart;
 import org.jkiss.dbeaver.model.DBPDataSource;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.exec.DBCException;

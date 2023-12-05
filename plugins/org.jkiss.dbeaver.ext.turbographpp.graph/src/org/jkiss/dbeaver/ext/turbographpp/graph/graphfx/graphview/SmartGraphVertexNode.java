@@ -110,7 +110,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
 	            		attachedLabel.xProperty().bind(centerXProperty().subtract(attachedLabel.getLayoutBounds().getWidth() / 2.0 ));
 	            		attachedLabel.yProperty().bind(centerYProperty().add(attachedLabel.getLayoutBounds().getHeight() / 2.0));
 	            	}
-	            	needlabelUpdate = false;
+	            	//needlabelUpdate = false;
             	}
             }
         };

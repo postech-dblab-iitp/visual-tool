@@ -1,4 +1,4 @@
-package org.jkiss.dbeaver.ext.turbographpp.graph;
+package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +20,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.jkiss.dbeaver.ext.turbographpp.graph.chart.jobs.GetChartInfoInGraphJob;
-import org.jkiss.dbeaver.ext.turbographpp.graph.chart.jobs.GetChartInfoQueryJob;
+import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
+import org.jkiss.dbeaver.ext.turbographpp.graph.MoveBox;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.GraphDataModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
@@ -197,9 +197,12 @@ public class GraphChart extends MoveBox {
         nodeSelectItem = item;
         CypherNode node = (CypherNode) item;
 
-        int labelIndex = nodeLableList.indexOf(node.getLabel());
-        if (labelIndex != -1) {
-            nodeLableList.select(labelIndex);
+        for (String label : node.getLabels()) {
+	        int labelIndex = nodeLableList.indexOf(label);
+	        if (labelIndex != -1) {
+	            nodeLableList.select(labelIndex);
+	            break;
+	        }
         }
 
         ArrayList<String> intProperyList = new ArrayList<>();
@@ -224,7 +227,7 @@ public class GraphChart extends MoveBox {
     }
 
     public void open(int positionX, int positionY) {
-        nodeLableList.setItems(graph.getDataModel().getNodeLableList());
+        nodeLableList.setItems(graph.getDataModel().getNodeLabelList());
         show();
         setOverlaySize(positionX, positionY, tabFolder.getSize().x, tabFolder.getSize().y);
     }

@@ -62,7 +62,10 @@ public class ExportCSV {
 			while(itr.hasNext()) {
 				CypherEdge cyperEdge = itr.next().element();
 				strBuilder.append(cyperEdge.getID() + ",");
-				strBuilder.append(cyperEdge.getType() + ",");
+				for (String type : cyperEdge.getTypes()) {
+					strBuilder.append(type + ",");
+					break;
+				}
 				strBuilder.append(cyperEdge.getStartNodeID() + ",");
 				strBuilder.append(cyperEdge.getEndNodeID());
 				
@@ -111,7 +114,10 @@ public class ExportCSV {
 			while(itr.hasNext()) {
 				CypherNode cyperNode = itr.next().element();
 				strBuilder.append(cyperNode.getID() + ",");
-				strBuilder.append(cyperNode.getLabel());
+				for (String label : cyperNode.getLabels()) {
+					strBuilder.append(label);
+					break; //temp
+				}
 				
 				for (String key : data.keySet()) {
 					data.put(key, "");

@@ -1,4 +1,4 @@
-package org.jkiss.dbeaver.ext.turbographpp.graph.chart.jobs;
+package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
-import org.jkiss.dbeaver.ext.turbographpp.graph.GraphChart;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.model.runtime.AbstractJob;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
