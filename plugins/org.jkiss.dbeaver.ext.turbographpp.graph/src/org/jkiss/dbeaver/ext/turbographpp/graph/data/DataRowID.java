@@ -6,6 +6,6 @@ public final class DataRowID {
 	public static final String EDGE_TYPE = "_type";
 	public static final String NEO4J_EDGE_START_ID = "_startId";
 	public static final String NEO4J_EDGE_END_ID = "_endId";
-	public static final String TURBOGRAPH_EDGE_START_ID = "_sId";
-	public static final String TURBOGRAPH_EDGE_END_ID = "_tId";
+	public static final String TURBOGRAPH_EDGE_START_ID = "_sid";
+	public static final String TURBOGRAPH_EDGE_END_ID = "_tid";
 }
