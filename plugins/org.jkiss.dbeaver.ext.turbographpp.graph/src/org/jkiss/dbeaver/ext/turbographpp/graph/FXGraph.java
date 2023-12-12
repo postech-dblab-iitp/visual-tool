@@ -375,6 +375,7 @@ public class FXGraph implements GraphBase {
                         edgeIDConsumer.accept(ID);
                         designBox.setSelectItem(edge);
                         valBox.updateItem(edge);
+                        valBox.show();
                     }
                 });
 

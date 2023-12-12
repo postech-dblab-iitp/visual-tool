@@ -22,6 +22,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
@@ -43,34 +44,41 @@ public class ValueBox extends MoveBox {
 	private TableViewerColumn viewerColumn;
 	
 	private List<Info> dataList = new ArrayList<>();
-	
+		
     private static final int OVERLAY_WIDTH = 300;
-    private static final int OVERLAY_HEIGHT = 250;
+    private static final int OVERLAY_HEIGHT = 340;
+    private static final int TABLEVIEW_MARGIN = 10;
     
     public ValueBox(Control control) {
         super(control, GraphMessages.valbox_title, OVERLAY_WIDTH, OVERLAY_HEIGHT);
         tabFolder = new TabFolder(this.getShell(), SWT.BORDER);
         tabFolder.setEnabled(true);
+        
+        valueTab = new TabItem(tabFolder, SWT.NONE);
+        valueTab.setText("Value");
+        
         GridData gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
         gd.horizontalSpan = 3;
+        gd.heightHint = OVERLAY_HEIGHT - TABLEVIEW_MARGIN - getMoveButtonSizeY() - valueTab.getBounds().height;
         tabFolder.setLayoutData(gd);
-
-        valueTab = new TabItem(tabFolder, SWT.NULL);
-        valueTab.setText("Value");
         
         Composite nodeComposite = new Composite(tabFolder, SWT.NONE);
-        nodeComposite.setLayout(new FillLayout());
+        GridLayout layout1 = new GridLayout(2, false);
+        layout1.marginHeight = 0;
+        layout1.marginWidth = 0;
+        nodeComposite.setLayout(layout1);
         valueTab.setControl(nodeComposite);
         
         createValueWidget(nodeComposite);
     }
 
     private void createValueWidget(Composite composite) {
+        System.out.println("createValueWidget");
     	tableColumnLayout = new TableColumnLayout();
     	composite.setLayout(tableColumnLayout);
     	
-    	tableViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
+    	tableViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		tableViewer.setUseHashlookup(true);
 		tableViewer.getTable().setLinesVisible(true);
 		tableViewer.getTable().setHeaderVisible(true);
@@ -236,22 +244,15 @@ public class ValueBox extends MoveBox {
         }
     }
     
-    private void switchWidget(boolean isNode) {
-    	if (isNode) {
-    		tabFolder.setSelection(0);
-    	} else {
-    		tabFolder.setSelection(1);
-    	}
-    }
-    
-  
     public void open(int positionX, int positionY) {
     	show();
     	setOverlaySize(positionX, positionY, tabFolder.getSize().x, tabFolder.getSize().y);
     }
     
     public void updateItem(Object obj) {
-    	Object getOjb;
+        
+    	Object getOjb = null;
+    	
     	if (obj instanceof CypherNode) {
     		dataList.clear();
     		
@@ -260,7 +261,7 @@ public class ValueBox extends MoveBox {
     		dataList.add(new Info(DataRowID.NODE_LABEL, String.valueOf(node.getLabels())));
     		for (String key : node.getProperties().keySet()) {
     			getOjb = node.getProperty(key);
-    			dataList.add(new Info(key, String.valueOf(getOjb), getOjb.getClass().getTypeName()));
+    			dataList.add(new Info(key, String.valueOf(getOjb), getOjb == null ? "null" : getOjb.getClass().getTypeName()));
     		}
     	} else if (obj instanceof CypherEdge) {
     		dataList.clear();
@@ -272,7 +273,7 @@ public class ValueBox extends MoveBox {
     		dataList.add(new Info(DataRowID.NEO4J_EDGE_END_ID, edge.getEndNodeID()));
     		for (String key : edge.getProperties().keySet()) {
     			getOjb = edge.getProperty(key);
-    			dataList.add(new Info(key, String.valueOf(getOjb), getOjb.getClass().getTypeName()));
+    			dataList.add(new Info(key, String.valueOf(getOjb), getOjb == null ? "null" : getOjb.getClass().getTypeName()));
     		}
     	}
     	
@@ -294,4 +295,5 @@ public class ValueBox extends MoveBox {
     @Override
     public void show(int x, int y) {
     }
+    
 }

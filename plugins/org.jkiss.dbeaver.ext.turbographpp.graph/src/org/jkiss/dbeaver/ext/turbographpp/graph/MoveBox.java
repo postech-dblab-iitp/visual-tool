@@ -46,7 +46,7 @@ public class MoveBox {
 
     private PaintListener paintListener;
     
-    private Button moveButoon;
+    private Button moveButton;
     
     public MoveBox(Control composite, String title) {
     	this(composite, title, OVERLAY_WIDTH, OVERLAY_HEIGHT, true);
@@ -92,11 +92,11 @@ public class MoveBox {
         	gdata.horizontalSpan = 3;
         }
         
-        moveButoon = new Button(overlayShell, SWT.NONE);
-        moveButoon.setAlignment(SWT.CENTER);
-        moveButoon.setText(title);
-        moveButoon.setLayoutData(gdata);
-        moveButoon.addMouseListener(new MouseListener() {
+        moveButton = new Button(overlayShell, SWT.NONE);
+        moveButton.setAlignment(SWT.CENTER);
+        moveButton.setText(title);
+        moveButton.setLayoutData(gdata);
+        moveButton.addMouseListener(new MouseListener() {
 			
 			@Override
 			public void mouseUp(MouseEvent e) {
@@ -115,7 +115,7 @@ public class MoveBox {
 			}
 		});
         
-        moveButoon.addMouseMoveListener(new MouseMoveListener() {
+        moveButton.addMouseMoveListener(new MouseMoveListener() {
 			
 			@Override
 			public void mouseMove(MouseEvent e) {
@@ -292,7 +292,7 @@ public class MoveBox {
     }
     
     public void setTitleText(String title) {
-    	moveButoon.setText(title);
+        moveButton.setText(title);
     }
     
     public Composite getParent() {
@@ -307,7 +307,7 @@ public class MoveBox {
     
     public void setOverlaySize(int width, int height) {
     	overlay_width = width;
-    	overlay_height = height + moveButoon.getSize().y;
+    	overlay_height = height + moveButton.getSize().y;
     	reSize();
     }
     
@@ -315,6 +315,10 @@ public class MoveBox {
     	overlay_width = width;
     	overlay_height = height;
     	reSize();
+    }
+    
+    public int getMoveButtonSizeY() {
+        return moveButton.getSize().y;
     }
 }
 

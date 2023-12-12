@@ -48,6 +48,7 @@ import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.ModelPreferences;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.GraphBase.LayoutStyle;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.DataRowID;
 import org.jkiss.dbeaver.model.DBConstants;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.data.DBDAttributeBinding;
@@ -111,6 +112,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	private HashMap<String, String> displayStringEdgeList = new HashMap<>();
 	
 	private boolean init = false;
+	
+	public static final String NODE_EDGE_ID = DataRowID.NODE_EDGE_ID;
+	public static final String NODE_LABEL = DataRowID.NODE_LABEL;
+	public static final String EDGE_TYPE = DataRowID.EDGE_TYPE;
+	public static final String NEO4J_EDGE_START_ID = DataRowID.NEO4J_EDGE_START_ID;
+	public static final String NEO4J_EDGE_END_ID = DataRowID.NEO4J_EDGE_END_ID;
+	public static final String TURBOGRAPH_EDGE_START_ID = DataRowID.TURBOGRAPH_EDGE_START_ID;
+	public static final String TURBOGRAPH_EDGE_END_ID = DataRowID.TURBOGRAPH_EDGE_END_ID;
 	
     private String currentQuery = "";
 	@Override
@@ -399,8 +408,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             ResultSetModel model, DBDAttributeBinding attr, ResultSetRow row, String cellString) {
         Object cellValue = model.getCellValue(attr, row);
 
-    	final String ID_KEY = "_id";
-    	final String LABEL_KEY = "_labels";
+    	final String ID_KEY = NODE_EDGE_ID;
+    	final String LABEL_KEY = NODE_LABEL;
         
         LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
         String id = "";
@@ -431,10 +440,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
     private boolean addNeo4jEdge(ResultSetModel model,
     		DBDAttributeBinding attr, ResultSetRow row, String cellString) {
-    	final String ID_KEY = "_id";
-    	final String LABEL_KEY = "_type";
-    	final String SID_KEY = "_startId";
-    	final String TID_KEY = "_endId";
+    	final String ID_KEY = NODE_EDGE_ID;
+    	final String LABEL_KEY = EDGE_TYPE;
+    	final String SID_KEY = NEO4J_EDGE_START_ID;
+    	final String TID_KEY = NEO4J_EDGE_END_ID;
     	
     	LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
         Object cellValue = model.getCellValue(attr, row);
@@ -787,8 +796,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         if (visualGraph != null) {
             if (controller != null && controller.getDataContainer() != null) {
-                visualGraph.setCurrentQuery(controller.getDataContainer().getName(), allRows.size());
                 currentQuery = controller.getDataContainer().getName();
+                visualGraph.setCurrentQuery(currentQuery, allRows.size());
             }
         }
         
@@ -807,15 +816,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         	} else { //TurboGraph++
         		String label = attrs.get(i).getMetaAttribute().getEntityName();
         		if (!label.isEmpty()) {
-	            	if (attrs.get(i).getName().equals("_id")
-	            			&& attrs.get(i+1).getName().equals("_startid")) {
+	            	if (attrs.get(i).getName().equals(NODE_EDGE_ID)
+	            			&& attrs.get(i+1).getName().equals(TURBOGRAPH_EDGE_START_ID)) {
 	            		temp = new TurboRowData(label, true, i);
 	            		edgeRowData.add(temp);
-	            	} else if (attrs.get(i).getName().equals("_id")) {
+	            	} else if (attrs.get(i).getName().equals(NODE_EDGE_ID)) {
 	            		temp = new TurboRowData(label, false, i);
 	            		nodeRowData.add(temp);
-	            	} 
-	            	else {
+	            	} else {
 	            		if (temp != null) {
 	            			temp.endIdx = i;
 	            		}
@@ -823,7 +831,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         		}
         	}
         }
-        
         
     	for (ResultSetRow row : allRows) { // Add Node
     		for (Object obj : nodeRowData) {

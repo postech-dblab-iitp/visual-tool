@@ -667,7 +667,7 @@ public class VisualQuickQueryPanel extends Composite {
             	JDBCResultSet dbResult = meta.getTables(null, null, null, new String[] {"VIEW"});
                 while (dbResult.next()) {
             		edgeType = JDBCUtils.safeGetString(dbResult, "TABLE_NAME");
-                    JDBCResultSet propertyResultSet = meta.getColumns(null, null, edgeType, "node");
+                    JDBCResultSet propertyResultSet = meta.getColumns(null, null, edgeType, "edge");
                     LinkedHashMap<String, String> proprties = edgeList.get(edgeType);
                     if (proprties == null) {
                     	proprties = new LinkedHashMap<>();
