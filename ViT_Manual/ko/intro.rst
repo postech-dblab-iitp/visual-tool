@@ -24,10 +24,10 @@ ViT 구조
 
 본 과제의 시각화 도구는 Eclipse RCP로 개발된 DBeaver를 기반으로, 
 시각화 및 데이터 분석 기능을 확장한다.
-시각화 기능 확장을 위해 Gephi Lib를 사용하며, 이를 통해 그래프(Graph)를 관리하고 분석한다.
+시각화 기능 확장을 위해 Java Lib를 사용하며, 이를 통해 그래프(Graph)를 관리하고 분석한다.
 관리, 분석된 데이터(Data)는 JAVAFX Lib를 이용하여 시각화 되어 물리적으로 표현된다.
 기본적인 연결, 데이터 통신 등의 인터페이스(interface)부분을 표준화된 JDBC를 구현,사용하여 그래프 DBMS와 통신할 수 있도록 구조화한다.
-그래프 드라이버는 TurboGraph++에서 제공하는 Server for GQL을 이용하여 TurboGraph++와 통신을 하게 된다. 
+그래프 드라이버는 TurboGraph++에서 제공하는 API Server 와 CUBRID Broker,CAS 구조로 되어 있는 Server 을 이용하여 TurboGraph++와 통신을 하게 된다. 
 
 
 관련 내용
@@ -52,14 +52,16 @@ SQL을 보완하기 위한 독립 실행형 그래프 질의 언어로 기존 Op
 
 .. image:: /images/gql.png
 
-Gephi (gephi.org)
+JavaFX (openjfx.io)
 -------------
 
-Gephi는 공개 소프트웨어 그래프 시각화 플랫폼으로 네트워크를 분석하고 대형 그래프를 시각화를 지원하는 도구이다. Gephi는 Netbeans Framework의 기본 적인 틀에 다양한 Plug-in 업데이트를 통해 개발되었다.
-탐색 데이터 분석, 링크 분석하고 데이터를 필터링 할 수 있다.
+JavaFX는 공개 소프트웨어 그래프 시각화 플랫폼으로 네트워크를 분석하고 대형 그래프를 시각화를 지원하는 도구이다. 
 
-.. image:: /images/gephi.png
+JavaFX는 Framework의 기본 적인 틀에 다양한 Plug-in 업데이트를 통해 개발되었다.
 
-본 과제에서는 Netbeans Platform과 UI Module이 제거된 Gephi Toolkit을 이용하여 Eclipse RCP환경에서 Graph를 관리하고 분석할 수 있도록 개발할 예정이다.
+데이터를 시각화, 차트화 하는데 사용 된다.
 
-.. image:: /images/gephi_toolkit.png
+.. image:: /images/javafx.png
+
+본 과제에서는 JavaFX와 e(fx)clipse을 이용하여 Eclipse RCP환경에서 Graph를 관리하고 분석할 수 있도록 개발 되었다.
+
