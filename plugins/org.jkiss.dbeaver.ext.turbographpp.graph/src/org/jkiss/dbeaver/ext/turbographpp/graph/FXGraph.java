@@ -360,7 +360,6 @@ public class FXGraph implements GraphBase {
                         nodeIDConsumer.accept(ID);
                         designBox.setSelectItem(node);
                         valBox.updateItem(node);
-                        valBox.show();
                     }
                 });
 
@@ -375,7 +374,6 @@ public class FXGraph implements GraphBase {
                         edgeIDConsumer.accept(ID);
                         designBox.setSelectItem(edge);
                         valBox.updateItem(edge);
-                        valBox.show();
                     }
                 });
 
@@ -1167,6 +1165,10 @@ public class FXGraph implements GraphBase {
 	
 	public void chartShow() {
 	    chartBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
+	}
+	
+	public void valueShow() {
+	    valBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
 	}
 	
 	public void setCurrentQuery(String query, int rowCount) {

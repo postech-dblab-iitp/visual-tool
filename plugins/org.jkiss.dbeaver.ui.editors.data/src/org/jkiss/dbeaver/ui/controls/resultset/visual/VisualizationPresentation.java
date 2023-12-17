@@ -78,6 +78,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	// for Other ImageButton
     private enum ImageButton {
         SHORTEST,
+        VALUE,
         DESIGN,
         CHART,
         CAPTURE,
@@ -250,12 +251,15 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget != null && e.widget.getData() != null) {
 				switch((ImageButton) e.widget.getData()) {
+				    case VALUE :
+				        visualGraph.valueShow();
+				        break;
 					case DESIGN :
-						visualGraph.designEditorShow();
-                                break;
-                            case CHART:
-                                visualGraph.chartShow();
-                                break;
+					    visualGraph.designEditorShow();
+					    break;
+					case CHART:
+					    visualGraph.chartShow();
+					    break;
 					case CAPTURE :
 					    saveImage();
 					    setShortestMode(false);
@@ -316,6 +320,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		shortestButton.setData(ImageButton.SHORTEST);
 		shortestButton.addSelectionListener(imageButtonListener);
 		shortestButton.pack();
+		
+		button1 = new Button(composite2, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
+        button1.setToolTipText("Chart");
+        button1.setData(ImageButton.CHART);
+        button1.addSelectionListener(imageButtonListener);
+        button1.pack();
+		
 		composite2.pack();
 
 		size = composite2.getSize();
@@ -325,6 +337,13 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		Composite composite3 = new Composite(coolBar, SWT.NONE);
         composite3.setLayout(new GridLayout(4, true));
 
+        button1 = new Button(composite3, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.PROPERTIES));
+        button1.setToolTipText("Value");
+        button1.setData(ImageButton.VALUE);
+        button1.addSelectionListener(imageButtonListener);
+        button1.pack();
+        
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DESIGN));
 		button1.setToolTipText("Design Editor");
@@ -332,13 +351,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
 		
-        button1 = new Button(composite3, SWT.PUSH);
-        button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
-        button1.setToolTipText("Chart");
-        button1.setData(ImageButton.CHART);
-        button1.addSelectionListener(imageButtonListener);
-        button1.pack();
-
 		button1 = new Button(composite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
 		button1.setToolTipText("Visualization Capture");
@@ -380,7 +392,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		composite5.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
 		
 		InfoLabel = new Label(composite5, SWT.READ_ONLY | SWT.CENTER);
-		InfoLabel.setText("Edge : " + "00000" + " Node : " + "00000");
+		//InfoLabel.setText("Edge : " + "00000" + " Node : " + "00000");
 		
 		composite5.pack();
 		
@@ -905,7 +917,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			    drawSizeY = compositeSizeY;
             }
 			
-			InfoLabel.setText(drawSizeX + " X " + drawSizeY); 
+			//InfoLabel.setText(drawSizeX + " X " + drawSizeY); 
 			
 			if (!init) {
 			    visualGraph.drawGraph(drawSizeX, drawSizeY);

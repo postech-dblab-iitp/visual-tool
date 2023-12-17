@@ -89,8 +89,8 @@ public class VisualQuickQueryPanel extends Composite {
 
     private SaveSelectItem saveItem = new SaveSelectItem();
     
-    private GetTypeInfoJob startUpdateJob;
     private ReentrantLock lock = new ReentrantLock();
+    private GetTypeInfoJob startUpdateJob;
 
     public VisualQuickQueryPanel(SQLEditor editor, Composite parent) {
         super(parent, SWT.NONE);
@@ -471,7 +471,7 @@ public class VisualQuickQueryPanel extends Composite {
         if (isGraphDB) {
             startUpdateJob = new GetTypeInfoJob("VisualQuickQueryPanel editor Update");
 
-            if (!startUpdateJob.isFinished()) {
+            if (!isLocked()) {
                 startUpdateJob.schedule();
             }
         }
@@ -615,6 +615,7 @@ public class VisualQuickQueryPanel extends Composite {
 
         private void getNodeProperties(DBRProgressMonitor monitor) {
             String vertexLabel;
+            JDBCSession closeSession = null;
             
             try (JDBCSession session =
                     DBUtils.openMetaSession(
@@ -650,16 +651,24 @@ public class VisualQuickQueryPanel extends Composite {
             	}
 
                 if (dbResult.getStatement() != null) dbResult.getStatement().close();
-                
+                closeSession = session;
             } catch (DBCException | SQLException e) {
                 error = e;
                 e.printStackTrace();
-            } 
+            } finally {
+            	try {
+					if (closeSession != null && !closeSession.isClosed()) {
+						closeSession.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
         }
 
         private void getEdgeProperties(DBRProgressMonitor monitor) {
             String edgeType;
-
+            JDBCSession closeSession = null;
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Edges Propreties")) {
@@ -693,11 +702,19 @@ public class VisualQuickQueryPanel extends Composite {
             	}                
             	
                 if (dbResult.getStatement() != null) dbResult.getStatement().close();
-                
+                closeSession = session;
             } catch (DBCException | SQLException e) {
                 error = e;
                 e.printStackTrace();
-            }
+            } finally {
+            	try {
+					if (closeSession != null && !closeSession.isClosed()) {
+						closeSession.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
         }
 
         @SuppressWarnings("unused")
@@ -991,5 +1008,9 @@ public class VisualQuickQueryPanel extends Composite {
                 ePropertySearchText.setText(getDefaultTypeString(dataType));
             }
         }
+    }
+    
+    public boolean isLocked() {
+    	return lock.isLocked();
     }
 }

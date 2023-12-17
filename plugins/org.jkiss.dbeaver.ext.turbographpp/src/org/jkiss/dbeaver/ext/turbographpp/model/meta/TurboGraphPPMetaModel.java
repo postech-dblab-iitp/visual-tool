@@ -432,9 +432,9 @@ public class TurboGraphPPMetaModel {
             null,
             null,
             forTable == null ?
-                owner.getDataSource().getAllObjectsPattern() :
-                JDBCUtils.escapeWildCards(session, forTable.getName()),
-            owner.getDataSource().getAllObjectsPattern())
+            owner.getDataSource().getAllObjectsPattern() :
+            JDBCUtils.escapeWildCards(session, forTable.getName()),
+            getColumnNamePattern(forTable))
             .getSourceStatement();
     }
 
@@ -572,11 +572,11 @@ public class TurboGraphPPMetaModel {
     }
 
     public boolean hasProcedureSupport() {
-        return true;
+        return false;
     }
 
     public boolean hasFunctionSupport() {
-        return true;
+        return false;
     }
 
     public boolean supportsCheckConstraints() {
@@ -588,4 +588,15 @@ public class TurboGraphPPMetaModel {
         return !(dataSourceInfo instanceof JDBCDataSourceInfo) ||
             ((JDBCDataSourceInfo) dataSourceInfo).supportsViews();
     }
+    
+    private String getColumnNamePattern(TurboGraphPPTableBase forTable) {
+    if (forTable == null) {
+        return "node";
+    } else {
+        if (isView(forTable.getTableType())) {
+            return "edge";
+        }
+    }
+    return "node";
+}
 }
