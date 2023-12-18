@@ -10,7 +10,7 @@
 
     <properties>
         <dbeaver-version>21.2.2</dbeaver-version>
-        <vit-version>1.0.0</vit-version>
+        <vit-version>2.0.0</vit-version>
         <dbeaver-product>DBeaver</dbeaver-product>
         <tycho-version>2.1.0</tycho-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
