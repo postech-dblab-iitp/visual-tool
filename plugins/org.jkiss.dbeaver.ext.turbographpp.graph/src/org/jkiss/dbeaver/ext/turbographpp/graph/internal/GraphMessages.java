@@ -19,7 +19,7 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.internal;
 import org.eclipse.osgi.util.NLS;
 
 public class GraphMessages extends NLS {
-	static final String BUNDLE_NAME = "org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphResources"; //$NON-NLS-1$
+    public static final String  BUNDLE_NAME = "org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphResources"; //$NON-NLS-1$
 
 	public static String fxgraph_export_csv_dialog_title;
 	public static String fxgraph_export_csv_dialog_default_msg;
