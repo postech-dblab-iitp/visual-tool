@@ -526,8 +526,7 @@ public class VisualQuickQueryPanel extends Composite {
                 lock.lock();
 
                 dataInit();
-                getNodeProperties(monitor);
-                getEdgeProperties(monitor);
+                getProperties(monitor);
                 updateComboView();
             } finally {
                 lock.unlock();
@@ -613,24 +612,41 @@ public class VisualQuickQueryPanel extends Composite {
             }
         }
 
-        private void getNodeProperties(DBRProgressMonitor monitor) {
-            String vertexLabel;
+        private void getProperties(DBRProgressMonitor monitor) {
+            String label;
+            String type;
             JDBCSession closeSession = null;
             
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Nodes properties")) {
             	JDBCDatabaseMetaData meta = session.getMetaData();
-            	JDBCResultSet dbResult = meta.getTables(null, null, null, new String[] {"TABLE"});
+            	JDBCResultSet dbResult = meta.getTables(null, null, null, null);
             	
+            	JDBCResultSet propertyResultSet;
+            	LinkedHashMap<String, String> proprties;
                 while (dbResult.next()) {
-            		vertexLabel = JDBCUtils.safeGetString(dbResult, "TABLE_NAME");
-                    JDBCResultSet propertyResultSet = meta.getColumns(null, null, vertexLabel, "node");
-                    LinkedHashMap<String, String> proprties = vertexList.get(vertexLabel);
-                    if (proprties == null) {
-                    	proprties = new LinkedHashMap<>();
-                        proprties.put(DEFAULT_ALL_PROPERTIES, null);
-                        vertexList.put(vertexLabel, proprties);
+                    label = JDBCUtils.safeGetString(dbResult, "TABLE_NAME");
+                    type = JDBCUtils.safeGetString(dbResult, "TABLE_TYPE");
+                    
+                    if (type.equals("TABLE")) {
+                        propertyResultSet = meta.getColumns(null, null, label, "node");
+                        proprties = vertexList.get(label);
+                    
+                        if (proprties == null) {
+                        	proprties = new LinkedHashMap<>();
+                            proprties.put(DEFAULT_ALL_PROPERTIES, null);
+                            vertexList.put(label, proprties);
+                        }
+                    } else {
+                        propertyResultSet = meta.getColumns(null, null, label, "edge");
+                        proprties = edgeList.get(label);
+                    
+                        if (proprties == null) {
+                            proprties = new LinkedHashMap<>();
+                            proprties.put(DEFAULT_ALL_PROPERTIES, null);
+                            edgeList.put(label, proprties);
+                        }
                     }
                     
                     while (propertyResultSet.next()) {

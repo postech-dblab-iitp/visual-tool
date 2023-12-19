@@ -1,6 +1,6 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.data;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
@@ -8,7 +8,7 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProx
 public class CypherEdge {
     private String id;
     private List<String> types;
-    private HashMap<String, Object> property;
+    private LinkedHashMap<String, Object> property;
     private String startNodeID;
     private String endNodeID;
     private DisplayType displayType;
@@ -21,12 +21,12 @@ public class CypherEdge {
     public CypherEdge(
             String id,
             List<String> types,
-            HashMap<String, Object> property,
+            LinkedHashMap<String, Object> property,
             String startNodeID,
             String endNodeID) {
         this.id = id;
         this.types = types;
-        this.property = new HashMap<>();
+        this.property = new LinkedHashMap<>();
         if (property != null) {
             this.property.putAll(property);
         }
@@ -43,7 +43,7 @@ public class CypherEdge {
         return this.types;
     }
 
-    public HashMap<String, Object> getProperties() {
+    public LinkedHashMap<String, Object> getProperties() {
         return this.property;
     }
 

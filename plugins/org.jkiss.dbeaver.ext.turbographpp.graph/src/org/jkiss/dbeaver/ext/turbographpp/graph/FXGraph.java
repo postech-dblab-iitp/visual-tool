@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -472,7 +473,7 @@ public class FXGraph implements GraphBase {
     }
 
     @Override
-    public Object addNode(String id, List<String> labels, HashMap<String, Object> attr) {
+    public Object addNode(String id, List<String> labels, LinkedHashMap<String, Object> attr) {
     	//For Group Color
     	Object v = null;
     	String fillColor = "";
@@ -496,7 +497,7 @@ public class FXGraph implements GraphBase {
 
     @Override
     public Object addEdge(String id, List<String> types, String startNodeID, String endNodeID,
-            HashMap<String, Object> attr) {
+            LinkedHashMap<String, Object> attr) {
         if (dataModel.getEdge(id) != null) {
             return null;
         }

@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.themes.ITheme;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
@@ -854,7 +855,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     				TurboRowData data = (TurboRowData)obj;
     				List<String> multiLabel = new ArrayList<>(); //temp
     				multiLabel.add(data.label);
-        			HashMap<String, Object> attrMap = new HashMap<>();
+        			LinkedHashMap<String, Object> attrMap = new LinkedHashMap<>();
         			String id = "";
     				for (int j = data.startIdx ; j <= data.endIdx ; j++) {
     					if (j == data.startIdx) {
@@ -878,7 +879,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     				TurboRowData data = (TurboRowData)obj;
     				List<String> multiLabel = new ArrayList<>(); //temp
     				multiLabel.add(data.label);
-        			HashMap<String, Object> attrMap = new HashMap<>();
+    				LinkedHashMap<String, Object> attrMap = new LinkedHashMap<>();
         			String id = "" , sid = "", tid = "";
     				for (int j = data.startIdx ; j <= data.endIdx ; j++) {
     					if (j == data.startIdx) {

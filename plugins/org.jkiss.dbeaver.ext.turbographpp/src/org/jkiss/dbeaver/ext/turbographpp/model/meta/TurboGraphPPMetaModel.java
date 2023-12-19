@@ -64,23 +64,6 @@ public class TurboGraphPPMetaModel {
     private static final Log log = Log.getLog(TurboGraphPPMetaModel.class);
     private static final String DEFAULT_NULL_SCHEMA_NAME = "DEFAULT";
 
-    // Tables types which are not actually a table
-    // This is needed for some strange JDBC drivers which returns not a table objects
-    // in DatabaseMetaData.getTables method (PostgreSQL especially)
-    private static final Set<String> INVALID_TABLE_TYPES = new HashSet<>();
-
-    static {
-        // [JDBC: PostgreSQL]
-        INVALID_TABLE_TYPES.add("INDEX");
-        INVALID_TABLE_TYPES.add("SEQUENCE");
-        INVALID_TABLE_TYPES.add("TYPE");
-        INVALID_TABLE_TYPES.add("SYSTEM INDEX");
-        INVALID_TABLE_TYPES.add("SYSTEM SEQUENCE");
-        // [JDBC: SQLite]
-        INVALID_TABLE_TYPES.add("TRIGGER");
-    }
-
-
     TurboGraphPPMetaModelDescriptor descriptor;
 
     public TurboGraphPPMetaModel()
@@ -360,10 +343,6 @@ public class TurboGraphPPMetaModel {
             return null;
         }
 
-        if (tableType != null && INVALID_TABLE_TYPES.contains(tableType)) {
-            // Bad table type. Just skip it
-            return null;
-        }
         if (DBUtils.isVirtualObject(owner) && !CommonUtils.isEmpty(tableSchema)) {
             // Wrong schema - this may happen with virtual schemas
             return null;
