@@ -73,6 +73,7 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartCi
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartGridPlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartHorizotalTreePlacementStrategy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout.SmartVerticalTreePlacementStrategy;
+import org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphMessages;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
@@ -308,16 +309,18 @@ public class FXGraph implements GraphBase {
                             startVertex = graphVertex;
                             graphView.doHighlightVertexStyle(startVertex);
                             guideBox.setComboList(getincidentEdgesProperies(startVertex.getUnderlyingVertex()));
-                            guideBox.setText("Please Select EndNode(Vertex)");
+                            guideBox.setText(GraphMessages.shortest_please_select_end);
                         } else if (isEmptyEndVertex()) {
                             endVertex = graphVertex;
                             graphView.doHighlightVertexStyle(endVertex);
                             String result = "";
                             if (!runShortest(guideBox.getSelectedProperty())) {
-                                result = "Shortest Path does not exist.\n";
+                                result = GraphMessages.shortest_not_find_search_path + "\n";
                             }
-                            guideBox.setText(result + "Please Select StartNode(Vertex)\n"
-                            		+ "path Count = " + graph.getPathCount() + " weight = " + graph.getLastWeight() + "\n"
+                            guideBox.setText(result + GraphMessages.shortest_please_select_first +"\n"
+                            		+ GraphMessages.shortest_info_path + " "  
+                                    + GraphMessages.shortest_info_count + " = " + graph.getPathCount() + " "
+                                    + GraphMessages.shortest_info_weight + " = " + graph.getLastWeight() + "\n"
                             		+ graph.getLastPathString());
                         } else {
                             unShortestMode();
@@ -327,7 +330,7 @@ public class FXGraph implements GraphBase {
                             startVertex = graphVertex;
                             graphView.doHighlightVertexStyle(startVertex);
                             guideBox.setComboList(getincidentEdgesProperies(startVertex.getUnderlyingVertex()));
-                            guideBox.setText("Please Select EndNode(Vertex)");
+                            guideBox.setText(GraphMessages.shortest_please_select_end);
                         }
 
                     } else {
@@ -1057,7 +1060,7 @@ public class FXGraph implements GraphBase {
 			startVertex = null;
 			endVertex = null;
 			
-			guideBox.setText("Please Select StartNode(Vertex)");
+			guideBox.setText(GraphMessages.shortest_please_select_first);
 			guideBox.open();
 			
 		} else {
@@ -1081,7 +1084,7 @@ public class FXGraph implements GraphBase {
 			    return true;
 			}
         } else{
-        	guideBox.setText("Please select two vertices to compute the shortest path between them.\n\n");
+        	guideBox.setText(GraphMessages.shortest_please_select_between + "\n\n");
         	return false;
         }
 	}

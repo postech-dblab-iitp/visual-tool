@@ -97,7 +97,7 @@ public class ShortestGuideBox extends MoveBox {
     public void setComboList(Set<String> list) {
     	propertyCombo.setEnabled(true);
     	propertyCombo.removeAll();
-    	propertyCombo.add("Default Weight (1)");
+    	propertyCombo.add(GraphMessages.shortest_properties_default);
     	
     	for (String item : list) {
     		propertyCombo.add(item);

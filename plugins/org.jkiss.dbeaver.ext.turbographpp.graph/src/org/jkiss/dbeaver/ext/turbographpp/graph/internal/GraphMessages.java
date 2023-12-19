@@ -35,6 +35,17 @@ public class GraphMessages extends NLS {
 	public static String designbox_title; 
 	public static String designbox_table_col_item;
 	public static String designbox_table_col_value;
+	public static String designbox_table_node_tab_title;
+	public static String designbox_table_edge_tab_title;
+    public static String designbox_table_tab_radius;
+    public static String designbox_table_tab_color;
+    public static String designbox_table_tab_text_size;
+    public static String designbox_table_tab_display_type;
+    public static String designbox_table_tab_display_propeties;
+    public static String designbox_table_tab_line_str;
+    public static String designbox_table_tab_line_color;
+    public static String designbox_table_tab_line_style;
+    public static String designbox_table_apply;
 	public static String graphbox_title;
 	public static String graphbox_radio_by_visualGraph;
 	public static String graphbox_radio_by_all;
@@ -45,6 +56,17 @@ public class GraphMessages extends NLS {
 	public static String valbox_copy_value;
 	public static String valbox_copy_name;
 	public static String valbox_tooltip_msg;
+	public static String shortest_properties_default;
+	public static String shortest_please_select_first;
+    public static String shortest_please_select_end;
+	public static String shortest_please_select_between;
+	public static String shortest_not_find_search_path;
+	public static String shortest_info_path;
+	public static String shortest_info_count;
+	public static String shortest_info_weight;
+	public static String fxgraph_all_label;
+	public static String fxgraph_all_type;
+	public static String fxgraph_all_property;
 
     static {
 		// initialize resource bundle
@@ -52,5 +74,6 @@ public class GraphMessages extends NLS {
 	}
 
 	private GraphMessages() {
+	    System.out.println("GraphMessages");
 	}
 }

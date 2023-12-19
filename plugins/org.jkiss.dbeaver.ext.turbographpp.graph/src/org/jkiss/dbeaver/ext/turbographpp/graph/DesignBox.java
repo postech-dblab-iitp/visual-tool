@@ -73,10 +73,10 @@ public class DesignBox extends MoveBox {
         tabFolder.setLayoutData(gd);
 
         nodeTab = new TabItem(tabFolder, SWT.NULL);
-        nodeTab.setText("Node");
+        nodeTab.setText(GraphMessages.designbox_table_node_tab_title);
         
         edgeTab = new TabItem(tabFolder, SWT.NULL);
-        edgeTab.setText("Edge");
+        edgeTab.setText(GraphMessages.designbox_table_edge_tab_title);
         
         Composite nodeComposite = new Composite(tabFolder, SWT.NONE);
         gd = new GridData();
@@ -108,7 +108,7 @@ public class DesignBox extends MoveBox {
     private void createEdgeWidget(Composite composite) {
     	
     	Label edgeType = new Label(composite, SWT.NONE);
-    	edgeType.setText("Type");
+    	edgeType.setText(GraphMessages.fxgraph_all_type);
     	
     	edgeTypeList = new Combo(composite, SWT.READ_ONLY);
     	edgeTypeList.setItems(graph.getDataModel().getEdgeTypeList());
@@ -121,7 +121,7 @@ public class DesignBox extends MoveBox {
         });
     	
     	Label strengthLabel = new Label(composite, SWT.NONE);
-    	strengthLabel.setText("Line Strength");
+    	strengthLabel.setText(GraphMessages.designbox_table_tab_line_str);
 
         lineStrength = new Spinner(composite, SWT.NONE);
         lineStrength.setDigits(1);
@@ -130,7 +130,7 @@ public class DesignBox extends MoveBox {
         lineStrength.setIncrement(1);
 
         Label colorLabel = new Label(composite, SWT.NONE);
-        colorLabel.setText("Line Color");
+        colorLabel.setText(GraphMessages.designbox_table_tab_line_color);
 
         lineColor = new Button(composite, SWT.NONE);
         lineColor.setBackground(new Color(255, 0, 0));
@@ -151,7 +151,7 @@ public class DesignBox extends MoveBox {
                 });
 
         Label StyleLabel = new Label(composite, SWT.NONE);
-        StyleLabel.setText("Line Style");
+        StyleLabel.setText(GraphMessages.designbox_table_tab_line_style);
 
         lineStyle = new Combo(composite, SWT.READ_ONLY);
         String[] nameList = new String[LineStyle.values().length];
@@ -175,7 +175,7 @@ public class DesignBox extends MoveBox {
         });
         
         Label textSizeLable = new Label(composite, SWT.NONE);
-        textSizeLable.setText("Edge Text Size");
+        textSizeLable.setText(GraphMessages.designbox_table_tab_text_size);
 
         edgeTextSize = new Spinner(composite, SWT.NONE);
         edgeTextSize.setDigits(0);
@@ -185,7 +185,7 @@ public class DesignBox extends MoveBox {
         edgeTextSize.setSelection(5);
 
         Button applyButton = new Button(composite, SWT.NONE);
-        applyButton.setText("Apply");
+        applyButton.setText(GraphMessages.designbox_table_apply);
         applyButton.addSelectionListener(
         		new SelectionAdapter() {
                     @Override
@@ -200,7 +200,7 @@ public class DesignBox extends MoveBox {
     private void createNodeWidget(Composite composite) {
     	
     	Label nodeLabel = new Label(composite, SWT.NONE);
-    	nodeLabel.setText("Label");
+    	nodeLabel.setText(GraphMessages.fxgraph_all_label);
     	
     	nodeLableList = new Combo(composite, SWT.READ_ONLY);
 
@@ -213,7 +213,7 @@ public class DesignBox extends MoveBox {
         });
     	
     	Label radiusLabel = new Label(composite, SWT.NONE);
-        radiusLabel.setText("Radius");
+        radiusLabel.setText(GraphMessages.designbox_table_tab_radius);
 
         radius = new Spinner(composite, SWT.NONE);
         radius.setDigits(1);
@@ -223,7 +223,7 @@ public class DesignBox extends MoveBox {
         radius.setSelection(105);
 
         Label colorLabel = new Label(composite, SWT.NONE);
-        colorLabel.setText("Color");
+        colorLabel.setText(GraphMessages.designbox_table_tab_color);
 
         colorButton = new Button(composite, SWT.NONE);
         colorButton.setBackground(new Color(255, 0, 0));
@@ -244,7 +244,7 @@ public class DesignBox extends MoveBox {
                 });
 
         Label textSizeLable = new Label(composite, SWT.NONE);
-        textSizeLable.setText("Text Size");
+        textSizeLable.setText(GraphMessages.designbox_table_tab_text_size);
 
         textSize = new Spinner(composite, SWT.NONE);
         textSize.setDigits(0);
@@ -254,7 +254,7 @@ public class DesignBox extends MoveBox {
         textSize.setSelection(8);
 
         Label TypeLabel = new Label(composite, SWT.NONE);
-        TypeLabel.setText("Display Type");
+        TypeLabel.setText(GraphMessages.designbox_table_tab_display_type);
 
         displayType = new Combo(composite, SWT.READ_ONLY);
         displayType.setItems(typeList);
@@ -274,12 +274,12 @@ public class DesignBox extends MoveBox {
         });
         
         Label PropertyLabel = new Label(composite, SWT.NONE);
-        PropertyLabel.setText("Display Property");
+        PropertyLabel.setText(GraphMessages.designbox_table_tab_display_propeties);
 
         displayProperty = new Combo(composite, SWT.READ_ONLY);
 
         Button applyButton = new Button(composite, SWT.NONE);
-        applyButton.setText("Apply");
+        applyButton.setText(GraphMessages.designbox_table_apply);
         applyButton.addSelectionListener(
         		new SelectionAdapter() {
 
