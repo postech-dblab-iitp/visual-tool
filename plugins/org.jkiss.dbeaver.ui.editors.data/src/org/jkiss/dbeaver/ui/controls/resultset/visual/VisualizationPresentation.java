@@ -252,7 +252,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget != null && e.widget.getData() != null) {
 				switch((ImageButton) e.widget.getData()) {
-				    case VALUE :
+                    case VALUE :
 				        visualGraph.valueShow();
 				        break;
 					case DESIGN :
@@ -323,11 +323,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		shortestButton.pack();
 		
 		button1 = new Button(composite2, SWT.PUSH);
-        button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
-        button1.setToolTipText("Chart");
-        button1.setData(ImageButton.CHART);
-        button1.addSelectionListener(imageButtonListener);
-        button1.pack();
+		button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
+		button1.setToolTipText("Chart");
+		button1.setData(ImageButton.CHART);
+		button1.addSelectionListener(imageButtonListener);
+		button1.pack();
 		
 		composite2.pack();
 
