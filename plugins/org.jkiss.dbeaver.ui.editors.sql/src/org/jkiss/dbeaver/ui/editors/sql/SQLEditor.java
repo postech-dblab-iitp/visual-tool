@@ -670,6 +670,7 @@ public class SQLEditor extends SQLEditorBase implements
                     onSuccess.run();
                 }
                 fireDataSourceChange();
+                updateQuickQueryView();
             }
         }
     }
@@ -2489,7 +2490,7 @@ public class SQLEditor extends SQLEditorBase implements
     private void fireDataSourceChange()
     {
         updateExecutionContext(null);
-        updateQuickQueryView();
+        //updateQuickQueryView();
         UIUtils.syncExec(this::onDataSourceChange);
     }
 
@@ -3810,7 +3811,7 @@ public class SQLEditor extends SQLEditorBase implements
                     // Update dirty flag
                     updateDirtyFlag();
                     refreshActions();
-                    updateQuickQueryView();
+                    //updateQuickQueryView();
                 });
             } finally {
                 if (extListener != null) {

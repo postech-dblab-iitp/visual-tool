@@ -2,7 +2,7 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphProperties;
@@ -20,18 +20,18 @@ public class CypherNode {
     private String fillColor;
     private double radius = SmartGraphProperties.DEFAULT_VERTEX_RADIUS;
     private int textSize = SmartStyleProxy.DEFAULT_VERTEX_LABEL_SIZE;
-    private HashMap<String, Object> property;
+    private LinkedHashMap<String, Object> property;
     private double lastPositionX, lastPositionY;
 
     private DisplayType displayType = DisplayType.PROPERTY;
     private String displayPropertyName = null;
 
-    public CypherNode(String id, List<String> labels, HashMap<String, Object> property, String fillColor) {
+    public CypherNode(String id, List<String> labels, LinkedHashMap<String, Object> property, String fillColor) {
         this.id = id;
         this.labels = labels;
         this.display = String.valueOf(labels);
         this.fillColor = fillColor;
-        this.property = new HashMap<>();
+        this.property = new LinkedHashMap<>();
         this.lastPositionX = -1;
         this.lastPositionY = -1;
         if (property != null) {
@@ -106,7 +106,7 @@ public class CypherNode {
         return display;
     }
 
-    public HashMap<String, Object> getProperties() {
+    public LinkedHashMap<String, Object> getProperties() {
         return this.property;
     }
 

@@ -89,7 +89,7 @@ public class GraphChart extends MoveBox {
         itemComposite.setLayoutData(gd);
 
         Label nodeLabel = new Label(itemComposite, SWT.NONE);
-        nodeLabel.setText(" Label : ");
+        nodeLabel.setText(GraphMessages.fxgraph_all_label + " : ");
 
         nodeLableList = new Combo(itemComposite, SWT.READ_ONLY);
         nodeLableList.setEnabled(true);
@@ -104,7 +104,7 @@ public class GraphChart extends MoveBox {
                 });
 
         Label propertyLabel = new Label(itemComposite, SWT.NONE);
-        propertyLabel.setText(" Property : ");
+        propertyLabel.setText(GraphMessages.fxgraph_all_property + " : ");
 
         propertyList = new Combo(itemComposite, SWT.READ_ONLY);
         propertyList.setEnabled(false);

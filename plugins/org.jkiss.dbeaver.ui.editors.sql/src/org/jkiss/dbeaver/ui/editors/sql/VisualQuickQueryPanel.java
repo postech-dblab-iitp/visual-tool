@@ -89,8 +89,8 @@ public class VisualQuickQueryPanel extends Composite {
 
     private SaveSelectItem saveItem = new SaveSelectItem();
     
-    private GetTypeInfoJob startUpdateJob;
     private ReentrantLock lock = new ReentrantLock();
+    private GetTypeInfoJob startUpdateJob;
 
     public VisualQuickQueryPanel(SQLEditor editor, Composite parent) {
         super(parent, SWT.NONE);
@@ -471,7 +471,7 @@ public class VisualQuickQueryPanel extends Composite {
         if (isGraphDB) {
             startUpdateJob = new GetTypeInfoJob("VisualQuickQueryPanel editor Update");
 
-            if (!startUpdateJob.isFinished()) {
+            if (!isLocked()) {
                 startUpdateJob.schedule();
             }
         }
@@ -526,8 +526,7 @@ public class VisualQuickQueryPanel extends Composite {
                 lock.lock();
 
                 dataInit();
-                getNodeProperties(monitor);
-                getEdgeProperties(monitor);
+                getProperties(monitor);
                 updateComboView();
             } finally {
                 lock.unlock();
@@ -613,23 +612,43 @@ public class VisualQuickQueryPanel extends Composite {
             }
         }
 
-        private void getNodeProperties(DBRProgressMonitor monitor) {
-            String vertexLabel;
+        private void getProperties(DBRProgressMonitor monitor) {
+            String label;
+            String type;
+            JDBCSession closeSession = null;
             
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Nodes properties")) {
+                System.out.println(session.isClosed());
+                System.out.println(session.isConnected());
             	JDBCDatabaseMetaData meta = session.getMetaData();
-            	JDBCResultSet dbResult = meta.getTables(null, null, null, new String[] {"TABLE"});
+            	JDBCResultSet dbResult = meta.getTables(null, null, null, null);
             	
+            	JDBCResultSet propertyResultSet;
+            	LinkedHashMap<String, String> proprties;
                 while (dbResult.next()) {
-            		vertexLabel = JDBCUtils.safeGetString(dbResult, "TABLE_NAME");
-                    JDBCResultSet propertyResultSet = meta.getColumns(null, null, vertexLabel, "node");
-                    LinkedHashMap<String, String> proprties = vertexList.get(vertexLabel);
-                    if (proprties == null) {
-                    	proprties = new LinkedHashMap<>();
-                        proprties.put(DEFAULT_ALL_PROPERTIES, null);
-                        vertexList.put(vertexLabel, proprties);
+                    label = JDBCUtils.safeGetString(dbResult, "TABLE_NAME");
+                    type = JDBCUtils.safeGetString(dbResult, "TABLE_TYPE");
+                    
+                    if (type.equals("TABLE")) {
+                        propertyResultSet = meta.getColumns(null, null, label, "node");
+                        proprties = vertexList.get(label);
+                    
+                        if (proprties == null) {
+                        	proprties = new LinkedHashMap<>();
+                            proprties.put(DEFAULT_ALL_PROPERTIES, null);
+                            vertexList.put(label, proprties);
+                        }
+                    } else {
+                        propertyResultSet = meta.getColumns(null, null, label, "edge");
+                        proprties = edgeList.get(label);
+                    
+                        if (proprties == null) {
+                            proprties = new LinkedHashMap<>();
+                            proprties.put(DEFAULT_ALL_PROPERTIES, null);
+                            edgeList.put(label, proprties);
+                        }
                     }
                     
                     while (propertyResultSet.next()) {
@@ -650,16 +669,24 @@ public class VisualQuickQueryPanel extends Composite {
             	}
 
                 if (dbResult.getStatement() != null) dbResult.getStatement().close();
-                
+                closeSession = session;
             } catch (DBCException | SQLException e) {
                 error = e;
                 e.printStackTrace();
-            } 
+            } finally {
+            	try {
+					if (closeSession != null && !closeSession.isClosed()) {
+						closeSession.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
         }
 
         private void getEdgeProperties(DBRProgressMonitor monitor) {
             String edgeType;
-
+            JDBCSession closeSession = null;
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Edges Propreties")) {
@@ -693,11 +720,19 @@ public class VisualQuickQueryPanel extends Composite {
             	}                
             	
                 if (dbResult.getStatement() != null) dbResult.getStatement().close();
-                
+                closeSession = session;
             } catch (DBCException | SQLException e) {
                 error = e;
                 e.printStackTrace();
-            }
+            } finally {
+            	try {
+					if (closeSession != null && !closeSession.isClosed()) {
+						closeSession.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
         }
 
         @SuppressWarnings("unused")
@@ -991,5 +1026,9 @@ public class VisualQuickQueryPanel extends Composite {
                 ePropertySearchText.setText(getDefaultTypeString(dataType));
             }
         }
+    }
+    
+    public boolean isLocked() {
+    	return lock.isLocked();
     }
 }

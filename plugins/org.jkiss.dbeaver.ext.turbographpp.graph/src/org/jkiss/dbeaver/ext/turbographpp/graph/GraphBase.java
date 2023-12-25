@@ -1,6 +1,6 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -53,8 +53,8 @@ public interface GraphBase {
 	public void addMouseWheelListener(MouseWheelListener mouseWheelListener);
 	
     public Control getGraphModel();
-    public Object addNode(String id, List<String> label, HashMap<String, Object> attr);
-    public Object addEdge(String id, List<String> type, String startNodeID, String endNodeID, HashMap<String, Object> attr);
+    public Object addNode(String id, List<String> label, LinkedHashMap<String, Object> attr);
+    public Object addEdge(String id, List<String> type, String startNodeID, String endNodeID, LinkedHashMap<String, Object> attr);
     public boolean setHighlight(String nodeID);
     public boolean unHighlight();
     public void setLayoutAlgorithm(LayoutStyle layoutStyle);

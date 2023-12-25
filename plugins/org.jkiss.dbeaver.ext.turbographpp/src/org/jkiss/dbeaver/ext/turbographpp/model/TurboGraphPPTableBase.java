@@ -93,9 +93,7 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
 
     @Override
     protected boolean isTruncateSupported() {
-        return CommonUtils.getBoolean(
-            getDataSource().getContainer().getDriver().getDriverParameter(GenericConstants.PARAM_SUPPORTS_TRUNCATE),
-            false);
+        return false;
     }
 
     @Override
