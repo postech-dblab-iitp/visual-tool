@@ -531,7 +531,7 @@ public class FXGraph implements GraphBase {
     
     private boolean restoreEdge(CypherEdge edge) {
     	if (edge != null) {
-    		graph.insertEdge(dataModel.getNode(edge.getStartNodeID()), dataModel.getNode(edge.getEndNodeID()), edge);
+    		graph.insertEdge(dataModel.getNode(edge.getStartNodeID()).element(), dataModel.getNode(edge.getEndNodeID()).element(), edge);
 	    	return true;
     	}
     	return false;
