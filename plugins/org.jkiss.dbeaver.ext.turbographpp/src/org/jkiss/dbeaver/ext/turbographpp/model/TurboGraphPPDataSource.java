@@ -17,8 +17,6 @@
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -31,24 +29,21 @@ import org.jkiss.dbeaver.Log;
 import org.jkiss.dbeaver.ext.generic.GenericConstants;
 import org.jkiss.dbeaver.ext.generic.model.meta.GenericMetaObject;
 import org.jkiss.dbeaver.ext.turbographpp.model.meta.TurboGraphPPMetaModel;
+import org.jkiss.dbeaver.ext.turbographpp.model.plan.TurboGraphPPPlanAnalyser;
 import org.jkiss.dbeaver.model.DBPDataSourceContainer;
-import org.jkiss.dbeaver.model.DBPIdentifierCase;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.connection.DBPDriver;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCDatabaseMetaData;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCPreparedStatement;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCConstants;
+import org.jkiss.dbeaver.model.exec.plan.DBCQueryPlanner;
 import org.jkiss.dbeaver.model.impl.jdbc.JDBCDataSource;
 import org.jkiss.dbeaver.model.impl.jdbc.cache.JDBCBasicDataTypeCache;
 import org.jkiss.dbeaver.model.impl.jdbc.struct.JDBCDataType;
-import org.jkiss.dbeaver.model.meta.Association;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSDataType;
 import org.jkiss.dbeaver.model.struct.DBSEntity;
 import org.jkiss.dbeaver.model.struct.DBSObject;
-import org.jkiss.dbeaver.model.struct.DBSObjectFilter;
 import org.jkiss.utils.CommonUtils;
 
 public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraphPPStructContainer {
@@ -287,5 +282,12 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
         }
     }
     
-
+    @Override
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter == DBCQueryPlanner.class) {
+            return adapter.cast(new TurboGraphPPPlanAnalyser(this));
+        }
+        return super.getAdapter(adapter);
+    }
+    
 }

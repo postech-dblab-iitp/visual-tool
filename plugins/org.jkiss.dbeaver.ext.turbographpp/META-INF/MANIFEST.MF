@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.jkiss.dbeaver.data.gis,
  org.jkiss.dbeaver.registry,
  org.jkiss.dbeaver.tasks.native,
- org.jkiss.dbeaver.ext.generic;bundle-version="2.3.152"
+ org.jkiss.dbeaver.ext.generic;bundle-version="2.3.152",
+ com.google.gson
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: JKISS
