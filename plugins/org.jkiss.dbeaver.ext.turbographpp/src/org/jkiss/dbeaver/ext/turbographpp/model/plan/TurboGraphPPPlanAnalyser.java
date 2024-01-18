@@ -25,12 +25,6 @@ public class TurboGraphPPPlanAnalyser extends AbstractExecutionPlanSerializer im
     }
 
     public TurboGraphPPExecutionPlan explain(JDBCSession session, String query) throws DBCException {
-//        final SQLDialect dialect = SQLUtils.getDialectFromObject(dataSource);
-//        final String plainQuery = SQLUtils.stripComments(dialect, query).toUpperCase();
-//        final String firstKeyword = SQLUtils.getFirstKeyword(dialect, plainQuery);
-//        if (!"SELECT".equalsIgnoreCase(firstKeyword) && !"WITH".equalsIgnoreCase(firstKeyword)) {
-//            throw new DBCException("Only SELECT statements could produce execution plan");
-//        }
         return new TurboGraphPPExecutionPlan(session, query);
     }
 
