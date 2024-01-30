@@ -48,6 +48,9 @@ public interface SQLDialect {
     int USAGE_PRIV = 8;
     int USAGE_ALL = Integer.MAX_VALUE;
 
+    int SQL_STANDARD = 0;
+    int GQL_CYPHER = 1;
+    
     enum MultiValueInsertMode {
         NOT_SUPPORTED,
         GROUP_ROWS,
@@ -414,5 +417,7 @@ public interface SQLDialect {
     boolean supportsAlterTableStatement();
 
     boolean supportsInsertAllDefaultValuesStatement();
+    
+    int getSQLType();
 
 }

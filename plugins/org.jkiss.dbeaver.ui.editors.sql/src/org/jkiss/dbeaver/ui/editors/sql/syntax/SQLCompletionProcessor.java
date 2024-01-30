@@ -31,7 +31,9 @@ import org.jkiss.dbeaver.model.DBPDataSource;
 import org.jkiss.dbeaver.model.exec.DBExecUtils;
 import org.jkiss.dbeaver.model.runtime.AbstractJob;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
+import org.jkiss.dbeaver.model.sql.SQLDialect;
 import org.jkiss.dbeaver.model.sql.SQLScriptElement;
+import org.jkiss.dbeaver.model.sql.completion.CypherCompletionAnalyzer;
 import org.jkiss.dbeaver.model.sql.completion.SQLCompletionAnalyzer;
 import org.jkiss.dbeaver.model.sql.completion.SQLCompletionProposalBase;
 import org.jkiss.dbeaver.model.sql.completion.SQLCompletionRequest;
@@ -121,7 +123,7 @@ public class SQLCompletionProcessor implements IContentAssistProcessor
 
         request.setContentType(contentType);
 
-        List<SQLCompletionProposalBase> proposals;
+        List<SQLCompletionProposalBase> proposals = Collections.emptyList();
         switch (contentType) {
         case IDocument.DEFAULT_CONTENT_TYPE:
         case SQLParserPartitions.CONTENT_TYPE_SQL_STRING:
@@ -140,8 +142,14 @@ public class SQLCompletionProcessor implements IContentAssistProcessor
                 log.debug(e);
             }
 
-            SQLCompletionAnalyzer analyzer = new SQLCompletionAnalyzer(request);
+            SQLCompletionAnalyzer analyzer = null;            
             DBPDataSource dataSource = editor.getDataSource();
+            if (dataSource != null && dataSource.getSQLDialect().getSQLType() == SQLDialect.GQL_CYPHER) {
+                analyzer = new CypherCompletionAnalyzer(request);
+            } else {
+                analyzer = new SQLCompletionAnalyzer(request);
+            }
+            
             if (request.getWordPart() != null) {
                 if (dataSource != null) {
                     ProposalSearchJob searchJob = new ProposalSearchJob(analyzer);
@@ -149,6 +157,8 @@ public class SQLCompletionProcessor implements IContentAssistProcessor
                     // Wait until job finished
                     UIUtils.waitJobCompletion(searchJob);
                 }
+            } else {
+                analyzer = new SQLCompletionAnalyzer(request);
             }
 
             proposals = analyzer.getProposals();

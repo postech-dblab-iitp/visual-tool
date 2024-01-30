@@ -31,8 +31,10 @@ import org.jkiss.dbeaver.ext.generic.model.meta.GenericMetaObject;
 import org.jkiss.dbeaver.ext.turbographpp.model.meta.TurboGraphPPMetaModel;
 import org.jkiss.dbeaver.ext.turbographpp.model.plan.TurboGraphPPPlanAnalyser;
 import org.jkiss.dbeaver.model.DBPDataSourceContainer;
+import org.jkiss.dbeaver.model.DBPDataSourceInfo;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.connection.DBPDriver;
+import org.jkiss.dbeaver.model.exec.jdbc.JDBCDatabaseMetaData;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCPreparedStatement;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
@@ -40,6 +42,7 @@ import org.jkiss.dbeaver.model.exec.plan.DBCQueryPlanner;
 import org.jkiss.dbeaver.model.impl.jdbc.JDBCDataSource;
 import org.jkiss.dbeaver.model.impl.jdbc.cache.JDBCBasicDataTypeCache;
 import org.jkiss.dbeaver.model.impl.jdbc.struct.JDBCDataType;
+import org.jkiss.dbeaver.model.preferences.DBPPreferenceStore;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSDataType;
 import org.jkiss.dbeaver.model.struct.DBSEntity;
@@ -49,22 +52,27 @@ import org.jkiss.utils.CommonUtils;
 public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraphPPStructContainer {
 
     private static final Log log = Log.getLog(TurboGraphPPDataSource.class);
-    
+
     private final JDBCBasicDataTypeCache<TurboGraphPPDataSource, JDBCDataType> dataTypeCache;
     private TurboGraphPPObjectContainer structureContainer;
     private final TurboGraphPPMetaModel metaModel;
-    private boolean omitSingleCatalog;
     private String allObjectsPattern;
-    private Set<TurboGraphPPEdge> edges;
+    private Set<Neo4jEdge> edges;
 
-    public TurboGraphPPDataSource(DBRProgressMonitor monitor, DBPDataSourceContainer container, TurboGraphPPMetaModel metaModel)
+    public TurboGraphPPDataSource(
+            DBRProgressMonitor monitor,
+            DBPDataSourceContainer container,
+            TurboGraphPPMetaModel metaModel)
             throws DBException {
         super(monitor, container, new TurboPPSQLDialect());
         this.metaModel = metaModel;
         dataTypeCache = new JDBCBasicDataTypeCache<>(this);
         final DBPDriver driver = container.getDriver();
-        this.omitSingleCatalog = CommonUtils.getBoolean(driver.getDriverParameter(GenericConstants.PARAM_OMIT_SINGLE_CATALOG), false);
-        this.allObjectsPattern = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_ALL_OBJECTS_PATTERN));
+        final DBPPreferenceStore preferenceStore = container.getPreferenceStore();
+        preferenceStore.setDefault("SQLEditor.ContentAssistant.insert.space.after.proposal", false);
+        this.allObjectsPattern =
+                CommonUtils.toString(
+                        driver.getDriverParameter(GenericConstants.PARAM_ALL_OBJECTS_PATTERN));
         if (CommonUtils.isEmpty(this.allObjectsPattern)) {
             this.allObjectsPattern = "%";
         } else if ("null".equalsIgnoreCase(this.allObjectsPattern)) {
@@ -81,25 +89,26 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
         return this;
     }
 
-    public Set<TurboGraphPPEdge> getEdges(DBRProgressMonitor monitor) throws DBException {
+    public Set<Neo4jEdge> getEdges(DBRProgressMonitor monitor) throws DBException {
         if (edges == null) {
             edges = loadEdges(monitor);
         }
         return edges;
     }
 
-    public TurboGraphPPEdge getEdges(DBRProgressMonitor monitor, String name) throws DBException {
+    public Neo4jEdge getEdges(DBRProgressMonitor monitor, String name) throws DBException {
         return DBUtils.findObject(getEdges(monitor), name);
     }
 
-    private Set<TurboGraphPPEdge> loadEdges(DBRProgressMonitor monitor) throws DBException {
+    private Set<Neo4jEdge> loadEdges(DBRProgressMonitor monitor) throws DBException {
         try (JDBCSession session = DBUtils.openMetaSession(monitor, this, "Load Edges")) {
-            try (JDBCPreparedStatement dbStat = session.prepareStatement("Match (n)-[r]->(m) Return DISTINCT type(r)")) {
+            try (JDBCPreparedStatement dbStat =
+                    session.prepareStatement("Match (n)-[r]->(m) Return DISTINCT type(r)")) {
                 try (JDBCResultSet dbResult = dbStat.executeQuery()) {
-                    //List<TurboGraphPPEdge> edgeList = new ArrayList<>();
-                    Set<TurboGraphPPEdge> edgeList = new HashSet<>();
+                    // List<TurboGraphPPEdge> edgeList = new ArrayList<>();
+                    Set<Neo4jEdge> edgeList = new HashSet<>();
                     while (dbResult.next()) {
-                        TurboGraphPPEdge user = new TurboGraphPPEdge(this, dbResult);
+                        Neo4jEdge user = new Neo4jEdge(this, dbResult);
                         edgeList.add(user);
                     }
                     return edgeList;
@@ -109,16 +118,16 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
             throw new DBException(ex, this);
         }
     }
-    
+
     @Override
-    public void initialize(@NotNull DBRProgressMonitor monitor)
-        throws DBException
-    {
+    public void initialize(@NotNull DBRProgressMonitor monitor) throws DBException {
         super.initialize(monitor);
         dataTypeCache.getAllObjects(monitor, this);
-        dataTypeCache.cacheObject(new JDBCDataType<>(this, java.sql.Types.OTHER, "json", "json", false, false, 0, 0, 0));
+        dataTypeCache.cacheObject(
+                new JDBCDataType<>(
+                        this, java.sql.Types.OTHER, "json", "json", false, false, 0, 0, 0));
         this.structureContainer = new DataSourceObjectContainer();
-        //loadEdges(monitor);
+        // loadEdges(monitor);
     }
 
     @NotNull
@@ -130,7 +139,7 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
     public GenericMetaObject getMetaObject(String id) {
         return metaModel.getMetaObject(id);
     }
-    
+
     @Override
     public TurboGraphPPDataSource getDataSource() {
         // TODO Auto-generated method stub
@@ -141,10 +150,11 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
         return dataTypeCache;
     }
 
-    public Collection<? extends DBSDataType> getDataTypes(DBRProgressMonitor monitor) throws DBException {
+    public Collection<? extends DBSDataType> getDataTypes(DBRProgressMonitor monitor)
+            throws DBException {
         return dataTypeCache.getAllObjects(monitor, this);
     }
-    
+
     @Override
     public Collection<? extends DBSDataType> getLocalDataTypes() {
         // TODO Auto-generated method stub
@@ -158,12 +168,13 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
     }
 
     @Override
-    public Collection<? extends DBSObject> getChildren(DBRProgressMonitor monitor) throws DBException {
+    public Collection<? extends DBSObject> getChildren(DBRProgressMonitor monitor)
+            throws DBException {
         if (structureContainer != null) {
             return structureContainer.getTables(monitor);
         } else {
             return null;
-        }    
+        }
     }
 
     @Override
@@ -177,7 +188,8 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
     }
 
     @Override
-    public Class<? extends DBSObject> getPrimaryChildType(DBRProgressMonitor monitor) throws DBException {
+    public Class<? extends DBSObject> getPrimaryChildType(DBRProgressMonitor monitor)
+            throws DBException {
         // TODO Auto-generated method stub
         return TurboGraphPPTable.class;
     }
@@ -197,51 +209,41 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
 
     @Override
     public TableCache getTableCache() {
-        // TODO Auto-generated method stub
         return structureContainer == null ? null : structureContainer.getTableCache();
     }
 
     @Override
-    public List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor) throws DBException {
-        // TODO Auto-generated method stub
+    public List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor)
+            throws DBException {
         return structureContainer == null ? null : structureContainer.getPhysicalNode(monitor);
     }
-    
+
     @Override
-    public List<? extends TurboGraphPPTable> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException {
-        // TODO Auto-generated method stub
+    public List<? extends TurboGraphPPView> getPhysicalEdge(DBRProgressMonitor monitor)
+            throws DBException {
         return structureContainer == null ? null : structureContainer.getPhysicalEdge(monitor);
     }
 
     @Override
-    public List<? extends TurboGraphPPTableBase> getTables(DBRProgressMonitor monitor) throws DBException {
-        // TODO Auto-generated method stub
+    public List<? extends TurboGraphPPTableBase> getTables(DBRProgressMonitor monitor)
+            throws DBException {
         return structureContainer == null ? null : structureContainer.getTables(monitor);
     }
 
     @Override
-    public TurboGraphPPTableBase getTable(DBRProgressMonitor monitor, String name) throws DBException {
-        // TODO Auto-generated method stub
+    public TurboGraphPPTableBase getTable(DBRProgressMonitor monitor, String name)
+            throws DBException {
         return structureContainer == null ? null : structureContainer.getTable(monitor, name);
     }
 
     public String getAllObjectsPattern() {
-        // TODO Auto-generated method stub
         return allObjectsPattern;
     }
-    
-    public boolean isOmitSchema() {
-        return CommonUtils.getBoolean(getContainer().getDriver().getDriverParameter(GenericConstants.PARAM_OMIT_SCHEMA), false);
-    }
-    
-    public boolean isOmitCatalog() {
-        return CommonUtils.getBoolean(getContainer().getDriver().getDriverParameter(GenericConstants.PARAM_OMIT_CATALOG), false);
-    }
-    
+
     public boolean isMergeEntities() {
         return getContainer().getNavigatorSettings().isMergeEntities();
     }
-    
+
     private class DataSourceObjectContainer extends TurboGraphPPObjectContainer {
         private DataSourceObjectContainer() {
             super(TurboGraphPPDataSource.this);
@@ -254,7 +256,8 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
 
         @NotNull
         @Override
-        public Class<? extends DBSEntity> getPrimaryChildType(@Nullable DBRProgressMonitor monitor) throws DBException {
+        public Class<? extends DBSEntity> getPrimaryChildType(@Nullable DBRProgressMonitor monitor)
+                throws DBException {
             return TurboGraphPPTable.class;
         }
 
@@ -278,10 +281,10 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
         @Override
         public void cacheStructure(DBRProgressMonitor monitor, int scope) throws DBException {
             // TODO Auto-generated method stub
-            
+
         }
     }
-    
+
     @Override
     public <T> T getAdapter(Class<T> adapter) {
         if (adapter == DBCQueryPlanner.class) {
@@ -289,5 +292,12 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
         }
         return super.getAdapter(adapter);
     }
-    
+
+    @Override
+    protected DBPDataSourceInfo createDataSourceInfo(
+            DBRProgressMonitor monitor, @NotNull JDBCDatabaseMetaData metaData) {
+        final TurboGraphPPDataSourceInfo info = new TurboGraphPPDataSourceInfo(metaData);
+        info.setSupportsResultSetScroll(false);
+        return info;
+    }
 }

@@ -17,32 +17,18 @@
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
 import org.jkiss.code.NotNull;
-import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.DBException;
 import org.jkiss.dbeaver.Log;
-import org.jkiss.dbeaver.model.DBPEvaluationContext;
 import org.jkiss.dbeaver.model.DBPRefreshableObject;
-import org.jkiss.dbeaver.model.DBUtils;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCStatement;
-import org.jkiss.dbeaver.model.impl.jdbc.cache.JDBCObjectCache;
 import org.jkiss.dbeaver.model.meta.Association;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSDataType;
 import org.jkiss.dbeaver.model.struct.DBSObject;
-import org.jkiss.dbeaver.model.struct.rdb.DBSProcedureType;
-import org.jkiss.utils.CommonUtils;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-/**
- * GenericEntityContainer
- */
 public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructContainer, DBPRefreshableObject {
     private static final Log log = Log.getLog(TurboGraphPPObjectContainer.class);
 
@@ -82,7 +68,7 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
         if (tables != null) {
             List<TurboGraphPPTable> filtered = new ArrayList<>();
             for (TurboGraphPPTableBase table : tables) {
-                if (table.isPhysicalTable() && table.isNode()) {
+                if (!table.isEdge()) {
                     filtered.add((TurboGraphPPTable) table);
                 }
             }
@@ -92,13 +78,13 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
     }
 
     @Override
-    public List<? extends TurboGraphPPTable> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException {
+    public List<? extends TurboGraphPPView> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException {
         List<? extends TurboGraphPPTableBase> tables = getTables(monitor);
         if (tables != null) {
-            List<TurboGraphPPTable> filtered = new ArrayList<>();
+            List<TurboGraphPPView> filtered = new ArrayList<>();
             for (TurboGraphPPTableBase table : tables) {
-                if (table.isPhysicalTable() && table.isEdge()) {
-                    filtered.add((TurboGraphPPTable) table);
+                if (table.isEdge()) {
+                    filtered.add((TurboGraphPPView) table);
                 }
             }
             return filtered;

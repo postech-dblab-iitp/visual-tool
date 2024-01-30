@@ -18,7 +18,6 @@ package org.jkiss.dbeaver.ext.turbographpp.model;
 
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
-import org.jkiss.dbeaver.ext.generic.model.GenericUniqueKey;
 import org.jkiss.dbeaver.model.DBPEvaluationContext;
 import org.jkiss.dbeaver.model.DBPNamedObject2;
 import org.jkiss.dbeaver.model.DBPOrderedObject;
@@ -28,13 +27,7 @@ import org.jkiss.dbeaver.model.impl.jdbc.struct.JDBCTableColumn;
 import org.jkiss.dbeaver.model.meta.Property;
 import org.jkiss.dbeaver.model.meta.PropertyLength;
 import org.jkiss.dbeaver.model.struct.rdb.DBSTableColumn;
-import org.jkiss.utils.CommonUtils;
 
-import java.util.Collection;
-
-/**
- * Generic table column
- */
 public class TurboGraphPPTableColumn extends JDBCTableColumn<TurboGraphPPTableBase> implements DBSTableColumn, DBPNamedObject2, JDBCColumnKeyType, DBPOrderedObject
 {
     private int radix;

@@ -19,7 +19,6 @@ package org.jkiss.dbeaver.ext.turbographpp.model.meta;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
-import org.jkiss.dbeaver.ext.generic.model.GenericSQLDialect;
 import org.jkiss.dbeaver.ext.generic.model.meta.GenericMetaObject;
 import org.jkiss.dbeaver.ext.turbographpp.model.TurboPPSQLDialect;
 import org.jkiss.dbeaver.model.impl.AbstractDescriptor;

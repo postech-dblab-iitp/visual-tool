@@ -37,7 +37,6 @@ import org.jkiss.dbeaver.model.exec.DBExecUtils;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCResultSet;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCStatement;
 import org.jkiss.dbeaver.model.impl.AbstractExecutionSource;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCConstants;
 import org.jkiss.dbeaver.model.impl.jdbc.struct.JDBCTable;
 import org.jkiss.dbeaver.model.messages.ModelMessages;
 import org.jkiss.dbeaver.model.meta.Association;
@@ -47,25 +46,16 @@ import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.sql.SQLUtils;
 import org.jkiss.dbeaver.model.struct.DBSDataContainer;
 import org.jkiss.dbeaver.model.struct.DBSObject;
-import org.jkiss.dbeaver.model.struct.rdb.DBSIndexType;
-import org.jkiss.utils.CommonUtils;
 
 import java.util.*;
 
-/**
- * Generic table
- */
 public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSource, TurboGraphPPStructContainer> implements DBPRefreshableObject, DBPSystemObject, DBPScriptObject {
     private static final Log log = Log.getLog(TurboGraphPPTableBase.class);
 
     private String tableType;
     private boolean isSystem;
-    private String description;
     private Long rowCount;
 
-    private static final String NODE_TABLE_TYPE = "TABLE";
-    private static final String EDGE_TABLE_TYPE = "VIEW";
-    
     public TurboGraphPPTableBase(
         TurboGraphPPStructContainer container,
         @Nullable String tableName,
@@ -75,10 +65,6 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
         this.tableType = tableType;
         if (this.tableType == null) {
             this.tableType = "";
-        }
-
-        if (dbResult != null) {
-            this.description = TurboGraphPPUtils.safeGetString(container.getTableCache().tableObject, dbResult, JDBCConstants.REMARKS);
         }
 
         final TurboGraphPPMetaModel metaModel = container.getDataSource().getMetaModel();
@@ -162,11 +148,7 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
     @Override
     @Property(viewable = true, editableExpr = "object.dataSource.metaModel.tableCommentEditable", updatableExpr = "object.dataSource.metaModel.tableCommentEditable", length = PropertyLength.MULTILINE, order = 100)
     public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+        return "";
     }
 
     @Override
@@ -209,20 +191,6 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
         return rowCount;
     }
 
-    public boolean isPhysicalTable() {
-        return !isView();
-    }
-
-    public abstract String getDDL();
-
-    public boolean supportUniqueIndexes() {
-        return false;
-    }
-
-    public Collection<DBSIndexType> getTableIndexTypes() {
-        return Collections.singletonList(DBSIndexType.OTHER);
-    }
-    
     @NotNull
     @Override
     public DBCStatistics readData(@NotNull DBCExecutionSource source, @NotNull DBCSession session, @NotNull DBDDataReceiver dataReceiver, @Nullable DBDDataFilter dataFilter, long firstRow, long maxRows, long flags, int fetchSize)
@@ -317,18 +285,8 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
         }
     }
     
-    public boolean isNode() {
-    	if (tableType.equals(NODE_TABLE_TYPE)) {
-    		return true;
-    	}
-    	return false;
-    }
-    
     public boolean isEdge() {
-    	if (tableType.equals(EDGE_TABLE_TYPE)) {
-    		return true;
-    	}
-    	return false;
+        return isView() ? true : false;
     }
     
 }

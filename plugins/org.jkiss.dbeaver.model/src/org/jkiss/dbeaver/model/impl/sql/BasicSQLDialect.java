@@ -377,4 +377,9 @@ public class BasicSQLDialect extends AbstractSQLDialect implements RelationalSQL
         }
     }
 
+    @Override
+    public int getSQLType() {
+        return SQL_STANDARD;
+    }
+
 }

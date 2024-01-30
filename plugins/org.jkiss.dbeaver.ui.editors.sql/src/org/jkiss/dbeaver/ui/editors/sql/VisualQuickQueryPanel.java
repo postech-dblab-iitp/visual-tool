@@ -620,8 +620,6 @@ public class VisualQuickQueryPanel extends Composite {
             try (JDBCSession session =
                     DBUtils.openMetaSession(
                             monitor, editor.getDataSourceContainer(), "Load Nodes properties")) {
-                System.out.println(session.isClosed());
-                System.out.println(session.isConnected());
             	JDBCDatabaseMetaData meta = session.getMetaData();
             	JDBCResultSet dbResult = meta.getTables(null, null, null, null);
             	

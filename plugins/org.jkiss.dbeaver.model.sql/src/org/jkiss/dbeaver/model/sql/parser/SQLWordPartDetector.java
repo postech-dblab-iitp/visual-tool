@@ -34,6 +34,7 @@ import java.util.Locale;
 public class SQLWordPartDetector extends SQLIdentifierDetector
 {
     private String prevKeyWord = "";
+    private String prevPrevDelimiter = null;
     private String prevDelimiter = null;
     private List<String> prevWords = null;
     private String nextWord;
@@ -120,6 +121,16 @@ public class SQLWordPartDetector extends SQLIdentifierDetector
                     prevOffset--;
                 }
                 if (prevDelimiter == null) {
+                    int searchOffset = prevOffset - 1;
+                    while(searchOffset >= 0) {
+                        char delimiter = document.getChar(searchOffset);
+                        if (!Character.isAlphabetic(delimiter)
+                                && !Character.isDigit(delimiter)) {
+                            prevPrevDelimiter = String.valueOf(delimiter);
+                            break;
+                        }
+                        searchOffset--;
+                    }
                     //startOffset - prevPiece.length();
                     prevDelimiter = prevPiece.toString().trim();
                 }
@@ -214,6 +225,10 @@ public class SQLWordPartDetector extends SQLIdentifierDetector
         return fullWord;
     }
 
+    public String getPrevPrevDelimiter() {
+        return prevPrevDelimiter;
+    }
+    
     public String getPrevDelimiter()
     {
         return prevDelimiter;

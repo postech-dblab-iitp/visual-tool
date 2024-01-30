@@ -18,11 +18,8 @@ package org.jkiss.dbeaver.ext.turbographpp.model;
 
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
-import org.jkiss.dbeaver.ext.generic.model.GenericCatalog;
-import org.jkiss.dbeaver.ext.generic.model.GenericSchema;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSObjectContainer;
-import org.jkiss.dbeaver.model.struct.rdb.DBSProcedureContainer;
 
 import java.util.List;
 
@@ -41,5 +38,5 @@ public interface TurboGraphPPStructContainer extends DBSObjectContainer
     List<? extends TurboGraphPPTableBase> getTables(DBRProgressMonitor monitor) throws DBException;
     TurboGraphPPTableBase getTable(DBRProgressMonitor monitor, String name) throws DBException;
     
-    List<? extends TurboGraphPPTable> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException;
+    List<? extends TurboGraphPPView> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException;
 }

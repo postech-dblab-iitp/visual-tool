@@ -74,7 +74,6 @@ public class ValueBox extends MoveBox {
     }
 
     private void createValueWidget(Composite composite) {
-        System.out.println("createValueWidget");
     	tableColumnLayout = new TableColumnLayout();
     	composite.setLayout(tableColumnLayout);
     	

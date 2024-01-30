@@ -14,170 +14,185 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jkiss.dbeaver.ext.turbographpp.model;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
-import org.jkiss.dbeaver.ext.generic.GenericConstants;
-import org.jkiss.dbeaver.model.DBPDataSource;
-import org.jkiss.dbeaver.model.connection.DBPDriver;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCDatabaseMetaData;
-import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCDataSource;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCSQLDialect;
-import org.jkiss.utils.ArrayUtils;
-import org.jkiss.utils.CommonUtils;
+import org.jkiss.dbeaver.model.DBPIdentifierCase;
+import org.jkiss.dbeaver.model.DBPKeywordType;
+import org.jkiss.dbeaver.model.impl.sql.BasicSQLDialect;
+import org.jkiss.dbeaver.model.sql.SQLDialect;
+import org.jkiss.dbeaver.model.sql.SQLStateType;
 
-public class TurboPPSQLDialect extends JDBCSQLDialect {
+public class TurboPPSQLDialect extends BasicSQLDialect {
 
     public static final String TURBOGRAPHPP_DIALECT_ID = "turbographpp";
 
-    private static String[] EXEC_KEYWORDS =  { "EXEC", "CALL" };
+    private static final String[] CYPHER_KEYWORDS =
+            new String[] {
+                "ASC",
+                "AND",
+                "AS",
+                "CREATE",
+                "COUNT",
+                "CALL",
+                "COLLECT",
+                "DELETE",
+                "DISTINCT",
+                "DESC",
+                "EXISTS",
+                "FOREACH",
+                "LIMIT",
+                "LOAD CSV",
+                "MATCH",
+                "MERGE",
+                "NOT",
+                "OPTIONAL MATCH",
+                "OPTIONAL",
+                "OR",
+                "ORDER BY",
+                "RETURN",
+                "REMOVE",
+                "SKIP",
+                "SET",
+                "UNWIND",
+                "UNION",
+                "USE",
+                "WHERE",
+                "WITH"
+            };
 
-    private String[] scriptDelimiters;
-    private char stringEscapeCharacter = '\0';
-    private String scriptDelimiterRedefiner;
-    private boolean legacySQLDialect;
-    private boolean supportsUpsert;
-    private boolean quoteReservedWords;
-    private boolean useSearchStringEscape;
-    private String dualTable;
-    private String testSQL;
-    private boolean hasDelimiterAfterQuery;
-    private boolean hasDelimiterAfterBlock;
-    private boolean callableQueryInBrackets;
-    private boolean omitCatalogName;
+    public static final String[] CYPHER_NEO4J_FUNCTION = {
+        "collect", "count", "toInteger", "isEmpty", "shortestPath", "sum", "avg"
+        // "FLOOR",
+        // "LOWER",
+        // "MAX",
+        // "MIN",
+        // "SQRT",
+        // "SUBSTRING",
+        // "TRIM",
+        // "UPPER",
+    };
+
+    private static final String[] DDL_KEYWORDS =
+            new String[] {"CREATE", "DELETE", "REMOVE", "SET", "MERGE"};
+
+    private static final String[] QUERY_KEYWORDS =
+            new String[] {"MATCH", "OPTIONAL MATCH", "MERGE"};
+
+    private static final String[] DML_KEYWORDS = new String[] {"MATCH", "CREATE", "MERGE"};
+
+    private static final String[] EXEC_KEYWORDS =
+            new String[] {"CALL", "EXISTS", "COUNT", "COLLECT"};
+
+    private static final String[] TABLE_KEYWORDS =
+            new String[] {"MATCH", "OPTIONAL MATCH", "MERGE", "CREATE"};
+
+    private static final String[] COLUMN_KEYWORDS =
+            new String[] {"WHERE", "RETURN", "AND", "OR", "SET", "REMOVE"};
+
+    private static final String[][] QUOTE_STRINGS = {};
+    //    private static final String[][] QUOTE_STRINGS = {
+    //            {"'", "'"},
+    //            {"\"", "\""}
+    //    };
 
     public TurboPPSQLDialect() {
-        super("TurboGraph++", "turbographpp");
+        loadKeyword();
     }
 
-    protected TurboPPSQLDialect(String name, String id) {
-        super(name, id);
-    }
-
-    public void initDriverSettings(JDBCSession session, JDBCDataSource dataSource, JDBCDatabaseMetaData metaData) {
-        super.initDriverSettings(session, dataSource, metaData);
-        DBPDriver driver = dataSource.getContainer().getDriver();
-        String delimitersString = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_SCRIPT_DELIMITER));
-        if (delimitersString.contains(",")) {
-            scriptDelimiters = delimitersString.split(",");
-        } else if (!CommonUtils.isEmpty(delimitersString)){
-            scriptDelimiters = new String[]{delimitersString};
-        }
-        String escapeStr = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_STRING_ESCAPE_CHAR));
-        if (!CommonUtils.isEmpty(escapeStr)) {
-            this.stringEscapeCharacter = escapeStr.charAt(0);
-        }
-        this.scriptDelimiterRedefiner = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_SCRIPT_DELIMITER_REDEFINER));
-        this.hasDelimiterAfterQuery = CommonUtils.toBoolean(driver.getDriverParameter(GenericConstants.PARAM_SQL_DELIMITER_AFTER_QUERY));
-        this.hasDelimiterAfterBlock = CommonUtils.toBoolean(driver.getDriverParameter(GenericConstants.PARAM_SQL_DELIMITER_AFTER_BLOCK));
-        this.legacySQLDialect = CommonUtils.toBoolean(driver.getDriverParameter(GenericConstants.PARAM_LEGACY_DIALECT));
-        this.supportsUpsert = ((TurboGraphPPDataSource)dataSource).getMetaModel().supportsUpsertStatement();
-        if (this.supportsUpsert) {
-            addSQLKeyword("UPSERT");
-        }
-        this.useSearchStringEscape = CommonUtils.getBoolean(driver.getDriverParameter(GenericConstants.PARAM_USE_SEARCH_STRING_ESCAPE), false);
-        this.quoteReservedWords = CommonUtils.getBoolean(driver.getDriverParameter(GenericConstants.PARAM_QUOTE_RESERVED_WORDS), true);
-        this.testSQL = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_QUERY_PING));
-        if (CommonUtils.isEmpty(this.testSQL)) {
-            this.testSQL = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_QUERY_GET_ACTIVE_DB));
-        }
-        this.dualTable = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_DUAL_TABLE));
-        if (this.dualTable.isEmpty()) {
-            this.dualTable = null;
-        }
-        this.omitCatalogName = CommonUtils.toBoolean(driver.getDriverParameter(GenericConstants.PARAM_OMIT_CATALOG_NAME));
+    @Override
+    public String getDialectId() {
+        return TURBOGRAPHPP_DIALECT_ID;
     }
 
     @NotNull
     @Override
-    public String[] getScriptDelimiters() {
-        return ArrayUtils.isEmpty(scriptDelimiters) ? super.getScriptDelimiters() : scriptDelimiters;
-    }
-
-    @Override
-    public char getStringEscapeCharacter() {
-        return stringEscapeCharacter;
-    }
-
-    @Override
-    public String getScriptDelimiterRedefiner() {
-        return scriptDelimiterRedefiner;
-    }
-
-    @Override
-    public boolean supportsAliasInSelect() {
-        return super.supportsAliasInSelect();
-    }
-
-    @Override
-    public boolean isDelimiterAfterQuery() {
-        return hasDelimiterAfterQuery;
-    }
-
-    @Override
-    public boolean isDelimiterAfterBlock() {
-        return hasDelimiterAfterBlock;
-    }
-
-    @NotNull
-    @Override
-    public String[] getExecuteKeywords()
-    {
-        return EXEC_KEYWORDS;
-    }
-
-    public boolean isLegacySQLDialect() {
-        return legacySQLDialect;
-    }
-
-    @Override
-    public boolean supportsUpsertStatement() {
-        return supportsUpsert;
-    }
-
-    @Override
-    public boolean isQuoteReservedWords() {
-        return quoteReservedWords;
-    }
-
-    @Override
-    public String formatStoredProcedureCall(DBPDataSource dataSource, String sqlText) {
-        if (callableQueryInBrackets) {
-            return "{" + sqlText + "}";
-        }
-        return super.formatStoredProcedureCall(dataSource, sqlText);
-    }
-
-    @Override
-    public String getTestSQL() {
-        return testSQL;
+    public String getDialectName() {
+        return "TurboGraph++";
     }
 
     @Nullable
     @Override
-    public String getDualTableName() {
-        return dualTable;
+    public String[][] getIdentifierQuoteStrings() {
+        return QUOTE_STRINGS;
+    }
+
+    @Override
+    public String getQuotedString(String string) {
+        return super.getQuotedString(string);
     }
 
     @NotNull
     @Override
-    public String getSearchStringEscape() {
-        if (useSearchStringEscape) {
-            return super.getSearchStringEscape();
-        } else {
-            return null;
-        }
+    public SQLStateType getSQLStateType() {
+        return SQLStateType.UNKNOWN;
     }
 
-    // Some databases do not need specified catalog name in queries (like Informix), although the driver may not think so
     @Override
-    public int getCatalogUsage() {
-        if (omitCatalogName) {
-            return USAGE_NONE;
+    public boolean isStandardSQL() {
+        return false;
+    }
+
+    @Override
+    public String[] getDDLKeywords() {
+        return DDL_KEYWORDS;
+    }
+
+    @Override
+    public String[] getQueryKeywords() {
+        return QUERY_KEYWORDS;
+    }
+
+    @Override
+    public String[] getExecuteKeywords() {
+        return EXEC_KEYWORDS;
+    }
+
+    @Override
+    public String[] getDMLKeywords() {
+        return DML_KEYWORDS;
+    }
+
+    private void loadKeyword() {
+        Set<String> all = new HashSet<>();
+        Collections.addAll(all, CYPHER_KEYWORDS);
+        Collections.addAll(functions, CYPHER_NEO4J_FUNCTION);
+        Collections.addAll(tableQueryWords, TABLE_KEYWORDS);
+        Collections.addAll(columnQueryWords, COLUMN_KEYWORDS);
+
+        for (String kw : all) {
+            addSQLKeyword(kw);
+            setKeywordIndent(kw, 1);
         }
-        return super.getCatalogUsage();
+
+        for (String kw : tableQueryWords) {
+            setKeywordIndent(kw, 1);
+        }
+
+        for (String kw : columnQueryWords) {
+            setKeywordIndent(kw, 1);
+        }
+
+        addKeywords(functions, DBPKeywordType.FUNCTION);
+    }
+
+    @Override
+    public int getSQLType() {
+        return SQLDialect.GQL_CYPHER;
+    }
+
+    @Override
+    public boolean isDelimiterAfterQuery() {
+        return true;
+    }
+
+    @Override
+    public DBPIdentifierCase storesUnquotedCase() {
+        return DBPIdentifierCase.MIXED;
     }
 }
