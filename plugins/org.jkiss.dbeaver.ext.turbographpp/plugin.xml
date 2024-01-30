@@ -28,21 +28,22 @@
             dialect="turbographpp">
             <tree path="turbographpp" label="GTurboGraph++ data source" supportsEntityMerge="true">
                 <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTable" label="%tree.table.node.name" icon="#folder_table" description="%tree.tables.node.tip">
-                    <items label="%tree.table.node.name" path="nodes" property="PhysicalNode" icon="#table">
-                        <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.node.name" icon="#columns" description="%tree.columns.node.tip">
+                    <items label="%tree.table.node.name" path="table" property="PhysicalNode" icon="#table">
+                        <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.node.name" icon="#columns" description="%tree.columns.node.name">
                             <items label="%tree.column.node.name" path="nodeproperties" property="attributes" icon="#column">
                             </items>
                         </folder>
                     </items>
                 </folder>
-                <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPEdge" label="%tree.table.edge.name" icon="#folder_table" description="%tree.table.edge.tip">
-                    <items label="%tree.table.edge.name" path="edges" property="PhysicalEdge" icon="#table">
-                        <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.edge.name" icon="#columns" description="%tree.columns.edge.tip">
-                            <items label="%tree.column.edge.name" path="edgeproperties" property="attributes" icon="#column">
+                <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPView" label="%tree.table.edge.name" icon="#folder_link" description="%tree.tables.edge.tip">
+                            <items label="%tree.table.edge.name" path="view" property="PhysicalEdge" icon="#table_link">
+                                <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.edge.name" icon="#columns" description="%tree.column.edge.name">
+                                    <items label="%tree.column.edge.name" path="edgeproperties" property="attributes" icon="#column">
+                                    </items>
+                                </folder>
                             </items>
-                        </folder>
-                    </items>
-                </folder>
+				</folder>
+                
             </tree>
             <drivers managable="true">
                 <driver

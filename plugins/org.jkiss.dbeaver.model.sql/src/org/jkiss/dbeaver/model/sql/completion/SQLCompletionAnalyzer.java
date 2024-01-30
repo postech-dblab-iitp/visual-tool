@@ -431,7 +431,7 @@ public class SQLCompletionAnalyzer implements DBRRunnableParametrized<DBRProgres
 
     private void makeProposalsFromAttributeValues(DBPDataSource dataSource, SQLWordPartDetector wordDetector, boolean isInLiteral, DBSEntity entity) throws DBException {
         List<String> prevWords = wordDetector.getPrevWords();
-        if (!prevWords.isEmpty()) {
+        if (prevWords != null && !prevWords.isEmpty()) {
             // Column name?
             String columnName = prevWords.get(prevWords.size() - 1);
             if (!DBUtils.isQuotedIdentifier(dataSource, columnName)) {
@@ -621,7 +621,7 @@ public class SQLCompletionAnalyzer implements DBRRunnableParametrized<DBRProgres
         }
     }
 
-    private static boolean hasProposal(List<SQLCompletionProposalBase> proposals, String displayName) {
+    protected static boolean hasProposal(List<SQLCompletionProposalBase> proposals, String displayName) {
         for (SQLCompletionProposalBase proposal : proposals) {
             if (displayName.equals(proposal.getDisplayString())) {
                 return true;
@@ -1336,7 +1336,7 @@ public class SQLCompletionAnalyzer implements DBRRunnableParametrized<DBRProgres
             params);
     }
 
-    private static String convertKeywordCase(SQLCompletionRequest request, String replaceString, boolean isObject) {
+    protected static String convertKeywordCase(SQLCompletionRequest request, String replaceString, boolean isObject) {
         final int proposalCase = request.getContext().getInsertCase();
         switch (proposalCase) {
             case SQLCompletionContext.PROPOSAL_CASE_UPPER:
