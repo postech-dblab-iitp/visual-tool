@@ -74,14 +74,17 @@
                         label="TurboGraph++(New)"
                         icon="icons/turbo_plus_plus_icon_16.png"
                         iconBig="icons/turbo_plus_plus_icon_64.png"
-                        class="cubrid.jdbc.driver.CUBRIDDriver"
-                        sampleURL="jdbc:CUBRID:{host}:{port}:{database}:::"
+                        class="turbograph.jdbc.driver.TURBOGRAPHDriver"
+                        sampleURL="jdbc:turbograph:{host}:{port}:{database}:::"
                         defaultPort="30000"
-                        description="CUBRID JDBC driver"
+                        description="TURBOGRAPH JDBC driver"
                         supportedConfigurationTypes="MANUAL,URL"
                         webURL="https://www.cubrid.org/manual/en/11.2/api/jdbc.html#configuration-connection"
                         categories="vit_graph">
-                    <file type="jar" path="maven:/cubrid:cubrid-jdbc:RELEASE"/>
+                    <file 
+                    	path="https://github.com/cubrid-iitp/turbograph-jdbc-maven/releases/download/1.0.0.0006/turbograph-jdbc-1.0.0.0006.jar"
+                    	type="jar">
+                    </file>
 
                     <property name="altHosts" value=""/>
                     <property name="rcTime" value="600"/>
@@ -112,7 +115,7 @@
     </extension>
 
 	<extension point="org.jkiss.dbeaver.mavenRepository">
-        <repository id="cubrid-maven-repo" name="Cubrid Repository" url="https://maven.cubrid.org">
+        <repository id="cubrid-turbograph-maven-repo" name="turbograph Repository" url="https://nexus.buabu.duckdns.org/repository/maven-releases/">
             <scope group="cubrid"/>
         </repository>
     </extension>
