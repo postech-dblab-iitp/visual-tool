@@ -224,11 +224,6 @@ public class SmartGraphPanel<V, E> extends Pane {
         edgeNodesForID = new HashMap<>();
         connections = new HashMap<>();
 
-        //set stylesheet and class
-        //loadStylesheet(cssFile);
-
-        //initNodes();
-
         enableMouseListener();
 
         //automatic layout initializations        
@@ -1387,8 +1382,6 @@ public class SmartGraphPanel<V, E> extends Pane {
     public void setInitSize(double width, double height) {
     	initWidth = width;
     	initHeight = height;
-//    	System.out.println("Init Size width : " + width);
-//    	System.out.println("Init Size height : " + height);
     }
     
     public double getInitWidth() {

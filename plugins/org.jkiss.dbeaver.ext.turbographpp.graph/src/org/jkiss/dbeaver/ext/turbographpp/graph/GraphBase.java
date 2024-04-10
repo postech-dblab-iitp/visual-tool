@@ -65,7 +65,7 @@ public interface GraphBase {
     public void setVertexSelectAction(Consumer<String> action);
     public void setEdgeSelectAction(Consumer<String> action);
     public void setDefaultLayoutAlgorithm();
-    public void drawGraph(double width, double height);
+    public void drawGraph(boolean refreshMetadata, double width, double height);
     public int getNumNodes();
     public int getNumEdges();
 }

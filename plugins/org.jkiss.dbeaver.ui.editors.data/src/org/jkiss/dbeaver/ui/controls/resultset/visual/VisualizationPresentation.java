@@ -83,7 +83,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         DESIGN,
         CHART,
         CAPTURE,
-        TO_CSV
+        TO_CSV,
+        NEXT_DATA,
+        ALL_DATA
     }
 
 	private Composite composite;
@@ -101,9 +103,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	
 	private CoolBar coolBar;
 	private Label resultLabel;
-	private Label InfoLabel;
 
 	private Button shortestButton;
+	private Button fetchNextButton;
+	private Button fetchEndButton;
 	
     private HashSet<Object> propertyList = new HashSet<>();
 	private HashMap<String, DBDAttributeBinding> DBDAttributeNodeList = new HashMap<>();
@@ -124,6 +127,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	public static final String TURBOGRAPH_EDGE_END_ID = DataRowID.TURBOGRAPH_EDGE_END_ID;
 	
     private String currentQuery = "";
+    private int lastReadRowCount = 0;
+    
 	@Override
     public void createPresentation(
             @NotNull final IResultSetController controller, @NotNull Composite parent) {
@@ -220,7 +225,12 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	@Override
 	public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
+		System.out.println("controller.isHasMoreData() : " + controller.isHasMoreData());
+		fetchNextButton.setEnabled(controller.isHasMoreData());
+		fetchEndButton.setEnabled(controller.isHasMoreData());
+		
 		if (refreshMetadata) {
+		    lastReadRowCount = 0;
             if (visualGraph != null) {
                 visualGraph.clearGraph();
             }
@@ -234,7 +244,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			displayStringNodeList.clear();
 			displayStringEdgeList.clear();
 
-			ShowVisualizaion(append);
+			ShowVisualizaion(refreshMetadata, append);
+		} else {
+		    setShortestMode(false);
+	        ShowVisualizaion(refreshMetadata, append);
 		}
 	}
 	
@@ -275,6 +288,16 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 						saveCSV();
 						setShortestMode(false);
 					    break;
+					case NEXT_DATA:
+                        if(controller != null) {
+                            controller.readNextSegment();
+                        }
+                        break;
+					case ALL_DATA: 
+                        if(controller != null) {
+                            controller.readAllData();
+                        }
+                        break;
 					default :
 						break;
 				}
@@ -313,7 +336,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
 		
 		Composite composite2 = new Composite(coolBar, SWT.NONE);
-		composite2.setLayout(new GridLayout(2, true));
+		composite2.setLayout(new GridLayout(3, true));
 
 		shortestButton = new Button(composite2, SWT.PUSH);
 		shortestButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
@@ -373,15 +396,25 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
 		
 		Composite composite4 = new Composite(coolBar, SWT.NONE);
-		composite4.setLayout(new GridLayout(4, false));
+		composite4.setLayout(new GridLayout(2, true));
 		composite4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		resultLabel = new Label(composite4, SWT.READ_ONLY | SWT.CENTER);
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-        gd.horizontalSpan = 4;
-        resultLabel.setLayoutData(gd);
-		resultLabel.setText("Edge : " + "00000" + " Node : " + "00000");
-
+		fetchNextButton = new Button(composite4, SWT.PUSH);
+		fetchNextButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_NEXT));
+		fetchNextButton.setToolTipText("Next Data");
+		fetchNextButton.setData(ImageButton.NEXT_DATA);
+		fetchNextButton.addSelectionListener(imageButtonListener);
+		fetchNextButton.setEnabled(false);
+		fetchNextButton.pack();
+		
+		fetchEndButton = new Button(composite4, SWT.PUSH);
+		fetchEndButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_ALL));
+		fetchEndButton.setToolTipText("All Data");
+		fetchEndButton.setData(ImageButton.ALL_DATA);
+		fetchEndButton.addSelectionListener(imageButtonListener);
+		fetchEndButton.setEnabled(false);
+		fetchEndButton.pack();
+        
 		composite4.pack();
 		
 		size = composite4.getSize();
@@ -390,13 +423,16 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		
 		Composite composite5 = new Composite(coolBar, SWT.NONE);
 		composite5.setLayout(new GridLayout(4, false));
-		composite5.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
-		
-		InfoLabel = new Label(composite5, SWT.READ_ONLY | SWT.CENTER);
-		//InfoLabel.setText("Edge : " + "00000" + " Node : " + "00000");
-		
+		composite5.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        
+		resultLabel = new Label(composite5, SWT.READ_ONLY | SWT.CENTER);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 4;
+		resultLabel.setLayoutData(gd);
+		resultLabel.setText("Edge : " + "00000" + " Node : " + "00000");
+
 		composite5.pack();
-		
+        
 		size = composite5.getSize();
 		buttonItem5.setControl(composite5);
 		buttonItem5.setSize(buttonItem5.computeSize(size.x, size.y));
@@ -412,9 +448,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		return horizontalLine;
 	}
 
-	private void ShowVisualizaion(boolean append) {
-		dataSet();
-		drawGraph();
+	private void ShowVisualizaion(boolean refreshMetadata, boolean append) {
+		dataSet(refreshMetadata, append);
+		drawGraph(refreshMetadata, append);
 	}
 
     private boolean addNeo4jNode(
@@ -718,25 +754,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		visualGraph.exportCSV();
 	}
 	
-//    private final SelectionListener imageButtonListener = new SelectionAdapter() {
-//		@Override
-//		public void widgetSelected(SelectionEvent e) {
-//			if (e.widget != null && e.widget.getData() != null) {
-//				switch((ImageButton) e.widget.getData()) {
-//					case CAPTURE :
-//					    saveImage();
-//						break;
-//					case SHORTEST :
-//					    break;
-//					case TO_CSV :
-//					    break;
-//					default :
-//						break;
-//				}
-//			}
-//		}
-//	};
-    
     public void setMiniMapVisible(boolean visible) {
         if (visualGraph != null) {
         	visualGraph.setMiniMapVisible(visible);
@@ -794,8 +811,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		}
     }
     
-    private void dataSet() {
-    	DBPPreferenceStore prefs = getController().getPreferenceStore();
+    private void dataSet(boolean refreshMetadata, boolean append) {
+    
+        DBPPreferenceStore prefs = getController().getPreferenceStore();
 		String graphType = "";
 
         DBDDisplayFormat displayFormat =
@@ -845,7 +863,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         	}
         }
         
-    	for (ResultSetRow row : allRows) { // Add Node
+        for (int i = lastReadRowCount; i < allRows.size(); i++) { // Add Node
+            ResultSetRow row = allRows.get(i);
     		for (Object obj : nodeRowData) {
     			if (obj instanceof NEO4JRowData) {
     				NEO4JRowData data = (NEO4JRowData)obj;
@@ -869,7 +888,8 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     		}
         }
     	
-    	for (ResultSetRow row : allRows) { // Add Edge
+        for (int i = lastReadRowCount; i < allRows.size(); i++) { // Add Edge
+            ResultSetRow row = allRows.get(i);
     		for (Object obj : edgeRowData) {
     			if (obj instanceof NEO4JRowData) {
     				NEO4JRowData data = (NEO4JRowData)obj;
@@ -896,9 +916,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     			}
     		}
         }
+    	
+    	lastReadRowCount = allRows.size();
     }
     
-    private void drawGraph() {
+    private void drawGraph(boolean refreshMetadata, boolean append) {
     	int nodesNum = visualGraph.getNumNodes();
 		int sqrt = (int) Math.sqrt(nodesNum);
 		int compositeSizeX = graphTopComposite.getSize().x - 100;
@@ -918,16 +940,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 			    drawSizeY = compositeSizeY;
             }
 			
-			//InfoLabel.setText(drawSizeX + " X " + drawSizeY); 
-			
-			if (!init) {
-			    visualGraph.drawGraph(drawSizeX, drawSizeY);
-			    init = true;
-			} else {
-			    visualGraph.drawGraph(drawSizeX, drawSizeY);
-			    //visualGraph.redraw();
-			}
-			
+		    visualGraph.drawGraph(refreshMetadata, drawSizeX, drawSizeY);
 		}
     }
 }
