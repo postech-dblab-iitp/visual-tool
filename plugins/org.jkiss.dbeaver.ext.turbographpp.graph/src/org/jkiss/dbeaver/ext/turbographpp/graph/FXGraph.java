@@ -147,6 +147,8 @@ public class FXGraph implements GraphBase {
     
     private DBPDataSource parentDataSource;
     
+    private LayoutStyle lastLayoutstyle = LayoutStyle.SPRING;
+    
     public FXGraph(Composite parent, int style) {
     	this(parent, style, null);
     }
@@ -458,21 +460,27 @@ public class FXGraph implements GraphBase {
         graphView.setInitSize(width, height);
     }
     
-    private void graphInit() {
-        zoomManager.setDefaultZoom();
-        graphView.init();
-        graphView.update();
-        layoutUpdatethread = new LayoutUpdateThread();
-        layoutUpdatethread.start();
+    private void graphInit(boolean refreshMetadata) {
+        if (refreshMetadata) {
+            zoomManager.setDefaultZoom();
+            graphView.init();
+            graphView.update();
+            layoutUpdatethread = new LayoutUpdateThread();
+            layoutUpdatethread.start();
+        } else {
+            graphView.updateAndWait();
+            setLayoutAlgorithm(lastLayoutstyle);
+        }
+
         selectNode = null;
         shortestMode = false;
         startVertex = null;
         endVertex = null;
     }
     
-    public void drawGraph(double width, double height) {
+    public void drawGraph(boolean refreshMetadata, double width, double height) {
     	resize(width, height);
-    	graphInit();
+    	graphInit(refreshMetadata);
     }
 
     @Override
@@ -573,16 +581,19 @@ public class FXGraph implements GraphBase {
     public void setLayoutAlgorithm(LayoutStyle layoutStyle) {
         resize(lastWidth, lastHeight);
         setAutomaticLayout(false);
-
+        lastLayoutstyle = layoutStyle;
+        
         switch (layoutStyle) {
             case RADIAL:
                 graphView.setSmartPlacementStrategy(new SmartCircularGroupPlacementStrategy());
                 break;
             case SPRING:
-                if (!miniMap.isShowing()) {
-                    setAutomaticLayout(true);
-                }
                 graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());
+                if (!miniMap.isShowing()) {
+                    //setAutomaticLayout(true);
+                    layoutUpdatethread = new LayoutUpdateThread();
+                    layoutUpdatethread.start();
+                }
                 break;
             case HORIZONTAL_TREE:
                 graphView.setSmartPlacementStrategy(new SmartHorizotalTreePlacementStrategy());
@@ -601,7 +612,12 @@ public class FXGraph implements GraphBase {
     }
 	
 	public void setDefaultLayoutAlgorithm() {
+	    lastLayoutstyle = LayoutStyle.SPRING;
 		graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());
+	}
+	
+	public LayoutStyle getLastLayoutAlgorithm() {
+	    return lastLayoutstyle;
 	}
 
 	@Override
@@ -942,6 +958,7 @@ public class FXGraph implements GraphBase {
     }
 	public void setAutomaticLayout (boolean value) {
 		if (graphView != null) {
+		    System.out.println("setAutomaticLayout : " + value);
 			graphView.setAutomaticLayout(value);
 		}
 	}
