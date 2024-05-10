@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.jkiss.dbeaver.ui.controls.resultset.visual;
+package org.jkiss.dbeaver.ext.turbographpp.ui.views;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IMenuManager;
@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.themes.ITheme;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
@@ -50,6 +50,7 @@ import org.jkiss.dbeaver.ModelPreferences;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.GraphBase.LayoutStyle;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.DataRowID;
+import org.jkiss.dbeaver.ext.turbographpp.ui.internal.TurboGraphPPUIMessages;
 import org.jkiss.dbeaver.model.DBConstants;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.data.DBDAttributeBinding;
@@ -61,6 +62,7 @@ import org.jkiss.dbeaver.ui.UIIcon;
 import org.jkiss.dbeaver.ui.UIStyles;
 import org.jkiss.dbeaver.ui.UIUtils;
 import org.jkiss.dbeaver.ui.controls.resultset.*;
+import org.jkiss.dbeaver.ui.dialogs.BaseDialog;
 import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
 
@@ -85,10 +87,12 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         CAPTURE,
         TO_CSV,
         NEXT_DATA,
-        ALL_DATA
+        ALL_DATA,
+        DETACH_WINDOW,
+        MINI_MAP
     }
 
-	private Composite composite;
+	private Composite parentComposite;
 	private Composite mainComposite;
 	private Composite menuBarComposite;
 	private Composite graphTopComposite;
@@ -116,8 +120,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	private HashMap<String, String> displayStringNodeList = new HashMap<>();
 	private HashMap<String, String> displayStringEdgeList = new HashMap<>();
 	
-	private boolean init = false;
-	
 	public static final String NODE_EDGE_ID = DataRowID.NODE_EDGE_ID;
 	public static final String NODE_LABEL = DataRowID.NODE_LABEL;
 	public static final String EDGE_TYPE = DataRowID.EDGE_TYPE;
@@ -129,6 +131,11 @@ public class VisualizationPresentation extends AbstractPresentation implements I
     private String currentQuery = "";
     private int lastReadRowCount = 0;
     
+    private DetachDialog detachDialog;
+    private boolean detach = false;
+    
+    private List<Button> graphButtonList = new ArrayList<>();
+    
 	@Override
     public void createPresentation(
             @NotNull final IResultSetController controller, @NotNull Composite parent) {
@@ -136,24 +143,26 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         this.controller = controller;
 
-		composite = parent;
+		this.parentComposite = parent;
 		GridLayout layout = new GridLayout(1, false);
         layout.marginHeight = 5;
         layout.marginWidth = 5;
         
-        GridData gd_MainComposite = new GridData(SWT.FILL, SWT.FILL, false, true, 1, 1);
+        GridData gd_MainComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
         
-		mainComposite = new Composite(composite, SWT.NONE);
+		mainComposite = new Composite(parent, SWT.NONE);
 		mainComposite.setLayout(layout);
 		mainComposite.setLayoutData(gd_MainComposite);
-		
+        
 		menuBarComposite = new Composite(mainComposite, SWT.NONE);
 		menuBarComposite.setLayout(new GridLayout(1, false));
 		menuBarComposite.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
         
 		graphTopComposite = new Composite(mainComposite, SWT.NONE);
 		graphTopComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
-        graphTopComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        graphTopComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        
+        detachDialog = new DetachDialog(parent);
         
         addMenuCoolbar(menuBarComposite);
 
@@ -182,6 +191,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	@Override
 	public void dispose() {
+		System.out.println("visual View dispose");
 		if (monoFont != null) {
 			UIUtils.dispose(monoFont);
 			monoFont = null;
@@ -189,6 +199,10 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		
 		if (visualGraph != null) {
 			visualGraph.finalize();
+		}
+		
+		if (detachDialog != null) {
+			detachDialog.close();
 		}
 		
 		super.dispose();
@@ -225,7 +239,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
 	@Override
 	public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
-		System.out.println("controller.isHasMoreData() : " + controller.isHasMoreData());
 		fetchNextButton.setEnabled(controller.isHasMoreData());
 		fetchEndButton.setEnabled(controller.isHasMoreData());
 		
@@ -298,6 +311,25 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                             controller.readAllData();
                         }
                         break;
+					case DETACH_WINDOW:
+						if (!detach) {
+							detach = true;
+							detachDialog.create();
+							visualGraph.miniMapUpdate(detachDialog.getmainComposite(), detachDialog.getmainComposite().getShell());
+							mainComposite.setParent(detachDialog.getmainComposite());
+							parentComposite.layout(true,true);
+							detachDialog.open();
+						} else {
+							detach = false;
+							mainComposite.setParent(parentComposite);
+							visualGraph.miniMapUpdate(mainComposite, mainComposite.getShell());
+							parentComposite.layout(true,true);
+							detachDialog.close();
+						}
+						break;
+					case MINI_MAP:
+						miniMapToggle();
+						break;
 					default :
 						break;
 				}
@@ -309,97 +341,135 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		coolBar = new CoolBar(parent, SWT.NONE);
 		coolBar.setBackground(parent.getBackground());
 
+		CoolItem buttonItem0 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		CoolItem buttonItem1 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		CoolItem buttonItem2 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		CoolItem buttonItem3 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		CoolItem buttonItem4 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
 		CoolItem buttonItem5 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+		CoolItem buttonItem6 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+
+		Composite menuComposite0 = new Composite(coolBar, SWT.NONE);
+		menuComposite0.setLayout(new GridLayout(1, true));
 		
-		Composite composite1 = new Composite(coolBar, SWT.NONE);
-		composite1.setLayout(new GridLayout(LayoutStyle.values().length, true));
+		Button detachButton = new Button(menuComposite0, SWT.PUSH);
+        detachButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DETACH_WINDOW));
+        detachButton.setToolTipText(TurboGraphPPUIMessages.visualization_detach_window_button_tool_tip);
+        detachButton.setData(ImageButton.DETACH_WINDOW);
+        detachButton.addSelectionListener(imageButtonListener);
+		
+        menuComposite0.pack();
+        
+        Point size = menuComposite0.getSize();
+        buttonItem0.setControl(menuComposite0);
+        buttonItem0.setSize(buttonItem0.computeSize(size.x, size.y));
+        
+        Composite menuComposite1 = new Composite(coolBar, SWT.NONE);
+        menuComposite1.setLayout(new GridLayout(1, true));
+		
+		Button MiniMapButton = new Button(menuComposite1, SWT.PUSH);
+		MiniMapButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_MINI_MAP));
+		MiniMapButton.setToolTipText(TurboGraphPPUIMessages.visualization_minimap_window_button_tool_tip);
+		MiniMapButton.setData(ImageButton.MINI_MAP);
+		MiniMapButton.addSelectionListener(imageButtonListener);
+		graphButtonList.add(MiniMapButton);
+		
+		menuComposite1.pack();
+		
+		size = menuComposite1.getSize();
+		buttonItem1.setControl(menuComposite1);
+		buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
+		
+		Composite menuComposite2 = new Composite(coolBar, SWT.NONE);
+		menuComposite2.setLayout(new GridLayout(LayoutStyle.values().length, true));
 
 		Button button1; 
 		
 		for (LayoutStyle style : LayoutStyle.values()) {
-			button1 = new Button(composite1, SWT.PUSH);
+			button1 = new Button(menuComposite2, SWT.PUSH);
 			button1.setImage(style.getImage());
 			button1.setToolTipText(style.getText());
 			button1.setData(style);
 			button1.addSelectionListener(layoutChangeListener);
 			button1.pack();
+			graphButtonList.add(button1);
 		}
 		
-		composite1.pack();
+		menuComposite2.pack();
 
-		Point size = composite1.getSize();
-		buttonItem1.setControl(composite1);
-		buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
+		size = menuComposite2.getSize();
+		buttonItem2.setControl(menuComposite2);
+		buttonItem2.setSize(buttonItem1.computeSize(size.x, size.y));
 		
-		Composite composite2 = new Composite(coolBar, SWT.NONE);
-		composite2.setLayout(new GridLayout(3, true));
+		Composite menuComposite3 = new Composite(coolBar, SWT.NONE);
+		menuComposite3.setLayout(new GridLayout(2, true));
 
-		shortestButton = new Button(composite2, SWT.PUSH);
+		shortestButton = new Button(menuComposite3, SWT.PUSH);
 		shortestButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
-		shortestButton.setToolTipText("Shortest Path");
+		shortestButton.setToolTipText(TurboGraphPPUIMessages.visualization_shortest_button_tool_tip);
 		shortestButton.setData(ImageButton.SHORTEST);
 		shortestButton.addSelectionListener(imageButtonListener);
 		shortestButton.pack();
+		graphButtonList.add(shortestButton);
 		
-		button1 = new Button(composite2, SWT.PUSH);
+		button1 = new Button(menuComposite3, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
 		button1.setToolTipText("Chart");
 		button1.setData(ImageButton.CHART);
 		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
+		graphButtonList.add(button1);
 		
-		composite2.pack();
+		menuComposite3.pack();
 
-		size = composite2.getSize();
-		buttonItem2.setControl(composite2);
-		buttonItem2.setSize(buttonItem2.computeSize(size.x, size.y));
+		size = menuComposite3.getSize();
+		buttonItem3.setControl(menuComposite3);
+		buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
 
-		Composite composite3 = new Composite(coolBar, SWT.NONE);
-        composite3.setLayout(new GridLayout(4, true));
+		Composite menuComposite4 = new Composite(coolBar, SWT.NONE);
+		menuComposite4.setLayout(new GridLayout(4, true));
 
-        button1 = new Button(composite3, SWT.PUSH);
+        button1 = new Button(menuComposite4, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.PROPERTIES));
         button1.setToolTipText("Value");
         button1.setData(ImageButton.VALUE);
         button1.addSelectionListener(imageButtonListener);
         button1.pack();
+        graphButtonList.add(button1);
         
-		button1 = new Button(composite3, SWT.PUSH);
+		button1 = new Button(menuComposite4, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DESIGN));
 		button1.setToolTipText("Design Editor");
 		button1.setData(ImageButton.DESIGN);
 		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
+		graphButtonList.add(button1);
 		
-		button1 = new Button(composite3, SWT.PUSH);
+		button1 = new Button(menuComposite4, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
 		button1.setToolTipText("Visualization Capture");
 		button1.setData(ImageButton.CAPTURE);
 		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
+		graphButtonList.add(button1);
 
-		button1 = new Button(composite3, SWT.PUSH);
+		button1 = new Button(menuComposite4, SWT.PUSH);
 		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CSV_FILE));
 		button1.setToolTipText("To CSV File");
 		button1.setData(ImageButton.TO_CSV);
 		button1.addSelectionListener(imageButtonListener);
 		button1.pack();
 
-		composite3.pack();
+		menuComposite4.pack();
 
-		size = composite3.getSize();
-		buttonItem3.setControl(composite3);
-		buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
+		size = menuComposite4.getSize();
+		buttonItem4.setControl(menuComposite4);
+		buttonItem4.setSize(buttonItem3.computeSize(size.x, size.y));
 		
-		Composite composite4 = new Composite(coolBar, SWT.NONE);
-		composite4.setLayout(new GridLayout(2, true));
-		composite4.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		Composite menuComposite5 = new Composite(coolBar, SWT.NONE);
+		menuComposite5.setLayout(new GridLayout(2, false));
 		
-		fetchNextButton = new Button(composite4, SWT.PUSH);
+		fetchNextButton = new Button(menuComposite5, SWT.PUSH);
 		fetchNextButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_NEXT));
 		fetchNextButton.setToolTipText("Next Data");
 		fetchNextButton.setData(ImageButton.NEXT_DATA);
@@ -407,7 +477,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		fetchNextButton.setEnabled(false);
 		fetchNextButton.pack();
 		
-		fetchEndButton = new Button(composite4, SWT.PUSH);
+		fetchEndButton = new Button(menuComposite5, SWT.PUSH);
 		fetchEndButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_ALL));
 		fetchEndButton.setToolTipText("All Data");
 		fetchEndButton.setData(ImageButton.ALL_DATA);
@@ -415,28 +485,37 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 		fetchEndButton.setEnabled(false);
 		fetchEndButton.pack();
         
-		composite4.pack();
+		menuComposite5.pack();
 		
-		size = composite4.getSize();
-		buttonItem4.setControl(composite4);
-		buttonItem4.setSize(buttonItem4.computeSize(size.x, size.y));
+		size = menuComposite5.getSize();
+		buttonItem5.setControl(menuComposite5);
+		buttonItem5.setSize(buttonItem4.computeSize(size.x, size.y));
 		
-		Composite composite5 = new Composite(coolBar, SWT.NONE);
-		composite5.setLayout(new GridLayout(4, false));
-		composite5.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		Composite menuComposite6 = new Composite(coolBar, SWT.NONE);
+		menuComposite6.setLayout(new GridLayout(4, false));
+		menuComposite6.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         
-		resultLabel = new Label(composite5, SWT.READ_ONLY | SWT.CENTER);
+		resultLabel = new Label(menuComposite6, SWT.READ_ONLY | SWT.CENTER);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 4;
 		resultLabel.setLayoutData(gd);
 		resultLabel.setText("Edge : " + "00000" + " Node : " + "00000");
 
-		composite5.pack();
+		menuComposite6.pack();
         
-		size = composite5.getSize();
-		buttonItem5.setControl(composite5);
-		buttonItem5.setSize(buttonItem5.computeSize(size.x, size.y));
+		size = menuComposite6.getSize();
+		buttonItem6.setControl(menuComposite6);
+		buttonItem6.setSize(buttonItem6.computeSize(size.x, size.y));
 		
+	}
+	
+	private void graphMenuEnable(boolean enable) {
+	    Iterator<Button> iter = graphButtonList.iterator();
+        
+        while(iter.hasNext()) {
+            Button data = iter.next();
+            data.setEnabled(enable);
+        }
 	}
 
 	private static Label createHorizontalLine(Composite parent, int hSpan, int vIndent) {
@@ -724,6 +803,15 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                     curAttribute = DBDAttributeEdgeList.get(id);
                     fireSelectionChanged(new VisualizationSelectionImpl());
                 });
+        visualGraph.setTabSelectAction(
+                (Integer id) -> {
+                    if (id == FXGraph.BROWSER_TAP) {
+                        graphMenuEnable(true);
+                    } else {
+                        graphMenuEnable(false);
+                    }
+                });
+        
     }
 	private void saveImage() {
 	    
@@ -751,7 +839,15 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 	}
 	
 	private void saveCSV() {
-		visualGraph.exportCSV();
+		if (visualGraph != null) {
+			visualGraph.exportCSV();
+		}
+	}
+	
+	public void miniMapToggle() {
+		if (visualGraph != null) {
+			visualGraph.miniMapToggle();
+		}
 	}
 	
     public void setMiniMapVisible(boolean visible) {
@@ -941,6 +1037,70 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             }
 			
 		    visualGraph.drawGraph(refreshMetadata, drawSizeX, drawSizeY);
+		}
+    }
+
+    private class DetachDialog extends BaseDialog {
+    	private Composite parentComposite;
+    	private Composite composite;
+    	
+    	public DetachDialog(Composite parent) {
+            this(parent, SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | SWT.MIN);
+            parentComposite = parent;
+        }
+
+        public DetachDialog(Composite parent, int style) {
+            super(parent.getShell(), "Visual view", null);
+            setShellStyle(style);
+        }
+		
+		public Composite getmainComposite() {
+			return composite;
+		}
+		
+		public Shell getParentShell() {
+			return this.getShell();
+		}
+		
+		@Override
+		protected Composite createDialogArea(Composite parent) {
+			Composite area = (Composite) super.createDialogArea(parent);
+			
+			composite = new Composite(area, SWT.NONE);
+			GridLayout layout = new GridLayout(1, false);
+	        layout.marginHeight = 5;
+	        layout.marginWidth = 5;
+			composite.setLayout(layout);
+			
+			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+			gridData.widthHint = mainComposite.getBounds().width;
+			gridData.heightHint = mainComposite.getBounds().height;
+			composite.setLayoutData(gridData);
+			
+			return parent;
+		}
+		
+		@Override
+		protected void createButtonsForButtonBar(Composite parent) {
+		}
+		
+		@Override
+	    protected boolean isResizable() {
+	        return true;
+	    }
+		
+		@Override
+		public int open() {
+			composite.layout(true, true);
+			return super.open();
+		}
+		
+		@Override
+		public boolean close() {
+			detach = false;
+			mainComposite.setParent(parentComposite);
+			parentComposite.layout(true,true);
+			return super.close();
 		}
     }
 }

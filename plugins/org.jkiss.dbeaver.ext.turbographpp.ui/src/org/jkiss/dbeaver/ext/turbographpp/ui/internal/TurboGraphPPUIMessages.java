@@ -38,6 +38,9 @@ public class TurboGraphPPUIMessages extends NLS {
     public static String dialog_connection_server_label;
     public static String dialog_connection_test_connection_button;
     public static String dialog_connection_user_name_label;
+    public static String visualization_shortest_button_tool_tip;
+    public static String visualization_detach_window_button_tool_tip;
+    public static String visualization_minimap_window_button_tool_tip;
     
     static {
         // initialize resource bundle

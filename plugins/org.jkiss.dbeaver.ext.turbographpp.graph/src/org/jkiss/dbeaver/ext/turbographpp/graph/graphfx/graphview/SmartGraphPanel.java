@@ -444,11 +444,16 @@ public class SmartGraphPanel<V, E> extends Pane {
     NODES CREATION/UPDATES
      */
     private void initNodes() {
-
+        double radius = 0;
         /* create vertex graphical representations */
         for (Vertex<V> vertex : listOfVertices()) {
+            if (vertex.element() instanceof CypherNode) {
+                CypherNode node = (CypherNode) vertex.element();
+                radius = node.getRadius();
+            }
+            
             SmartGraphVertexNode<V> vertexAnchor = new SmartGraphVertexNode<V>(vertex, 0, 0,
-                    graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
+                    radius == 0 ? graphProperties.getVertexRadius() : radius, graphProperties.getVertexAllowUserMove());
             vertexNodes.put(vertex, vertexAnchor);
         }
 

@@ -255,6 +255,8 @@ public class UIIcon {
     public static final DBIcon BUTTON_CAPTURE = new DBIcon("Capture", "visualization/capture.png"); //$NON-NLS-1$ //$NON-NLS-2$
     public static final DBIcon BUTTON_CSV_FILE = new DBIcon("CSV_File", "visualization/csv_file.png"); //$NON-NLS-1$ //$NON-NLS-2$
     public static final DBIcon BUTTON_SEARCH_EXECUTE = new DBIcon("Search_Execute", "visualization/search_execute.png"); //$NON-NLS-1$ //$NON-NLS-2$
+    public static final DBIcon BUTTON_DETACH_WINDOW = new DBIcon("Detach_Window", "visualization/detach.png"); //$NON-NLS-1$ //$NON-NLS-2$
+    public static final DBIcon BUTTON_MINI_MAP = new DBIcon("Mini_Map", "visualization/minimap.png"); //$NON-NLS-1$ //$NON-NLS-2$
     
     public static final DBIcon BUTTON_FETCH_NEXT = new DBIcon("Fetch Next Page", "sql/resultset_fetch_page.png");
     public static final DBIcon BUTTON_FETCH_ALL = new DBIcon("Fetch All", "sql/resultset_fetch_all.png");

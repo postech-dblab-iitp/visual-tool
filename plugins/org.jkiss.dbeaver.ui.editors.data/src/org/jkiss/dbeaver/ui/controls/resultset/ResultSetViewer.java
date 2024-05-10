@@ -91,7 +91,6 @@ import org.jkiss.dbeaver.ui.controls.resultset.view.EmptyPresentation;
 import org.jkiss.dbeaver.ui.controls.resultset.view.ErrorPresentation;
 import org.jkiss.dbeaver.ui.controls.resultset.view.StatisticsPresentation;
 import org.jkiss.dbeaver.ui.controls.resultset.virtual.*;
-import org.jkiss.dbeaver.ui.controls.resultset.visual.VisualizationPresentation;
 import org.jkiss.dbeaver.ui.css.CSSUtils;
 import org.jkiss.dbeaver.ui.css.DBStyles;
 import org.jkiss.dbeaver.ui.data.IValueController;
@@ -219,7 +218,6 @@ public class ResultSetViewer extends Viewer
     private final Color defaultForeground;
     private final GC sizingGC;
     private VerticalButton recordModeButton;
-    private VerticalButton miniMapButton;
 
     // Theme listener
     private IPropertyChangeListener themeChangeListener;
@@ -828,18 +826,11 @@ public class ResultSetViewer extends Viewer
                 UIUtils.createEmptyLabel(presentationSwitchFolder, 1, 1).setLayoutData(new GridData(GridData.FILL_VERTICAL));
                 recordModeButton = new VerticalButton(presentationSwitchFolder, SWT.LEFT | SWT.CHECK);
                 recordModeButton.setAction(new ToggleModeAction(), true);
-                miniMapButton = new VerticalButton(presentationSwitchFolder, SWT.LEFT | SWT.CHECK);
-                miniMapButton.setAction(new MiniMapAction(), true);
-                miniMapButton.setChecked(showMiniMap);
 
                 if (recordModeButton != null) {
                     recordModeButton.setVisible(activePresentationDescriptor != null && activePresentationDescriptor.supportsRecordMode());
                 }
 
-                if (miniMapButton != null) {
-                    miniMapButton.setVisible(activePresentationDescriptor != null && activePresentationDescriptor.supportsMiniMap());
-                }
-                
                 if (statusBar != null) {
                     ((GridLayout) presentationSwitchFolder.getLayout()).marginBottom = statusBar.getSize().y;
                 }
@@ -985,10 +976,6 @@ public class ResultSetViewer extends Viewer
             recordModeButton.setVisible(activePresentationDescriptor != null && activePresentationDescriptor.supportsRecordMode());
         }
 
-        if (miniMapButton != null) {
-            miniMapButton.setVisible(activePresentationDescriptor != null && activePresentationDescriptor.supportsMiniMap());
-        }
-        
         // Update dynamic find/replace target
         {
             IFindReplaceTarget nested = null;
@@ -1559,19 +1546,6 @@ public class ResultSetViewer extends Viewer
         }
     }
     
-    public void updateMiniMap(boolean visible)
-    {
-        if (supportsMiniMap()) {
-            if (activePresentation instanceof VisualizationPresentation) {
-                VisualizationPresentation visualPresentation;
-                visualPresentation = (VisualizationPresentation)activePresentation;
-                if (visualPresentation != null) {
-                    visualPresentation.setMiniMapVisible(visible);
-                }
-            }
-        }
-    }
-
     /**
      * It is a hack function. Generally all command associated widgets should be updated automatically by framework.
      * Freaking E4 do not do it. I've spent a couple of days fighting it. Guys, you owe me.
@@ -1865,17 +1839,6 @@ public class ResultSetViewer extends Viewer
         updateEditControls();
     }
     
-    public void toggleMiniMap()
-    {
-        showMiniMap(!showMiniMap);
-        if (miniMapButton != null) {
-            miniMapButton.setChecked(showMiniMap);
-            miniMapButton.redraw();
-        }
-
-        updateMiniMap(showMiniMap);
-    }
-
     private void changeMode(boolean recordMode)
     {
         //Object state = savePresentationState();
@@ -4708,31 +4671,6 @@ public class ResultSetViewer extends Viewer
         }
     }
     
-    private class MiniMapAction extends Action {
-        {
-            setActionDefinitionId(ResultSetHandlerMain.CMD_TOGGLE_MINIMAP);
-            setImageDescriptor(DBeaverIcons.getImageDescriptor(UIIcon.RS_DETAILS));
-        }
-
-        MiniMapAction() {
-            super(ResultSetMessages.dialog_text_check_box_minimap, Action.AS_CHECK_BOX);
-            String toolTip = ActionUtils.findCommandDescription(ResultSetHandlerMain.CMD_TOGGLE_MINIMAP, getSite(), false);
-            if (!CommonUtils.isEmpty(toolTip)) {
-                setToolTipText(toolTip);
-            }
-        }
-
-        @Override
-        public boolean isChecked() {
-            return showMiniMap;
-        }
-
-        @Override
-        public void run() {
-            toggleMiniMap();
-        }
-    }
-
     class HistoryStateItem {
         DBSDataContainer dataContainer;
         DBDDataFilter filter;

@@ -274,17 +274,11 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
         DVertex startVertex = validateVertex(vertices.get(uElement));
         DVertex endVertex = validateVertex(vertices.get(vElement));
 
-//        if (getEdge(startVertex, endVertex) == null) {
-            DEdge edge = new DEdge(startVertex, endVertex, eElement);
-            edges.put(eElement, edge);
-            startVertex.getOutgoingEdges().add(edge);
-            endVertex.getIncomingEdges().add(edge);
-            return edge;
-//        } else {
-//        	System.out.println("startVertex " + startVertex.toString());
-//        	System.out.println("endVertex " + startVertex.toString());
-//            throw new InvalidEdgeException("Edge from u to v exists.");
-//        }
+        DEdge edge = new DEdge(startVertex, endVertex, eElement);
+        edges.put(eElement, edge);
+        startVertex.getOutgoingEdges().add(edge);
+        endVertex.getIncomingEdges().add(edge);
+        return edge;
     }
 
     @Override

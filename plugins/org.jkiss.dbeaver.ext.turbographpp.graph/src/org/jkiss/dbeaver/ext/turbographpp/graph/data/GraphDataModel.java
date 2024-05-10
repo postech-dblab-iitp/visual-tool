@@ -17,6 +17,10 @@ public class GraphDataModel {
     public HashMap<String, Vertex<CypherNode>> getNodes() {
         return nodes;
     }
+    
+    public HashMap<String, FxEdge<CypherEdge, CypherNode>> getEdges() {
+        return edges;
+    }
 
     public void putNode(String id, List<String> labels, Vertex<CypherNode> node) {
     	nodes.put(id, node);

@@ -26,6 +26,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TouchEvent;
 import org.eclipse.swt.events.TouchListener;
 import org.eclipse.swt.graphics.Color;
@@ -33,12 +34,17 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 
 import javafx.application.Platform;
 import javafx.embed.swt.FXCanvas;
@@ -77,18 +83,22 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphMessages;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 import org.jkiss.dbeaver.ext.turbographpp.graph.utils.ExportCSV;
+import org.jkiss.dbeaver.ext.turbographpp.graph.utils.SendHttp;
 import org.jkiss.dbeaver.model.DBPDataSource;
 
 public class FXGraph implements GraphBase {
     
-	public static final int MOUSE_WHELL_UP = 5;
-	public static final int MOUSE_WHELL_DOWN = -5;
-	
-	public static final int MOUSE_SECONDARY_BUTTON = 3;
+    public static final int MOUSE_WHELL_UP = 5;
+    public static final int MOUSE_WHELL_DOWN = -5;
 
-	public static final int CTRL_KEYCODE = 0x40000;
-	public static final int Z_KEYCODE = 0x7a;
-	public static final int Y_KEYCODE = 0x79;
+    public static final int MOUSE_SECONDARY_BUTTON = 3;
+
+    public static final int CTRL_KEYCODE = 0x40000;
+    public static final int Z_KEYCODE = 0x7a;
+    public static final int Y_KEYCODE = 0x79;
+
+    public static final int GRAPH_TAP = 0;
+    public static final int BROWSER_TAP = 0;
 	
     private FXCanvas canvas;
     private TurboGraphList<CypherNode, CypherEdge> graph;
@@ -97,9 +107,14 @@ public class FXGraph implements GraphBase {
     private ScrollPane scrollPane;
     private VBox vBox;
     
+    private Composite parentComposite;
     private Control control;
     private Scene scene;
     
+    private TabFolder tabFolder;
+    private TabItem graphTab;
+    private TabItem browserTab;
+
     private MiniMap miniMap;
     
     private boolean ctrlKeyMode = false;
@@ -108,9 +123,11 @@ public class FXGraph implements GraphBase {
     private GraphDataModel dataModel = new GraphDataModel();
     
     private HashMap<String, String> nodesGroup = new HashMap<>();
+    private HashMap<String, Double> nodesRadiusGroup = new HashMap<>();
     
     private Consumer<String> nodeIDConsumer = null;
     private Consumer<String> edgeIDConsumer = null;
+    private Consumer<Integer> tabIDConsumer = null;
     
     private LayoutUpdateThread layoutUpdatethread;
     
@@ -140,13 +157,16 @@ public class FXGraph implements GraphBase {
     private SmartGraphVertex<CypherNode> startVertex;
     private SmartGraphVertex<CypherNode> endVertex;
     
-    private ShortestGuideBox guideBox;
-    private DesignBox designBox;
-    private GraphChart chartBox;
-    private ValueBox valBox;
+    private ShortestGuideBox guideBox = null;
+    private DesignBox designBox = null;
+    private GraphChart chartBox = null;
+    private ValueBox valBox = null;
+    private GraphBrowser graphBrowser = null;
     
     private DBPDataSource parentDataSource;
     
+    private double lastRadius = 35;
+
     private LayoutStyle lastLayoutstyle = LayoutStyle.SPRING;
     
     public FXGraph(Composite parent, int style) {
@@ -154,12 +174,35 @@ public class FXGraph implements GraphBase {
     }
     
     public FXGraph(Composite parent, int style, DBPDataSource dataSource) {
+        this.parentComposite = parent;
         this.control = parent;
-        this.parentDataSource = dataSource; 
+        this.parentDataSource = dataSource;
         //this default option are true then fx thread issue when changed Presentation.
         Platform.setImplicitExit(false);
 
-        canvas = new FXCanvas(parent, SWT.NONE);
+        tabFolder = new TabFolder(parent, SWT.NONE);
+        tabFolder.setEnabled(true);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL);
+        tabFolder.setLayoutData(gd);
+
+        graphTab = new TabItem(tabFolder, SWT.NULL);
+        graphTab.setText(GraphMessages.fxgraph_graph_tab_title);
+        graphTab.setData(dataSource);
+
+        browserTab = new TabItem(tabFolder, SWT.NULL);
+        browserTab.setText(GraphMessages.fxgraph_browser_tab_title);
+
+        Composite graphComposite = new Composite(tabFolder, SWT.NONE);
+        graphComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+        graphComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        graphTab.setControl(graphComposite);
+
+        Composite browserComposite = new Composite(tabFolder, SWT.NONE);
+        browserComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+        browserComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        browserTab.setControl(browserComposite);
+
+        canvas = new FXCanvas(graphComposite, SWT.NONE);
 
         graph = new TurboGraphList<>();
         
@@ -188,14 +231,7 @@ public class FXGraph implements GraphBase {
         
         canvas.setScene(scene);
         
-        createMiniMap(canvas);
-        guideBox = new ShortestGuideBox(canvas, this);
-        
-        designBox = new DesignBox(canvas, this);
-        
-        chartBox = new GraphChart(canvas, this, parentDataSource);
-        
-        valBox = new ValueBox(canvas);
+        createBrowser(browserComposite);
         
         parent.addDisposeListener(new DisposeListener() {
 			
@@ -235,72 +271,66 @@ public class FXGraph implements GraphBase {
     }
 
     private void setCanvasListener() {
-    	
-    	canvas.addPaintListener(new PaintListener() {
-			
-			@Override
-			public void paintControl(PaintEvent e) {
-				
-				if (miniMap.isShowing()) {
-				
-					Double hValue, vValue;
-					double inParentWidth, inParentHeight;
-					lastViewportWidth = scrollPane.getViewportBounds().getWidth();
-					lastViewportHeight = scrollPane.getViewportBounds().getHeight();
-					inParentWidth =  graphView.getBoundsInParent().getWidth();
-					inParentHeight = graphView.getBoundsInParent().getHeight();
-					hValue = scrollPane.getHvalue();
-					vValue = scrollPane.getVvalue();
-				
-					miniMap.setPointRectAngel(inParentWidth, inParentHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
-					
-				}
-			}
-		});
-    	
-    	canvas.addFocusListener(new FocusListener() {
-			
-			@Override
-			public void focusLost(FocusEvent e) {
-				statusCanvasFocus = false;
-				hideContextMenu();
-			}
-			
-			@Override
-			public void focusGained(FocusEvent e) {
-				statusCanvasFocus = true;
-			}
-		});
-    	
-    	canvas.addMouseListener(new MouseListener() {
-			
-			@Override
-			public void mouseUp(MouseEvent e) {
-			}
-			
-			@Override
-			public void mouseDown(MouseEvent e) {
-				setAutomaticLayout(false);
-				
-				hideContextMenu();
-				
-		        if (e.button != MOUSE_SECONDARY_BUTTON) {
-		        	clearSelectNode();
-		        }
-			}
-			
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-			}
-		});
-        
+        canvas.addPaintListener(new PaintListener() {
+            @Override
+            public void paintControl(PaintEvent e) {
+                if (miniMap == null) {
+                    return;
+                }
+
+                if (miniMap.isShowing()) {
+                    Double hValue, vValue;
+                    double inParentWidth, inParentHeight;
+                    lastViewportWidth = scrollPane.getViewportBounds().getWidth();
+                    lastViewportHeight = scrollPane.getViewportBounds().getHeight();
+                    inParentWidth =  graphView.getBoundsInParent().getWidth();
+                    inParentHeight = graphView.getBoundsInParent().getHeight();
+                    hValue = scrollPane.getHvalue();
+                    vValue = scrollPane.getVvalue();
+                    miniMap.setPointRectAngel(inParentWidth, inParentHeight, lastViewportWidth, lastViewportHeight, vValue, hValue);
+                }
+            }
+        });
+
+        canvas.addFocusListener(new FocusListener() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                statusCanvasFocus = false;
+                hideContextMenu();
+            }
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                statusCanvasFocus = true;
+            }
+        });
+
+        canvas.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseUp(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseDown(MouseEvent e) {
+                setAutomaticLayout(false);
+                hideContextMenu();
+
+                if (e.button != MOUSE_SECONDARY_BUTTON) {
+                    clearSelectNode();
+                }
+            }
+
+            @Override
+            public void mouseDoubleClick(MouseEvent e) {
+            }
+        });
+
         canvas.addTouchListener(new TouchListener() {
-			
-			@Override
-			public void touch(TouchEvent e) {
-				setAutomaticLayout(false);
-			}
-		});
+            @Override
+            public void touch(TouchEvent e) {
+                setAutomaticLayout(false);
+            }
+        });
     }
     
     private void setGraphViewListener() {
@@ -364,8 +394,12 @@ public class FXGraph implements GraphBase {
                             return;
                         }
                         nodeIDConsumer.accept(ID);
-                        designBox.setSelectItem(node);
-                        valBox.updateItem(node);
+                        if (designBox != null) {
+                            designBox.setSelectItem(node);
+                        }
+                        if (valBox != null) {
+                            valBox.updateItem(node);
+                        }
                     }
                 });
 
@@ -378,8 +412,12 @@ public class FXGraph implements GraphBase {
                             return;
                         }
                         edgeIDConsumer.accept(ID);
-                        designBox.setSelectItem(edge);
-                        valBox.updateItem(edge);
+                        if (designBox != null) {
+                            designBox.setSelectItem(edge);
+                        }
+                        if (valBox != null) {
+                            valBox.updateItem(edge);
+                        }
                     }
                 });
 
@@ -437,7 +475,17 @@ public class FXGraph implements GraphBase {
 			}
 		});
 		
-
+        tabFolder.addSelectionListener(new SelectionAdapter(){
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                tabIDConsumer.accept(tabFolder.getSelectionIndex());
+                if (tabFolder.getSelectionIndex() == BROWSER_TAP) {
+                    if(miniMap != null && miniMap.isShowing()) {
+                        miniMapToggle();
+                    }
+                }
+            };
+        });
     }
     
     public void finalize() {
@@ -485,25 +533,33 @@ public class FXGraph implements GraphBase {
 
     @Override
     public Object addNode(String id, List<String> labels, LinkedHashMap<String, Object> attr) {
-    	//For Group Color
-    	Object v = null;
-    	String fillColor = "";
-    	for (String label : labels) {
-	    	if (nodesGroup.get(label) == null) {
-	    		nodesGroup.put(label, ramdomColor());
-	    	}
-	    	
-	    	if (dataModel.getNode(id) != null) {
-	    	    return null;
-	    	}
-	    	
-	    	fillColor = nodesGroup.get(label);
-	    	
-    	}
-    	CypherNode node = new CypherNode(id, labels, attr, fillColor);
-    	v = graph.insertVertex(node);
-    	dataModel.putNode(id, labels, (Vertex<CypherNode>)v);
-    	return v;
+        //For Group Color
+        Object v = null;
+        String fillColor = "";
+        double radius = 30;
+        for (String label : labels) {
+            if (nodesGroup.get(label) == null) {
+                nodesGroup.put(label, ramdomColor());
+            }
+
+            if (nodesRadiusGroup.get(label) == null) {
+                nodesRadiusGroup.put(label, lastRadius);
+                if (lastRadius > 20) {
+                    lastRadius -= 2;
+                }
+            }
+
+            if (dataModel.getNode(id) != null) {
+                return null;
+            }
+
+            fillColor = nodesGroup.get(label);
+            radius = nodesRadiusGroup.get(label);
+        }
+        CypherNode node = new CypherNode(id, labels, attr, fillColor, radius);
+        v = graph.insertVertex(node);
+        dataModel.putNode(id, labels, (Vertex<CypherNode>)v);
+        return v;
     }
 
     @Override
@@ -589,8 +645,7 @@ public class FXGraph implements GraphBase {
                 break;
             case SPRING:
                 graphView.setSmartPlacementStrategy(new SmartRandomPlacementStrategy());
-                if (!miniMap.isShowing()) {
-                    //setAutomaticLayout(true);
+                if (miniMap == null || !miniMap.isShowing()) {
                     layoutUpdatethread = new LayoutUpdateThread();
                     layoutUpdatethread.start();
                 }
@@ -734,7 +789,7 @@ public class FXGraph implements GraphBase {
 			
 			setAutomaticLayout(true);
 			
-			if (miniMap.isShowing()) {
+			if (miniMap != null && miniMap.isShowing()) {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
@@ -765,6 +820,10 @@ public class FXGraph implements GraphBase {
         this.edgeIDConsumer = action;
     }
 	
+	public void setTabSelectAction(Consumer<Integer> action) {
+        this.tabIDConsumer = action;
+    }
+
 	protected void registerContextMenu() {
 		contextMenu = new ContextMenu();
 		redoMenu = new MenuItem("Redo");
@@ -956,12 +1015,12 @@ public class FXGraph implements GraphBase {
 
         graphView.setUnHighlight();
     }
-	public void setAutomaticLayout (boolean value) {
-		if (graphView != null) {
-		    System.out.println("setAutomaticLayout : " + value);
-			graphView.setAutomaticLayout(value);
-		}
-	}
+
+    public void setAutomaticLayout (boolean value) {
+        if (graphView != null) {
+            graphView.setAutomaticLayout(value);
+        }
+    }
 	
 	private void createMiniMap(Composite parent) {
         miniMap = new MiniMap(parent);
@@ -999,6 +1058,9 @@ public class FXGraph implements GraphBase {
     }
 	
 	public void setMiniMapVisible(boolean visible) {
+	    if (miniMap == null) {
+	        createMiniMap(canvas);
+	    }
         if (miniMap != null) {
             if (visible) {
                 miniMap.show();
@@ -1011,6 +1073,22 @@ public class FXGraph implements GraphBase {
        }
 	}
 	
+	public void miniMapToggle() {
+	    if (miniMap == null) {
+	        createMiniMap(canvas);
+	    }
+        if (miniMap != null) {
+            if (miniMap.isShowing()) {
+                miniMap.remove();
+
+            } else {
+                miniMap.show();
+                setAutomaticLayout(false);
+                miniMapUpdate();
+            }
+        }
+	}
+
 	public void miniMapUpdate () {
     	Display.getDefault().asyncExec(new Runnable() {
             @Override
@@ -1023,12 +1101,17 @@ public class FXGraph implements GraphBase {
         });
     }
 	
+	public void miniMapUpdate (Composite composite, Shell shell) {
+		if (miniMap != null) {
+			miniMap.changeParent(composite, shell);
+			miniMapUpdate();
+		}
+	}
+
 	private Image graphImageCapture() {
-//		System.out.println(LocalTime.now());
 		setGraphScaleForCapture();
 		ImageData imageData = getCaptureImage();
 		setGraphLastScale();
-//		System.out.println(LocalTime.now());
 		if (imageData != null) {
 			Image image = new Image(null, imageData);
 			return image;
@@ -1077,12 +1160,18 @@ public class FXGraph implements GraphBase {
 			startVertex = null;
 			endVertex = null;
 			
+			if (guideBox == null) {
+			    guideBox = new ShortestGuideBox(canvas, this);
+			}
+			
 			guideBox.setText(GraphMessages.shortest_please_select_first);
 			guideBox.open();
 			
 		} else {
 			unShortestMode();
-			guideBox.remove();
+			if (guideBox != null) {
+			    guideBox.remove();
+			}
 		}
 	}
 	
@@ -1181,19 +1270,36 @@ public class FXGraph implements GraphBase {
 	}
 	
 	public void designEditorShow() {
+	    if (designBox == null) {
+	        designBox = new DesignBox(canvas, this);
+	    }
 		designBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
 	}
 	
 	public void chartShow() {
+	    if (chartBox == null) {
+	        chartBox = new GraphChart(canvas, this, parentDataSource);
+	    }
 	    chartBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
 	}
 	
 	public void valueShow() {
+	    if (valBox == null) {
+	        valBox = new ValueBox(canvas);
+	    }
 	    valBox.open(Display.getCurrent().getCursorLocation().x, Display.getCurrent().getCursorLocation().y);
 	}
 	
+	public void createBrowser(Composite composite) {
+	    if (graphBrowser == null) {
+	        graphBrowser = new GraphBrowser(composite, this);
+	    }
+	}
+
 	public void setCurrentQuery(String query, int rowCount) {
-	    chartBox.setCurrentQuery(query, rowCount);
+	    if (chartBox != null) {
+	        chartBox.setCurrentQuery(query, rowCount);
+	    }
 	}
 	
 //	public void updateChart(HashMap<String, Object> data) {
@@ -1213,6 +1319,9 @@ public class FXGraph implements GraphBase {
 		if (guideBox != null) guideBox.remove();
 		if (valBox != null) valBox.remove();
 	}
-	
+
+    public void sendJsonData(String url) {
+        SendHttp.sendPost(url, getDataModel().getNodes(), getDataModel().getEdges());
+    }
 }
 

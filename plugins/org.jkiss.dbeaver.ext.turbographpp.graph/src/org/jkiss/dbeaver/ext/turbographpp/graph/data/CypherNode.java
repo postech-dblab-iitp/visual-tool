@@ -26,10 +26,11 @@ public class CypherNode {
     private DisplayType displayType = DisplayType.PROPERTY;
     private String displayPropertyName = null;
 
-    public CypherNode(String id, List<String> labels, LinkedHashMap<String, Object> property, String fillColor) {
+    public CypherNode(String id, List<String> labels, LinkedHashMap<String, Object> property, String fillColor, double radius) {
         this.id = id;
         this.labels = labels;
         this.display = String.valueOf(labels);
+        this.radius = radius;
         this.fillColor = fillColor;
         this.property = new LinkedHashMap<>();
         this.lastPositionX = -1;
@@ -77,6 +78,17 @@ public class CypherNode {
 
     public List<String> getLabels() {
         return labels;
+    }
+    
+    public String getLabelsString() {
+        String ret = "";
+        for (int i=0 ; i < labels.size(); i++) {
+            if (!ret.isEmpty()) {
+                ret += ":";
+            }
+            ret = labels.get(i);
+        }
+        return ret;
     }
 
     public String getFillColor() {
