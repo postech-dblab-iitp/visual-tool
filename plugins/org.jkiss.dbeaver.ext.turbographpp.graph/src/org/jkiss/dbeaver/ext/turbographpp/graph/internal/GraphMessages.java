@@ -22,6 +22,8 @@ public class GraphMessages extends NLS {
     public static final String BUNDLE_NAME =
             "org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphResources"; //$NON-NLS-1$
 
+    public static String fxgraph_graph_tab_title;
+    public static String fxgraph_browser_tab_title;
     public static String fxgraph_export_csv_dialog_title;
     public static String fxgraph_export_csv_dialog_default_msg;
     public static String fxgraph_export_csv_dialog_error_msg_select_folder;

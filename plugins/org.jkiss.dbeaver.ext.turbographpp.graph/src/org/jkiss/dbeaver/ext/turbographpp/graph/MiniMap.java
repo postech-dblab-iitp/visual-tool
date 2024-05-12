@@ -47,14 +47,14 @@ public class MiniMap {
     
     private Rectangle pointRectAngel;
 
-    public MiniMap(Control composite) {
+    public MiniMap(Composite composite) {
 
         Objects.requireNonNull(composite);
 
         this.parentComposite = composite;
 
         parents = new ArrayList<Composite>();
-        Composite parent = composite.getParent();
+        Composite parent = composite;
         
         while (parent != null) {
             parents.add(parent);
@@ -82,21 +82,7 @@ public class MiniMap {
 
         overlayShell = new Shell(composite.getShell(), SWT.NONE);
 
-        GridLayout gdLayout = new GridLayout(2, false);
-        gdLayout.marginWidth = 0;
-        gdLayout.marginHeight = 0;
-        gdLayout.horizontalSpacing = 0;
-        gdLayout.verticalSpacing = 0;
-        overlayShell.setLayout(gdLayout);
-        
-        GridData gdata = new GridData();
-        gdata.verticalSpan = 2;
-        gdata.widthHint = MINIMAP_WIDTH;
-        gdata.heightHint = MINIMAP_HEIGHT;
-        
-        miniMapCanvas = new Canvas(overlayShell, SWT.NONE | SWT.BORDER);
-        miniMapCanvas.setLayout(gdLayout);
-        miniMapCanvas.setLayoutData(gdata);
+        createMiniMapCanvas(overlayShell);
 
         pointRectAngel = new Rectangle(0, 0, 0, 0);
         
@@ -104,12 +90,14 @@ public class MiniMap {
             @Override
             public void paintControl(PaintEvent e) {
                 if (captureImage != null && !captureImage.isDisposed()) {
-                	e.gc.setForeground(new Color(255, 0, 0));
+                	Color color = parentComposite.getShell().getDisplay().getSystemColor(SWT.COLOR_RED);
+                	e.gc.setForeground(color);
                 	e.gc.setLineWidth(4);
                 	e.gc.drawImage(captureImage, 0, 0,
                 			captureImage.getBounds().width, captureImage.getBounds().height,
                 			0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
                 	e.gc.drawRectangle(pointRectAngel);
+                	color.dispose();
                 	//captureImage.dispose();
                 }
             }
@@ -117,7 +105,7 @@ public class MiniMap {
         
         zoomIn = new Button(overlayShell, SWT.PUSH | SWT.CENTER);
         zoomIn.setText("+");
-        gdata = new GridData();
+        GridData gdata = new GridData();
         gdata.widthHint = OVERLAY_WIDTH - MINIMAP_WIDTH;
         gdata.heightHint = MINIMAP_HEIGHT / 2;
         zoomIn.setLayoutData(gdata);
@@ -129,44 +117,60 @@ public class MiniMap {
         gdata.heightHint = MINIMAP_HEIGHT / 2;
         zoomOut.setLayoutData(gdata);
 
+        System.out.println("create showing set false");
         showing = false;
         overlayShell.open();
         overlayShell.setVisible(showing);
     }
-
-    public void show() {
+    
+    private void createMiniMapCanvas(Shell overlayShell) {
+    	GridLayout gdLayout = new GridLayout(2, false);
+        gdLayout.marginWidth = 0;
+        gdLayout.marginHeight = 0;
+        gdLayout.horizontalSpacing = 0;
+        gdLayout.verticalSpacing = 0;
+        overlayShell.setLayout(gdLayout);
         
-        if (showing) {
-            return;
+        GridData gdata = new GridData();
+        gdata.verticalSpan = 2;
+        gdata.widthHint = MINIMAP_WIDTH;
+        gdata.heightHint = MINIMAP_HEIGHT;
+    	
+    	miniMapCanvas = new Canvas(overlayShell, SWT.NONE | SWT.BORDER);
+        miniMapCanvas.setLayout(gdLayout);
+        miniMapCanvas.setLayoutData(gdata);
+    }
+
+    private void addListnener(Composite newComposite) {
+    	
+    	parentComposite = newComposite;
+        Composite composite = newComposite;
+    	 
+    	while (composite != null) {
+            parents.add(composite);
+            composite = composite.getParent();
         }
-
-        rePosition();
-
-        overlayShell.setVisible(true);
-
-        parentComposite.addControlListener(controlListener);
+    	
+    	addListnener();
+    }
+    
+    private void addListnener() {
+    	
+    	parentComposite.addControlListener(controlListener);
         parentComposite.addPaintListener(paintListener);
         miniMapCanvas.addPaintListener(canvasPaintListener);
 
         for (Composite parent : parents) {
-            parent.addControlListener(controlListener);
-            parent.addPaintListener(paintListener);
+        	if (!parent.isDisposed()) {
+	            parent.addControlListener(controlListener);
+	            parent.addPaintListener(paintListener);
+        	}
         }
-
-        showing = true;
     }
-
-    public void remove() {
+    
+    private void removeListnener() {
     	
-    	if (captureImage != null) {
-    		captureImage.dispose();
-    	}
-    	
-        if (!showing) {
-            return;
-        }
-
-        if (!parentComposite.isDisposed()) {
+    	if (!parentComposite.isDisposed()) {
             parentComposite.removeControlListener(controlListener);
             parentComposite.removePaintListener(paintListener);
         }
@@ -181,7 +185,35 @@ public class MiniMap {
                 parent.removePaintListener(paintListener);
             }
         }
+    }
+    
+    public void show() {
+        if (showing) {
+            return;
+        }
 
+        rePosition();
+
+        overlayShell.setVisible(true);
+
+        addListnener();
+
+        parentComposite.redraw();
+        
+        showing = true;
+    }
+
+    public void remove() {
+    	if (captureImage != null) {
+    		captureImage.dispose();
+    	}
+    	
+        if (!showing) {
+            return;
+        }
+
+        removeListnener();
+        
         if (!overlayShell.isDisposed()) {
             overlayShell.setVisible(false);
         }
@@ -218,10 +250,11 @@ public class MiniMap {
     }
     
     private void rePosition() {
-
         if (!parentComposite.isVisible()) {
-            overlayShell.setBounds(new Rectangle(0, 0, 0, 0));
-            return;
+        	if (!overlayShell.isDisposed()) {
+        		overlayShell.setBounds(new Rectangle(0, 0, 0, 0));
+        	}
+        	return;
         }
 
         Point OverlaySize = parentComposite.getSize(); 
@@ -232,20 +265,9 @@ public class MiniMap {
 
         Rectangle intersection = OverlayBounds;
 
-        for (Composite parent : parents) {
-
-            Rectangle parentClientArea = parent.getClientArea();
-            Point parentLocation = parent.toDisplay(parentClientArea.x, parentClientArea.y);
-            Rectangle parentBounds = new Rectangle(parentLocation.x, parentLocation.y, parentClientArea.width, parentClientArea.height);
-
-            intersection = intersection.intersection(parentBounds);
-
-            if (intersection.width == 0 || intersection.height == 0) {
-                break;
-            }
+        if (!overlayShell.isDisposed()) {
+        	overlayShell.setBounds(intersection);
         }
-
-        overlayShell.setBounds(intersection);
     }
     
     public void addZoominListner(SelectionListener listner) {
@@ -283,9 +305,37 @@ public class MiniMap {
    		pointRectAngel.width = width - POINT_MARGIN_WIDTH;
    		pointRectAngel.height = height - POINT_MARGIN_HEIGHT;
     	
-    	miniMapCanvas.redraw();
-    	
-    	//System.out.println("setPointRectAngel " + pointX + "," + pointY + "," + width + "," + height + ",");
+   		if (miniMapCanvas != null && !miniMapCanvas.isDisposed()) {
+   			miniMapCanvas.redraw();
+    	}
+    }
+
+    public void changeParent(Composite composite, Shell shell) {
+    	removeListnener();
+
+        overlayShell.dispose();
+        overlayShell = new Shell(shell, SWT.NONE);
+        
+        if (showing) {
+        	overlayShell.setVisible(true);
+        	show();
+        }
+
+        GridLayout gdLayout = new GridLayout(2, false);
+        gdLayout.marginWidth = 0;
+        gdLayout.marginHeight = 0;
+        gdLayout.horizontalSpacing = 0;
+        gdLayout.verticalSpacing = 0;
+        overlayShell.setLayout(gdLayout);
+        
+        GridData gdata = new GridData();
+        gdata.verticalSpan = 2;
+        gdata.widthHint = MINIMAP_WIDTH;
+        gdata.heightHint = MINIMAP_HEIGHT;
+        
+        createMiniMapCanvas(overlayShell);
+        
+        addListnener(composite);
     }
     
 }

@@ -237,7 +237,6 @@ public class MoveBox {
         
         for (Composite parent : parents) {
         	if (parent.getClass().equals(Composite.class)) {
-//        		System.out.println("parent " + parent.toString());
         		parent.addPaintListener(paintListener);
         	}
         }
