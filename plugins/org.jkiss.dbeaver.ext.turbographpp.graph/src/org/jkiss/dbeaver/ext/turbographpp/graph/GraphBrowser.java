@@ -1,8 +1,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
+import com.equo.chromium.swt.Browser;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -11,8 +10,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import com.equo.chromium.swt.Browser;
 
 public class GraphBrowser {
     private FXGraph graphview;

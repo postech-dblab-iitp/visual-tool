@@ -16,6 +16,9 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.DBException;
@@ -32,14 +35,10 @@ import org.jkiss.dbeaver.model.impl.jdbc.cache.JDBCStructLookupCache;
 import org.jkiss.dbeaver.model.struct.DBSDataType;
 import org.jkiss.utils.CommonUtils;
 
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
-
-/**
- * Generic tables cache implementation
- */
-public class TableCache extends JDBCStructLookupCache<TurboGraphPPStructContainer, TurboGraphPPTableBase, TurboGraphPPTableColumn> {
+/** Generic tables cache implementation */
+public class TableCache
+        extends JDBCStructLookupCache<
+                TurboGraphPPStructContainer, TurboGraphPPTableBase, TurboGraphPPTableColumn> {
 
     private static final Log log = Log.getLog(TableCache.class);
 
@@ -47,53 +46,75 @@ public class TableCache extends JDBCStructLookupCache<TurboGraphPPStructContaine
     final GenericMetaObject tableObject;
     final GenericMetaObject columnObject;
 
-    protected TableCache(TurboGraphPPDataSource dataSource)
-    {
-        super(TurboGraphPPUtils.getColumn(dataSource, GenericConstants.OBJECT_TABLE, JDBCConstants.TABLE_NAME));
+    protected TableCache(TurboGraphPPDataSource dataSource) {
+        super(
+                TurboGraphPPUtils.getColumn(
+                        dataSource, GenericConstants.OBJECT_TABLE, JDBCConstants.TABLE_NAME));
         this.dataSource = dataSource;
         this.tableObject = dataSource.getMetaObject(GenericConstants.OBJECT_TABLE);
         this.columnObject = dataSource.getMetaObject(GenericConstants.OBJECT_TABLE_COLUMN);
         setListOrderComparator(DBUtils.<TurboGraphPPTableBase>nameComparator());
     }
 
-    public TurboGraphPPDataSource getDataSource()
-    {
+    public TurboGraphPPDataSource getDataSource() {
         return dataSource;
     }
 
     @NotNull
     @Override
-    public JDBCStatement prepareLookupStatement(@NotNull JDBCSession session, @NotNull TurboGraphPPStructContainer owner, @Nullable TurboGraphPPTableBase object, @Nullable String objectName) throws SQLException {
+    public JDBCStatement prepareLookupStatement(
+            @NotNull JDBCSession session,
+            @NotNull TurboGraphPPStructContainer owner,
+            @Nullable TurboGraphPPTableBase object,
+            @Nullable String objectName)
+            throws SQLException {
         return dataSource.getMetaModel().prepareLoadStatement(session, owner, object, objectName);
     }
 
     @Nullable
     @Override
-    protected TurboGraphPPTableBase fetchObject(@NotNull JDBCSession session, @NotNull TurboGraphPPStructContainer owner, @NotNull JDBCResultSet dbResult)
-        throws SQLException, DBException
-    {
-        return getDataSource().getMetaModel().createTableImpl(session, owner, tableObject, dbResult);
+    protected TurboGraphPPTableBase fetchObject(
+            @NotNull JDBCSession session,
+            @NotNull TurboGraphPPStructContainer owner,
+            @NotNull JDBCResultSet dbResult)
+            throws SQLException, DBException {
+        return getDataSource()
+                .getMetaModel()
+                .createTableImpl(session, owner, tableObject, dbResult);
     }
 
     @Override
-    protected JDBCStatement prepareChildrenStatement(@NotNull JDBCSession session, @NotNull TurboGraphPPStructContainer owner, @Nullable TurboGraphPPTableBase forTable)
-        throws SQLException
-    {
+    protected JDBCStatement prepareChildrenStatement(
+            @NotNull JDBCSession session,
+            @NotNull TurboGraphPPStructContainer owner,
+            @Nullable TurboGraphPPTableBase forTable)
+            throws SQLException {
         return dataSource.getMetaModel().prepareTableColumnLoadStatement(session, owner, forTable);
     }
 
     @Override
-    protected TurboGraphPPTableColumn fetchChild(@NotNull JDBCSession session, @NotNull TurboGraphPPStructContainer owner, @NotNull TurboGraphPPTableBase table, @NotNull JDBCResultSet dbResult)
-        throws SQLException, DBException
-    {
-        String columnName = GenericUtils.safeGetStringTrimmed(columnObject, dbResult, JDBCConstants.COLUMN_NAME);
+    protected TurboGraphPPTableColumn fetchChild(
+            @NotNull JDBCSession session,
+            @NotNull TurboGraphPPStructContainer owner,
+            @NotNull TurboGraphPPTableBase table,
+            @NotNull JDBCResultSet dbResult)
+            throws SQLException, DBException {
+        String columnName =
+                GenericUtils.safeGetStringTrimmed(
+                        columnObject, dbResult, JDBCConstants.COLUMN_NAME);
         int valueType = GenericUtils.safeGetInt(columnObject, dbResult, JDBCConstants.DATA_TYPE);
-        String typeName = GenericUtils.safeGetStringTrimmed(columnObject, dbResult, JDBCConstants.TYPE_NAME);
-        long columnSize = GenericUtils.safeGetLong(columnObject, dbResult, JDBCConstants.COLUMN_SIZE);
-        boolean isNotNull = GenericUtils.safeGetInt(columnObject, dbResult, JDBCConstants.NULLABLE) == DatabaseMetaData.columnNoNulls;
+        String typeName =
+                GenericUtils.safeGetStringTrimmed(columnObject, dbResult, JDBCConstants.TYPE_NAME);
+        long columnSize =
+                GenericUtils.safeGetLong(columnObject, dbResult, JDBCConstants.COLUMN_SIZE);
+        boolean isNotNull =
+                GenericUtils.safeGetInt(columnObject, dbResult, JDBCConstants.NULLABLE)
+                        == DatabaseMetaData.columnNoNulls;
         Integer scale = null;
         try {
-            scale = GenericUtils.safeGetInteger(columnObject, dbResult, JDBCConstants.DECIMAL_DIGITS);
+            scale =
+                    GenericUtils.safeGetInteger(
+                            columnObject, dbResult, JDBCConstants.DECIMAL_DIGITS);
         } catch (Throwable e) {
             log.warn("Error getting column scale", e);
         }
@@ -107,10 +128,13 @@ public class TableCache extends JDBCStructLookupCache<TurboGraphPPStructContaine
         } catch (Exception e) {
             log.warn("Error getting column radix", e);
         }
-        String defaultValue = GenericUtils.safeGetString(columnObject, dbResult, JDBCConstants.COLUMN_DEF);
+        String defaultValue =
+                GenericUtils.safeGetString(columnObject, dbResult, JDBCConstants.COLUMN_DEF);
         String remarks = GenericUtils.safeGetString(columnObject, dbResult, JDBCConstants.REMARKS);
-        long charLength = GenericUtils.safeGetLong(columnObject, dbResult, JDBCConstants.CHAR_OCTET_LENGTH);
-        int ordinalPos = GenericUtils.safeGetInt(columnObject, dbResult, JDBCConstants.ORDINAL_POSITION);
+        long charLength =
+                GenericUtils.safeGetLong(columnObject, dbResult, JDBCConstants.CHAR_OCTET_LENGTH);
+        int ordinalPos =
+                GenericUtils.safeGetInt(columnObject, dbResult, JDBCConstants.ORDINAL_POSITION);
         if (!CommonUtils.isEmpty(typeName)) {
             // Check for empty modifiers [MS SQL]
             if (typeName.endsWith("()")) {
@@ -128,21 +152,33 @@ public class TableCache extends JDBCStructLookupCache<TurboGraphPPStructContaine
             }
         }
 
-        return getDataSource().getMetaModel().createTableColumnImpl(
-            session.getProgressMonitor(),
-            dbResult,
-            table,
-            columnName,
-            typeName, valueType, 0, ordinalPos,
-            columnSize,
-            charLength, scale, precision, radix, isNotNull,
-            remarks, defaultValue, false, false
-        );
+        return getDataSource()
+                .getMetaModel()
+                .createTableColumnImpl(
+                        session.getProgressMonitor(),
+                        dbResult,
+                        table,
+                        columnName,
+                        typeName,
+                        valueType,
+                        0,
+                        ordinalPos,
+                        columnSize,
+                        charLength,
+                        scale,
+                        precision,
+                        radix,
+                        isNotNull,
+                        remarks,
+                        defaultValue,
+                        false,
+                        false);
     }
 
     @Override
-    public void beforeCacheLoading(JDBCSession session, TurboGraphPPStructContainer owner) throws DBException {
-       // Do nothing
+    public void beforeCacheLoading(JDBCSession session, TurboGraphPPStructContainer owner)
+            throws DBException {
+        // Do nothing
     }
 
     @Override

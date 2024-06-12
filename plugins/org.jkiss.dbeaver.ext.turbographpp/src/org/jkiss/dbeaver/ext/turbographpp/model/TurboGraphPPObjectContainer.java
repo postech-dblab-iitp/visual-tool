@@ -16,6 +16,9 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
 import org.jkiss.dbeaver.Log;
@@ -25,15 +28,11 @@ import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSDataType;
 import org.jkiss.dbeaver.model.struct.DBSObject;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructContainer, DBPRefreshableObject {
+public abstract class TurboGraphPPObjectContainer
+        implements TurboGraphPPStructContainer, DBPRefreshableObject {
     private static final Log log = Log.getLog(TurboGraphPPObjectContainer.class);
 
-    @NotNull
-    private final TurboGraphPPDataSource dataSource;
+    @NotNull private final TurboGraphPPDataSource dataSource;
     private final TableCache tableCache;
 
     protected TurboGraphPPObjectContainer(@NotNull TurboGraphPPDataSource dataSource) {
@@ -56,14 +55,14 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
         return dataSource;
     }
 
-
     @Override
     public boolean isPersisted() {
         return true;
     }
 
     @Override
-    public List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor) throws DBException {
+    public List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor)
+            throws DBException {
         List<? extends TurboGraphPPTableBase> tables = getTables(monitor);
         if (tables != null) {
             List<TurboGraphPPTable> filtered = new ArrayList<>();
@@ -78,7 +77,8 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
     }
 
     @Override
-    public List<? extends TurboGraphPPView> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException {
+    public List<? extends TurboGraphPPView> getPhysicalEdge(DBRProgressMonitor monitor)
+            throws DBException {
         List<? extends TurboGraphPPTableBase> tables = getTables(monitor);
         if (tables != null) {
             List<TurboGraphPPView> filtered = new ArrayList<>();
@@ -91,40 +91,41 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
         }
         return null;
     }
-    
+
     @Override
     public List<? extends TurboGraphPPTableBase> getTables(DBRProgressMonitor monitor)
-        throws DBException {
+            throws DBException {
         return tableCache.getAllObjects(monitor, this);
     }
 
     @Override
     public TurboGraphPPTableBase getTable(DBRProgressMonitor monitor, String name)
-        throws DBException {
+            throws DBException {
         return tableCache.getObject(monitor, this, name);
     }
 
     @Association
-    public Collection<? extends DBSDataType> getDataTypes(DBRProgressMonitor monitor) throws DBException {
+    public Collection<? extends DBSDataType> getDataTypes(DBRProgressMonitor monitor)
+            throws DBException {
         return getDataSource().getDataTypes(monitor);
     }
 
     @Override
     public Collection<? extends DBSObject> getChildren(@NotNull DBRProgressMonitor monitor)
-        throws DBException {
+            throws DBException {
         List<DBSObject> childrenList = new ArrayList<>(getTables(monitor));
         return childrenList;
     }
 
     @Override
     public DBSObject getChild(@NotNull DBRProgressMonitor monitor, @NotNull String childName)
-        throws DBException {
+            throws DBException {
         return getTable(monitor, childName);
     }
 
     @Override
     public synchronized DBSObject refreshObject(@NotNull DBRProgressMonitor monitor)
-        throws DBException {
+            throws DBException {
         this.tableCache.clearCache();
         return this;
     }
@@ -132,5 +133,4 @@ public abstract class TurboGraphPPObjectContainer implements TurboGraphPPStructC
     public String toString() {
         return getName() == null ? "<NONE>" : getName();
     }
-
 }

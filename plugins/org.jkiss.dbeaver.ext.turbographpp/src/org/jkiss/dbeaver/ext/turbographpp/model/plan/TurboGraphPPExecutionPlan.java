@@ -1,19 +1,17 @@
 package org.jkiss.dbeaver.ext.turbographpp.model.plan;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPDataSource;
 import org.jkiss.dbeaver.model.exec.DBCException;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCSession;
 import org.jkiss.dbeaver.model.exec.plan.DBCPlanNode;
 import org.jkiss.dbeaver.model.impl.plan.AbstractExecutionPlan;
 import org.jkiss.utils.CommonUtils;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 public class TurboGraphPPExecutionPlan extends AbstractExecutionPlan {
 
@@ -31,7 +29,8 @@ public class TurboGraphPPExecutionPlan extends AbstractExecutionPlan {
 
         try {
 
-            TurboGraphPPStatementProxy proxy = new TurboGraphPPStatementProxy(session.getOriginal().createStatement());
+            TurboGraphPPStatementProxy proxy =
+                    new TurboGraphPPStatementProxy(session.getOriginal().createStatement());
 
             plan = proxy.getQueryplan(query);
             String jsonPlan;
@@ -48,9 +47,11 @@ public class TurboGraphPPExecutionPlan extends AbstractExecutionPlan {
             JsonObject planObject = gson.fromJson(jsonPlan, JsonObject.class);
             JsonObject queryBlock = planObject.getAsJsonObject("Plan");
 
-            TurboGraphPPPlanNodePlain rootNode = new TurboGraphPPPlanNodePlain(null, "match", queryBlock);
+            TurboGraphPPPlanNodePlain rootNode =
+                    new TurboGraphPPPlanNodePlain(null, "match", queryBlock);
 
-            if (CommonUtils.isEmpty(rootNode.getNested()) && rootNode.getProperty("message") != null) {
+            if (CommonUtils.isEmpty(rootNode.getNested())
+                    && rootNode.getProperty("message") != null) {
                 throw new DBCException("Can't explain plan: " + rootNode.getProperty("message"));
             }
             nodes.add(rootNode);
@@ -76,5 +77,4 @@ public class TurboGraphPPExecutionPlan extends AbstractExecutionPlan {
     public List<? extends DBCPlanNode> getPlanNodes(Map<String, Object> options) {
         return rootNodes;
     }
-
 }

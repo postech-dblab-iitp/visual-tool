@@ -16,6 +16,11 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.DBException;
@@ -31,13 +36,7 @@ import org.jkiss.dbeaver.model.meta.Property;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSObject;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
-//public class TurboGraphPPEdge implements DBSEntity, DBPRefreshableObject, DBPSaveableObject {
+// public class TurboGraphPPEdge implements DBSEntity, DBPRefreshableObject, DBPSaveableObject {
 public class Neo4jEdge implements DBSObject, DBPRefreshableObject, DBPSaveableObject {
 
     private static final Log log = Log.getLog(Neo4jEdge.class);
@@ -58,16 +57,16 @@ public class Neo4jEdge implements DBSObject, DBPRefreshableObject, DBPSaveableOb
 
     public boolean equals(Object obj) {
         if (obj instanceof Neo4jEdge) {
-            Neo4jEdge temp = (Neo4jEdge)obj;
+            Neo4jEdge temp = (Neo4jEdge) obj;
             return dataSource.equals(temp.dataSource) && edgeType.equals(temp.edgeType);
         }
         return false;
     }
-    
+
     public int hashCode() {
         return Objects.hash(dataSource, edgeType);
     }
-    
+
     @NotNull
     @Override
     @Property(viewable = true, order = 1)
@@ -106,25 +105,27 @@ public class Neo4jEdge implements DBSObject, DBPRefreshableObject, DBPSaveableOb
         properties = null;
         return this;
     }
-    
-    public Set<Neo4jEdgesProperty> getProperties(DBRProgressMonitor monitor) throws DBException
-    {
+
+    public Set<Neo4jEdgesProperty> getProperties(DBRProgressMonitor monitor) throws DBException {
         if (this.properties != null) {
             return this.properties;
         }
-       
+
         try (JDBCSession session = DBUtils.openMetaSession(monitor, this, "Load Edges Propeties")) {
-            String gql = "Match (n)-[r]->(m) where type(r) = '" + edgeType + "' Return DISTINCT keys(r)";
+            String gql =
+                    "Match (n)-[r]->(m) where type(r) = '" + edgeType + "' Return DISTINCT keys(r)";
             try (JDBCPreparedStatement dbStat = session.prepareStatement(gql)) {
                 try (JDBCResultSet dbResult = dbStat.executeQuery()) {
-                    //List<TurboGraphPPEdge> edgeList = new ArrayList<>();
+                    // List<TurboGraphPPEdge> edgeList = new ArrayList<>();
                     Set<Neo4jEdgesProperty> propertyList = new HashSet<>();
                     while (dbResult.next()) {
-                        Neo4jEdgesProperty properties = new Neo4jEdgesProperty(dbResult, this, null);
+                        Neo4jEdgesProperty properties =
+                                new Neo4jEdgesProperty(dbResult, this, null);
                         if (properties.getName() != null) {
                             String[] propertiesList = properties.getName().split(", ");
-                            for (int i = 0 ; i < propertiesList.length ; i++) {
-                                propertyList.add(new Neo4jEdgesProperty(dbResult, this, propertiesList[i]));
+                            for (int i = 0; i < propertiesList.length; i++) {
+                                propertyList.add(
+                                        new Neo4jEdgesProperty(dbResult, this, propertiesList[i]));
                             }
                         }
                     }
@@ -132,20 +133,18 @@ public class Neo4jEdge implements DBSObject, DBPRefreshableObject, DBPSaveableOb
                 }
             }
         } catch (SQLException ex) {
-            //throw new DBException(ex, this);
+            // throw new DBException(ex, this);
             throw new DBException(ex.toString());
         }
     }
-    
+
     @Override
-    public void setPersisted(boolean persisted)
-    {
+    public void setPersisted(boolean persisted) {
         this.persisted = persisted;
         DBUtils.fireObjectUpdate(this);
     }
-    
-    public void clearPropertiesCache()
-    {
+
+    public void clearPropertiesCache() {
         this.properties = null;
     }
 }

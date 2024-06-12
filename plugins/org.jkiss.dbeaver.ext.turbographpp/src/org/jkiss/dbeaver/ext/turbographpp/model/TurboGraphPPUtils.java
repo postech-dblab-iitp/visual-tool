@@ -22,8 +22,8 @@ import org.jkiss.dbeaver.ext.generic.model.meta.GenericMetaObject;
 
 public class TurboGraphPPUtils extends GenericUtils {
 
-    public static Object getColumn(TurboGraphPPDataSource dataSource, String objectType, String columnId)
-    {
+    public static Object getColumn(
+            TurboGraphPPDataSource dataSource, String objectType, String columnId) {
         GenericMetaObject object = dataSource.getMetaObject(objectType);
         if (object == null) {
             return columnId;

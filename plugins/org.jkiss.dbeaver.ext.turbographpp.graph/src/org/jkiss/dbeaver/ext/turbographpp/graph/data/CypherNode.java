@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphProperties;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 
@@ -26,7 +25,12 @@ public class CypherNode {
     private DisplayType displayType = DisplayType.PROPERTY;
     private String displayPropertyName = null;
 
-    public CypherNode(String id, List<String> labels, LinkedHashMap<String, Object> property, String fillColor, double radius) {
+    public CypherNode(
+            String id,
+            List<String> labels,
+            LinkedHashMap<String, Object> property,
+            String fillColor,
+            double radius) {
         this.id = id;
         this.labels = labels;
         this.display = String.valueOf(labels);
@@ -37,11 +41,10 @@ public class CypherNode {
         this.lastPositionY = -1;
         if (property != null) {
             for (String importKey : property.keySet()) {
-                if ( property.get(importKey) instanceof String) {
-                    this.property.put(importKey, 
-                            String.valueOf(property.get(importKey)).strip());
+                if (property.get(importKey) instanceof String) {
+                    this.property.put(importKey, String.valueOf(property.get(importKey)).strip());
                 } else {
-                    this.property.put(importKey,property.get(importKey));
+                    this.property.put(importKey, property.get(importKey));
                 }
             }
         }
@@ -66,12 +69,12 @@ public class CypherNode {
 
         for (int i = 0; i < typeList.length; i++) {
             if (typeList[i] != null) {
-            	displayPropertyName = typeList[i];
+                displayPropertyName = typeList[i];
                 break;
             }
         }
     }
-    
+
     public String getID() {
         return this.id;
     }
@@ -79,10 +82,10 @@ public class CypherNode {
     public List<String> getLabels() {
         return labels;
     }
-    
+
     public String getLabelsString() {
         String ret = "";
-        for (int i=0 ; i < labels.size(); i++) {
+        for (int i = 0; i < labels.size(); i++) {
             if (!ret.isEmpty()) {
                 ret += ":";
             }
@@ -96,24 +99,24 @@ public class CypherNode {
     }
 
     public String getFillColorHexString() {
-    	return fillColor;
+        return fillColor;
     }
-    
+
     public void setFillColor(String color) {
-    	this.fillColor = color;
+        this.fillColor = color;
     }
-    
+
     public String getDisplay() {
         if (displayType == DisplayType.PROPERTY) {
-        	display = String.valueOf(this.property.get(displayPropertyName));
-        	if (display == null || display.isEmpty() || display.contains("null")) {
-            	displayType = DisplayType.TYPE;
+            display = String.valueOf(this.property.get(displayPropertyName));
+            if (display == null || display.isEmpty() || display.contains("null")) {
+                displayType = DisplayType.TYPE;
                 display = String.valueOf(labels);
-        	}
-        } else if (displayType == DisplayType.ID){
+            }
+        } else if (displayType == DisplayType.ID) {
             display = id;
         } else {
-        	display = String.valueOf(labels);
+            display = String.valueOf(labels);
         }
         return display;
     }
@@ -125,7 +128,7 @@ public class CypherNode {
     public Object getProperty(String key) {
         return this.property.get(key);
     }
-    
+
     public String getPropertyType(String key) {
         return this.property.get(key).getClass().getTypeName();
     }
@@ -137,7 +140,7 @@ public class CypherNode {
     public void setDisplayProperty(String propertyName) {
         this.displayPropertyName = propertyName;
     }
-    
+
     public String getDisplayProperty() {
         return this.displayPropertyName;
     }
@@ -145,7 +148,7 @@ public class CypherNode {
     public void setDisplayType(DisplayType type) {
         this.displayType = type;
     }
-    
+
     public DisplayType getDisplayType() {
         return this.displayType;
     }
@@ -162,21 +165,20 @@ public class CypherNode {
     public double getLastPositionY() {
         return this.lastPositionY;
     }
-    
+
     public void setRadius(double radius) {
-    	this.radius = radius;
+        this.radius = radius;
     }
-    
+
     public double getRadius() {
-    	return this.radius;
+        return this.radius;
     }
-    
+
     public void setTextSize(int size) {
-    	this.textSize = size;
+        this.textSize = size;
     }
-    
+
     public int getTextSize() {
-    	return this.textSize;
+        return this.textSize;
     }
-    
 }

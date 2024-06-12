@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import javafx.geometry.Point2D;
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.UtilitiesPoint2D;
@@ -66,9 +65,9 @@ public class SmartCircularSortedPlacementStrategy implements SmartPlacementStrat
 
             if (first) {
 
-            	changePaneArea(smartGraphPanel, vertex, N);
-            	center = new Point2D(this.width / 2, this.height / 2.5);
-            	
+                changePaneArea(smartGraphPanel, vertex, N);
+                center = new Point2D(this.width / 2, this.height / 2.5);
+
                 // verifiy smaller width and height.
                 if (this.width > this.height) {
                     p =

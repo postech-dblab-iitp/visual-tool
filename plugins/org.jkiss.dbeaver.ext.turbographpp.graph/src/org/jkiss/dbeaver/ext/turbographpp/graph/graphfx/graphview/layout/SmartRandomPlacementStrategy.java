@@ -25,36 +25,35 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.layout;
 
 import java.util.Collection;
 import java.util.Random;
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 
 /**
  * Scatters the vertices randomly.
- * 
+ *
  * @see SmartPlacementStrategy
- * 
  * @author brunomnsilva
  */
 public class SmartRandomPlacementStrategy implements SmartPlacementStrategy {
 
     @Override
-    public <V, E> void place(double width, double height, SmartGraphPanel<V, E> smartGraphPanel,
-    		Collection<? extends SmartGraphVertex<V>> vertices) {
-        
+    public <V, E> void place(
+            double width,
+            double height,
+            SmartGraphPanel<V, E> smartGraphPanel,
+            Collection<? extends SmartGraphVertex<V>> vertices) {
+
         smartGraphPanel.setMinSize(width, height);
         smartGraphPanel.setMaxSize(width, height);
-    	
+
         Random rand = new Random();
 
         for (SmartGraphVertex<V> vertex : vertices) {
-            
+
             double x = rand.nextDouble() * width;
             double y = rand.nextDouble() * height;
-                        
+
             vertex.setPosition(x, y);
-          
         }
     }
-    
 }

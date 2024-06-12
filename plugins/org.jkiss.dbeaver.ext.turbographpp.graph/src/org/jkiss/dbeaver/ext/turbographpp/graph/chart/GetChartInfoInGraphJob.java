@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
@@ -13,8 +12,8 @@ import org.jkiss.dbeaver.model.runtime.AbstractJob;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 
 public class GetChartInfoInGraphJob extends AbstractJob {
-	private FXGraph graph;
-	private GraphChart graphChart;
+    private FXGraph graph;
+    private GraphChart graphChart;
     private String infoLabel;
     private String infoProperty;
     private long min;
@@ -22,7 +21,8 @@ public class GetChartInfoInGraphJob extends AbstractJob {
 
     private LinkedHashMap<String, Object> data = new LinkedHashMap<>();
 
-    public GetChartInfoInGraphJob(String jobName, FXGraph graph, GraphChart chart, String label, String property) {
+    public GetChartInfoInGraphJob(
+            String jobName, FXGraph graph, GraphChart chart, String label, String property) {
         super(jobName);
         setUser(true);
         this.graph = graph;
@@ -37,13 +37,13 @@ public class GetChartInfoInGraphJob extends AbstractJob {
         if (graph == null) {
             return Status.CANCEL_STATUS;
         }
-        
+
         if (graphChart == null) {
-        	return Status.CANCEL_STATUS;
+            return Status.CANCEL_STATUS;
         }
 
         graphChart.UILock();
-        
+
         monitor.beginTask("Update GraphDB Type info", 1);
         try {
             String[] temp;
@@ -55,19 +55,16 @@ public class GetChartInfoInGraphJob extends AbstractJob {
             for (String key : data.keySet()) {
                 if (key.contains("-")) {
                     temp = key.split("-");
-                    count = getNumofStepInfo(valList, Long.valueOf(temp[0]), 
-                            Long.valueOf(temp[1]));
+                    count = getNumofStepInfo(valList, Long.valueOf(temp[0]), Long.valueOf(temp[1]));
                     data.put(key, count);
                 } else {
-                    count = getNumofStepInfo(valList, Long.valueOf(key), 
-                    		Long.valueOf(key));
+                    count = getNumofStepInfo(valList, Long.valueOf(key), Long.valueOf(key));
                     data.put(key, count);
                 }
-                
             }
             graphChart.runUpdateChart(data);
         } finally {
-        	graphChart.UIUnLock();
+            graphChart.UIUnLock();
             monitor.done();
         }
         return Status.OK_STATUS;
@@ -77,36 +74,36 @@ public class GetChartInfoInGraphJob extends AbstractJob {
         ArrayList<String> nodeList = graph.getDataModel().getNodeLabelList(infoLabel);
         ArrayList<Long> valList = new ArrayList<>();
         Iterator<String> list = nodeList.iterator();
-        
+
         try {
-	        boolean first = true;
-	        while (list.hasNext()) {
-	        	CypherNode node = graph.getDataModel().getNode(list.next()).element();
-	        	if (node != null) { 
-	        		Object temp = node.getProperty(infoProperty);
-	        		if (temp != null) {
-			        	long val = Long.valueOf(String.valueOf(temp));
-			        	valList.add(val);
-			        	if (first) {
-			        		min = max = val;
-			        		first = false;
-			        	}
-			        	if (min > val) {
-			        		min = val;
-			        	} 
-			        	
-			        	if (max < val) {
-			        		max = val;
-			        	}
-	        		}
-	        	}
-	        }
+            boolean first = true;
+            while (list.hasNext()) {
+                CypherNode node = graph.getDataModel().getNode(list.next()).element();
+                if (node != null) {
+                    Object temp = node.getProperty(infoProperty);
+                    if (temp != null) {
+                        long val = Long.valueOf(String.valueOf(temp));
+                        valList.add(val);
+                        if (first) {
+                            min = max = val;
+                            first = false;
+                        }
+                        if (min > val) {
+                            min = val;
+                        }
+
+                        if (max < val) {
+                            max = val;
+                        }
+                    }
+                }
+            }
         } catch (Exception e) {
-			e.printStackTrace();
-		}
-        
+            e.printStackTrace();
+        }
+
         calcStep(min, max);
-        
+
         return valList;
     }
 
@@ -114,11 +111,11 @@ public class GetChartInfoInGraphJob extends AbstractJob {
         long result = 0;
         Iterator<Long> itr = valList.iterator();
         while (itr.hasNext()) {
-        	long val = itr.next();
-        	if (fromVal <= val && toVal >= val) {
-        		result++;
-        		itr.remove();
-        	}
+            long val = itr.next();
+            if (fromVal <= val && toVal >= val) {
+                result++;
+                itr.remove();
+            }
         }
         return result;
     }

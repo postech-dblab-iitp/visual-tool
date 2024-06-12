@@ -2,7 +2,6 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.data;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
 
 public class CypherEdge {
@@ -17,7 +16,7 @@ public class CypherEdge {
     private String lineColor = SmartStyleProxy.DEFAULT_EDGE_LINE_COLOR;
     private String lineStyle = SmartStyleProxy.DEFAULT_EDGE_LINE_STYLE;
     private int textSize = SmartStyleProxy.DEFAULT_EDGE_LABEL_SIZE;
-    
+
     public CypherEdge(
             String id,
             List<String> types,
@@ -60,55 +59,55 @@ public class CypherEdge {
     }
 
     public String toString() {
-    	switch (displayType) {
+        switch (displayType) {
             case ID:
-            	return id;
+                return id;
             case PROPERTY:
-            	return String.valueOf(property.get(displayProperty));
+                return String.valueOf(property.get(displayProperty));
             case TYPE:
-            	return String.valueOf(types);
+                return String.valueOf(types);
             default:
                 return String.valueOf(types);
         }
     }
-    
+
     public void setDisplayType(DisplayType type) {
-    	displayType = type;
+        displayType = type;
     }
-    
+
     public void setDisplayProperty(String property) {
-    	displayProperty = property;
+        displayProperty = property;
     }
-    
+
     public void setLineStrength(String strength) {
-    	lineStrength = strength;
+        lineStrength = strength;
     }
-    
+
     public String getLineStrength() {
-    	return lineStrength;
+        return lineStrength;
     }
-    
+
     public void setLineColor(String color) {
-    	lineColor = color;
+        lineColor = color;
     }
-    
+
     public String getLineColor() {
-    	return lineColor;
+        return lineColor;
     }
-    
+
     public void setLineStyle(String style) {
-    	lineStyle = style;
+        lineStyle = style;
     }
-    
+
     public String getLineStyle() {
-    	return lineStyle;
+        return lineStyle;
     }
-    
+
     public void setTextSize(int size) {
-    	textSize = size;
+        textSize = size;
     }
-    
+
     public int getTextSize() {
-    	return textSize;
+        return textSize;
     }
 }

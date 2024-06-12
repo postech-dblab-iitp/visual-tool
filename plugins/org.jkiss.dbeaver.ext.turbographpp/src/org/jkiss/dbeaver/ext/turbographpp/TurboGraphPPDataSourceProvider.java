@@ -35,9 +35,7 @@ import org.jkiss.utils.CommonUtils;
 
 public class TurboGraphPPDataSourceProvider extends JDBCDataSourceProvider {
 
-    public TurboGraphPPDataSourceProvider() {
-
-    }
+    public TurboGraphPPDataSourceProvider() {}
 
     @Override
     public long getFeatures() {
@@ -50,26 +48,39 @@ public class TurboGraphPPDataSourceProvider extends JDBCDataSourceProvider {
     }
 
     @NotNull
-    public DBPDataSource openDataSource(@NotNull DBRProgressMonitor monitor, @NotNull DBPDataSourceContainer container)
+    public DBPDataSource openDataSource(
+            @NotNull DBRProgressMonitor monitor, @NotNull DBPDataSourceContainer container)
             throws DBException {
         return new TurboGraphPPDataSource(monitor, container, new TurboGraphPPMetaModel());
     };
 
     @Override
-    public DBPPropertyDescriptor[] getConnectionProperties(DBRProgressMonitor monitor, DBPDriver driver,
-            DBPConnectionConfiguration connectionInfo) throws DBException {
-        DBPPropertyDescriptor[] connectionProperties = super.getConnectionProperties(monitor, driver, connectionInfo);
+    public DBPPropertyDescriptor[] getConnectionProperties(
+            DBRProgressMonitor monitor, DBPDriver driver, DBPConnectionConfiguration connectionInfo)
+            throws DBException {
+        DBPPropertyDescriptor[] connectionProperties =
+                super.getConnectionProperties(monitor, driver, connectionInfo);
         if (connectionProperties == null || connectionProperties.length == 0) {
             // Try to get list of supported properties from custom driver config
-            String driverParametersString = CommonUtils
-                    .toString(driver.getDriverParameter(GenericConstants.PARAM_DRIVER_PROPERTIES));
+            String driverParametersString =
+                    CommonUtils.toString(
+                            driver.getDriverParameter(GenericConstants.PARAM_DRIVER_PROPERTIES));
             if (!driverParametersString.isEmpty()) {
                 String[] propList = driverParametersString.split(",");
                 connectionProperties = new DBPPropertyDescriptor[propList.length];
                 for (int i = 0; i < propList.length; i++) {
                     String propName = propList[i].trim();
-                    connectionProperties[i] = new PropertyDescriptor(ModelMessages.model_jdbc_driver_properties,
-                            propName, propName, null, String.class, false, null, null, false);
+                    connectionProperties[i] =
+                            new PropertyDescriptor(
+                                    ModelMessages.model_jdbc_driver_properties,
+                                    propName,
+                                    propName,
+                                    null,
+                                    String.class,
+                                    false,
+                                    null,
+                                    null,
+                                    false);
                 }
             }
         }

@@ -188,12 +188,12 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
     public synchronized Map<V, Vertex<V>> getVertices() {
         return vertices;
     }
-    
+
     @Override
     public synchronized Collection<FxEdge<E, V>> edges() {
         return edges.values();
     }
-    
+
     public synchronized Map<E, FxEdge<E, V>> getEdges(E e) {
         return edges;
     }
@@ -244,28 +244,28 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
             throws InvalidVertexException {
         DVertex startVertex = validateVertex(u);
         for (FxEdge<E, V> edge : startVertex.getOutgoingEdges()) {
-        	if (edge.vertices()[0].equals(v)) {
-        		return edge;
-        	}
+            if (edge.vertices()[0].equals(v)) {
+                return edge;
+            }
         }
-        
+
         return null;
     }
 
     @Override
     public synchronized FxEdge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E element)
             throws InvalidVertexException, InvalidEdgeException {
-//        if (getEdge(u, v) == null) {
-            DVertex startVertex = validateVertex(u);
-            DVertex endVertex = validateVertex(v);
-            DEdge edge = new DEdge(startVertex, endVertex, element);
-            edges.put(element, edge);
-            startVertex.getOutgoingEdges().add(edge);
-            endVertex.getIncomingEdges().add(edge);
-            return edge;
-//        } else {
-//            throw new InvalidEdgeException("Edge from u to v exists.");
-//        }
+        //        if (getEdge(u, v) == null) {
+        DVertex startVertex = validateVertex(u);
+        DVertex endVertex = validateVertex(v);
+        DEdge edge = new DEdge(startVertex, endVertex, element);
+        edges.put(element, edge);
+        startVertex.getOutgoingEdges().add(edge);
+        endVertex.getIncomingEdges().add(edge);
+        return edge;
+        //        } else {
+        //            throw new InvalidEdgeException("Edge from u to v exists.");
+        //        }
     }
 
     @Override
@@ -307,7 +307,7 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
 
         startVertex.getOutgoingEdges().remove(edge);
         endVertex.getIncomingEdges().remove(edge);
-        
+
         E element = edge.element();
         edges.remove(edge.element());
         return element;
@@ -315,8 +315,10 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
 
     public synchronized String generateRandomEdge(E randomElement) {
         StringBuilder sb = new StringBuilder();
-        if (numEdges() == numVertices() * (numVertices() - 1)) // maximum no. of edges in digraph is n(n - 1)
-        	return sb.append("Graph has maximum number of edges.\n").toString();
+        if (numEdges()
+                == numVertices()
+                        * (numVertices() - 1)) // maximum no. of edges in digraph is n(n - 1)
+        return sb.append("Graph has maximum number of edges.\n").toString();
 
         Random random;
         List<V> randomVertices = new ArrayList<>(vertices.keySet());
@@ -334,11 +336,13 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
 
             if (startVertex.equals(endVertex)) { // self-loop is not allowed, retry
                 continue;
-            } else if (getEdge(startVertex, endVertex) == null) { // a random edge from u to v does not exist
+            } else if (getEdge(startVertex, endVertex)
+                    == null) { // a random edge from u to v does not exist
                 return sb.append(insertEdge(startVertex, endVertex, randomElement))
                         .append(" is generated.\n")
                         .toString();
-            } else if (getEdge(endVertex, startVertex) == null) { // a random edge from v to u does not exist
+            } else if (getEdge(endVertex, startVertex)
+                    == null) { // a random edge from v to u does not exist
                 return sb.append(insertEdge(endVertex, startVertex, randomElement))
                         .append(" is generated.\n")
                         .toString();
@@ -500,32 +504,32 @@ public class TurboGraphList<V, E> implements Graph<V, E> {
     private boolean existsEdgeWith(E edgeElement) {
         return edges.containsKey(edgeElement);
     }
-    
+
     public int getLastWeight() {
-    	return lastweight;
+        return lastweight;
     }
-    
+
     public void setlastWeight(int value) {
-    	lastweight = value;
+        lastweight = value;
     }
-    
+
     public int getPathCount() {
-    	return pathCount;
+        return pathCount;
     }
-    
+
     public void setPathCount(int value) {
-    	pathCount = value;
+        pathCount = value;
     }
-    
+
     public String getLastPathString() {
-    	return lastPathString;
+        return lastPathString;
     }
-    
+
     public void addLastPathString(String path) {
-    	lastPathString = lastPathString + path;
+        lastPathString = lastPathString + path;
     }
-    
+
     public void clearLastPathString() {
-    	lastPathString = "";
+        lastPathString = "";
     }
 }

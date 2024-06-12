@@ -17,6 +17,8 @@
 
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
+import java.sql.ResultSet;
+import java.util.Objects;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.model.DBPDataSource;
@@ -25,22 +27,16 @@ import org.jkiss.dbeaver.model.meta.Property;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSObject;
 
-import java.sql.ResultSet;
-import java.util.Objects;
-
-/**
- * User privilege grant
- */
+/** User privilege grant */
 public class Neo4jEdgesProperty implements DBSObject {
 
     private final Neo4jEdge edges;
     private final String edgesPropery;
 
-    public Neo4jEdgesProperty(ResultSet resultSet, Neo4jEdge edges, String property)
-    {
+    public Neo4jEdgesProperty(ResultSet resultSet, Neo4jEdge edges, String property) {
         String edgesPropery;
         this.edges = edges;
-        
+
         if (property == null) {
             if (resultSet != null) {
                 edgesPropery = JDBCUtils.safeGetString(resultSet, "keys(r)");
@@ -61,20 +57,20 @@ public class Neo4jEdgesProperty implements DBSObject {
 
     public boolean equals(Object obj) {
         if (obj instanceof Neo4jEdgesProperty) {
-            Neo4jEdgesProperty temp = (Neo4jEdgesProperty)obj;
+            Neo4jEdgesProperty temp = (Neo4jEdgesProperty) obj;
             return this.edgesPropery.equals(temp.edgesPropery);
         }
         return false;
     }
-    
+
     public int hashCode() {
         return Objects.hash(this.edgesPropery);
     }
-    
+
     public static int countOfPair(String str, char search) {
         return (str.length() - str.replace(String.valueOf(search), "").length());
     }
-    
+
     @Nullable
     @Override
     public Neo4jEdge getParentObject() {
@@ -108,5 +104,4 @@ public class Neo4jEdgesProperty implements DBSObject {
     public Neo4jEdge getSubject(DBRProgressMonitor monitor) {
         return edges;
     }
-
 }

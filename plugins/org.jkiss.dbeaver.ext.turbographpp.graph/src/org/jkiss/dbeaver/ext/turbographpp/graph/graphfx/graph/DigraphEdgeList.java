@@ -12,18 +12,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation of a digraph that adheres to the {@link Digraph} interface.
- * <br>
- * Does not allow duplicates of stored elements through <b>equals</b> criteria.
- * <br>
+ * Implementation of a digraph that adheres to the {@link Digraph} interface. <br>
+ * Does not allow duplicates of stored elements through <b>equals</b> criteria. <br>
+ *
  * @param <V> Type of element stored at a vertex
  * @param <E> Type of element stored at an edge
- * 
  * @author brunomnsilva
  */
 public class DigraphEdgeList<V, E> implements Digraph<V, E> {
 
-     /* inner classes are defined at the end of the class, so are the auxiliary methods 
+    /* inner classes are defined at the end of the class, so are the auxiliary methods
      */
     private final Map<V, Vertex<V>> vertices;
     private final Map<E, FxEdge<E, V>> edges;
@@ -32,10 +30,10 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         this.vertices = new HashMap<>();
         this.edges = new HashMap<>();
     }
-    
-    
+
     @Override
-    public synchronized Collection<FxEdge<E, V>> incomingEdges(Vertex<V> inbound) throws InvalidVertexException {
+    public synchronized Collection<FxEdge<E, V>> incomingEdges(Vertex<V> inbound)
+            throws InvalidVertexException {
         checkVertex(inbound);
 
         List<FxEdge<E, V>> incidentEdges = new ArrayList<>();
@@ -47,9 +45,10 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         }
         return incidentEdges;
     }
-    
+
     @Override
-    public synchronized Collection<FxEdge<E, V>> outboundEdges(Vertex<V> outbound) throws InvalidVertexException {
+    public synchronized Collection<FxEdge<E, V>> outboundEdges(Vertex<V> outbound)
+            throws InvalidVertexException {
         checkVertex(outbound);
 
         List<FxEdge<E, V>> outboundEdges = new ArrayList<>();
@@ -63,14 +62,16 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public boolean areAdjacent(Vertex<V> outbound, Vertex<V> inbound) throws InvalidVertexException {
-        //we allow loops, so we do not check if outbound == inbound
+    public boolean areAdjacent(Vertex<V> outbound, Vertex<V> inbound)
+            throws InvalidVertexException {
+        // we allow loops, so we do not check if outbound == inbound
         checkVertex(outbound);
         checkVertex(inbound);
 
         /* find and edge that goes outbound ---> inbound */
         for (FxEdge<E, V> edge : edges.values()) {
-            if (((MyEdge) edge).getOutbound() == outbound && ((MyEdge) edge).getInbound() == inbound) {
+            if (((MyEdge) edge).getOutbound() == outbound
+                    && ((MyEdge) edge).getInbound() == inbound) {
                 return true;
             }
         }
@@ -78,7 +79,9 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public synchronized FxEdge<E, V> insertEdge(Vertex<V> outbound, Vertex<V> inbound, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
+    public synchronized FxEdge<E, V> insertEdge(
+            Vertex<V> outbound, Vertex<V> inbound, E edgeElement)
+            throws InvalidVertexException, InvalidEdgeException {
         if (existsEdgeWith(edgeElement)) {
             throw new InvalidEdgeException("There's already an edge with this element.");
         }
@@ -94,7 +97,8 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public synchronized FxEdge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
+    public synchronized FxEdge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement)
+            throws InvalidVertexException, InvalidEdgeException {
         if (existsEdgeWith(edgeElement)) {
             throw new InvalidEdgeException("There's already an edge with this element.");
         }
@@ -129,23 +133,28 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     @Override
     public synchronized Collection<Vertex<V>> vertices() {
         List<Vertex<V>> list = new ArrayList<>();
-        vertices.values().forEach((v) -> {
-            list.add(v);
-        });
+        vertices.values()
+                .forEach(
+                        (v) -> {
+                            list.add(v);
+                        });
         return list;
     }
 
     @Override
     public synchronized Collection<FxEdge<E, V>> edges() {
         List<FxEdge<E, V>> list = new ArrayList<>();
-        edges.values().forEach((e) -> {
-            list.add(e);
-        });
+        edges.values()
+                .forEach(
+                        (e) -> {
+                            list.add(e);
+                        });
         return list;
     }
 
     @Override
-    public synchronized Vertex<V> opposite(Vertex<V> v, FxEdge<E, V> e) throws InvalidVertexException, InvalidEdgeException {
+    public synchronized Vertex<V> opposite(Vertex<V> v, FxEdge<E, V> e)
+            throws InvalidVertexException, InvalidEdgeException {
         checkVertex(v);
         MyEdge edge = checkEdge(e);
 
@@ -158,7 +167,6 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         } else {
             return edge.vertices()[0];
         }
-
     }
 
     @Override
@@ -180,10 +188,10 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
 
         V element = v.element();
 
-        //remove incident edges
+        // remove incident edges
         Collection<FxEdge<E, V>> inOutEdges = incomingEdges(v);
         inOutEdges.addAll(outboundEdges(v));
-        
+
         for (FxEdge<E, V> edge : inOutEdges) {
             edges.remove(edge.element());
         }
@@ -236,7 +244,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         this.vertices.clear();
         this.edges.clear();
     }
-    
+
     private MyVertex vertexOf(V vElement) {
         for (Vertex<V> v : vertices.values()) {
             if (v.element().equals(vElement)) {
@@ -253,12 +261,14 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     private boolean existsEdgeWith(E edgeElement) {
         return edges.containsKey(edgeElement);
     }
-    
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(
-                String.format("Graph with %d vertices and %d edges:\n", numVertices(), numEdges())
-        );
+        StringBuilder sb =
+                new StringBuilder(
+                        String.format(
+                                "Graph with %d vertices and %d edges:\n",
+                                numVertices(), numEdges()));
 
         sb.append("--- Vertices: \n");
         for (Vertex<V> v : vertices.values()) {
@@ -270,7 +280,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         }
         return sb.toString();
     }
-    
+
     private class MyVertex implements Vertex<V> {
 
         V element;
@@ -288,7 +298,6 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         public String toString() {
             return "Vertex{" + element + '}';
         }
-
     }
 
     private class MyEdge implements FxEdge<E, V> {
@@ -323,14 +332,19 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
 
         @Override
         public String toString() {
-            return "Edge{{" + element + "}, vertexOutbound=" + vertexOutbound.toString()
-                    + ", vertexInbound=" + vertexInbound.toString() + '}';
+            return "Edge{{"
+                    + element
+                    + "}, vertexOutbound="
+                    + vertexOutbound.toString()
+                    + ", vertexInbound="
+                    + vertexInbound.toString()
+                    + '}';
         }
-        
+
         public Vertex<V> getOutbound() {
             return vertexOutbound;
         }
-        
+
         public Vertex<V> getInbound() {
             return vertexInbound;
         }
@@ -344,8 +358,8 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
      * @throws InvalidVertexException
      */
     private MyVertex checkVertex(Vertex<V> v) throws InvalidVertexException {
-        if(v == null) throw new InvalidVertexException("Null vertex.");
-        
+        if (v == null) throw new InvalidVertexException("Null vertex.");
+
         MyVertex vertex;
         try {
             vertex = (MyVertex) v;
@@ -361,8 +375,8 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     private MyEdge checkEdge(FxEdge<E, V> e) throws InvalidEdgeException {
-        if(e == null) throw new InvalidEdgeException("Null edge.");
-        
+        if (e == null) throw new InvalidEdgeException("Null edge.");
+
         MyEdge edge;
         try {
             edge = (MyEdge) e;
@@ -377,10 +391,8 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         return edge;
     }
 
-
-	@Override
-	public FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
-		return null;
-	}
-    
+    @Override
+    public FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
+        return null;
+    }
 }

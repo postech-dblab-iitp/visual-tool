@@ -32,26 +32,21 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.QuadCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 
 /**
- * Concrete implementation of a curved edge.
- * <br>
- * The edge binds its start point to the <code>outbound</code>
- * {@link SmartGraphVertexNode} center and its end point to the
- * <code>inbound</code> {@link SmartGraphVertexNode} center. As such, the curve
- * is updated automatically as the vertices move.
- * <br>
- * Given there can be several curved edges connecting two vertices, when calling
- * the constructor {@link #SmartGraphEdgeCurve(com.brunomnsilva.smartgraph.graph.FxEdge, 
- * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, 
- * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, int) } the <code>edgeIndex</code>
- * can be specified as to create non-overlaping curves.
+ * Concrete implementation of a curved edge. <br>
+ * The edge binds its start point to the <code>outbound</code> {@link SmartGraphVertexNode} center
+ * and its end point to the <code>inbound</code> {@link SmartGraphVertexNode} center. As such, the
+ * curve is updated automatically as the vertices move. <br>
+ * Given there can be several curved edges connecting two vertices, when calling the constructor
+ * {@link #SmartGraphEdgeCurve(com.brunomnsilva.smartgraph.graph.FxEdge,
+ * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode,
+ * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, int) } the <code>edgeIndex</code> can
+ * be specified as to create non-overlaping curves.
  *
  * @param <E> Type stored in the underlying edge
  * @param <V> Type of connecting vertex
- *
  * @author brunomnsilva
  */
 public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEdgeBase<E, V> {
@@ -120,14 +115,15 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
                             Bounds newBounds) {
                         if (needlabelUpdate) {
                             if (attachedLabel != null) {
-                                subtractPointLabel =
-                                        attachedLabel.getLayoutBounds().getHeight();
-                                DoubleProperty xPropery = new SimpleDoubleProperty(getMidPoint().getX());
+                                subtractPointLabel = attachedLabel.getLayoutBounds().getHeight();
+                                DoubleProperty xPropery =
+                                        new SimpleDoubleProperty(getMidPoint().getX());
                                 attachedLabel.xProperty().bind(xPropery);
-                                DoubleProperty yPropery = new SimpleDoubleProperty(getMidPoint().getY());
+                                DoubleProperty yPropery =
+                                        new SimpleDoubleProperty(getMidPoint().getY());
                                 attachedLabel.yProperty().bind(yPropery);
                             }
-                            //needlabelUpdate = false;
+                            // needlabelUpdate = false;
                         }
                     }
                 };
@@ -339,19 +335,17 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
     }
 
     private Point2D getMidPoint() {
-    	double colSubtract = 0;
-    	if (subtractPointLabel > 20) {
-    		colSubtract = subtractPointLabel * 2;
-    	} else if (subtractPointLabel > 10) {
-    		colSubtract = subtractPointLabel * 1.5;
-    	} else {
-    		colSubtract = subtractPointLabel;
-    	}
-    	
+        double colSubtract = 0;
+        if (subtractPointLabel > 20) {
+            colSubtract = subtractPointLabel * 2;
+        } else if (subtractPointLabel > 10) {
+            colSubtract = subtractPointLabel * 1.5;
+        } else {
+            colSubtract = subtractPointLabel;
+        }
+
         double midX =
-                (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4
-                        - 16
-                        - colSubtract;
+                (this.getStartX() + 2 * this.getControlX() + this.getEndX()) / 4 - 16 - colSubtract;
         double midY = (this.getStartY() + 2 * this.getControlY() + this.getEndY()) / 4;
 
         Point2D midPoint = new Point2D(midX, midY);

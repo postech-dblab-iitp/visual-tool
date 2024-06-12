@@ -17,6 +17,14 @@
 
 package org.jkiss.dbeaver.ext.turbographpp.ui.views;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
@@ -66,19 +74,10 @@ import org.jkiss.dbeaver.ui.dialogs.BaseDialog;
 import org.jkiss.dbeaver.ui.editors.TextEditorUtils;
 import org.jkiss.utils.CommonUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 public class VisualizationPresentation extends AbstractPresentation implements IAdaptable {
 
     private IResultSetController controller;
-	// for Other ImageButton
+    // for Other ImageButton
     private enum ImageButton {
         SHORTEST,
         VALUE,
@@ -92,342 +91,350 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         MINI_MAP
     }
 
-	private Composite parentComposite;
-	private Composite mainComposite;
-	private Composite menuBarComposite;
-	private Composite graphTopComposite;
-	
-	private DBDAttributeBinding curAttribute;
-	private String curSelection;
-	public boolean activated;
-	private boolean showNulls;
-	private Font monoFont;
+    private Composite parentComposite;
+    private Composite mainComposite;
+    private Composite menuBarComposite;
+    private Composite graphTopComposite;
 
-	private FXGraph visualGraph;
-	
-	private CoolBar coolBar;
-	private Label resultLabel;
+    private DBDAttributeBinding curAttribute;
+    private String curSelection;
+    public boolean activated;
+    private boolean showNulls;
+    private Font monoFont;
 
-	private Button shortestButton;
-	private Button fetchNextButton;
-	private Button fetchEndButton;
-	
+    private FXGraph visualGraph;
+
+    private CoolBar coolBar;
+    private Label resultLabel;
+
+    private Button shortestButton;
+    private Button fetchNextButton;
+    private Button fetchEndButton;
+
     private HashSet<Object> propertyList = new HashSet<>();
-	private HashMap<String, DBDAttributeBinding> DBDAttributeNodeList = new HashMap<>();
-	private HashMap<String, DBDAttributeBinding> DBDAttributeEdgeList = new HashMap<>();
-	private HashMap<String, ResultSetRow> resultSetRowNodeList = new HashMap<>();
-	private HashMap<String, ResultSetRow> resultSetRowEdgeList = new HashMap<>();
-	private HashMap<String, String> displayStringNodeList = new HashMap<>();
-	private HashMap<String, String> displayStringEdgeList = new HashMap<>();
-	
-	public static final String NODE_EDGE_ID = DataRowID.NODE_EDGE_ID;
-	public static final String NODE_LABEL = DataRowID.NODE_LABEL;
-	public static final String EDGE_TYPE = DataRowID.EDGE_TYPE;
-	public static final String NEO4J_EDGE_START_ID = DataRowID.NEO4J_EDGE_START_ID;
-	public static final String NEO4J_EDGE_END_ID = DataRowID.NEO4J_EDGE_END_ID;
-	public static final String TURBOGRAPH_EDGE_START_ID = DataRowID.TURBOGRAPH_EDGE_START_ID;
-	public static final String TURBOGRAPH_EDGE_END_ID = DataRowID.TURBOGRAPH_EDGE_END_ID;
-	
+    private HashMap<String, DBDAttributeBinding> DBDAttributeNodeList = new HashMap<>();
+    private HashMap<String, DBDAttributeBinding> DBDAttributeEdgeList = new HashMap<>();
+    private HashMap<String, ResultSetRow> resultSetRowNodeList = new HashMap<>();
+    private HashMap<String, ResultSetRow> resultSetRowEdgeList = new HashMap<>();
+    private HashMap<String, String> displayStringNodeList = new HashMap<>();
+    private HashMap<String, String> displayStringEdgeList = new HashMap<>();
+
+    public static final String NODE_EDGE_ID = DataRowID.NODE_EDGE_ID;
+    public static final String NODE_LABEL = DataRowID.NODE_LABEL;
+    public static final String EDGE_TYPE = DataRowID.EDGE_TYPE;
+    public static final String NEO4J_EDGE_START_ID = DataRowID.NEO4J_EDGE_START_ID;
+    public static final String NEO4J_EDGE_END_ID = DataRowID.NEO4J_EDGE_END_ID;
+    public static final String TURBOGRAPH_EDGE_START_ID = DataRowID.TURBOGRAPH_EDGE_START_ID;
+    public static final String TURBOGRAPH_EDGE_END_ID = DataRowID.TURBOGRAPH_EDGE_END_ID;
+
     private String currentQuery = "";
     private int lastReadRowCount = 0;
-    
+
     private DetachDialog detachDialog;
     private boolean detach = false;
-    
+
     private List<Button> graphButtonList = new ArrayList<>();
-    
-	@Override
+
+    @Override
     public void createPresentation(
             @NotNull final IResultSetController controller, @NotNull Composite parent) {
         super.createPresentation(controller, parent);
 
         this.controller = controller;
 
-		this.parentComposite = parent;
-		GridLayout layout = new GridLayout(1, false);
+        this.parentComposite = parent;
+        GridLayout layout = new GridLayout(1, false);
         layout.marginHeight = 5;
         layout.marginWidth = 5;
-        
+
         GridData gd_MainComposite = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-        
-		mainComposite = new Composite(parent, SWT.NONE);
-		mainComposite.setLayout(layout);
-		mainComposite.setLayoutData(gd_MainComposite);
-        
-		menuBarComposite = new Composite(mainComposite, SWT.NONE);
-		menuBarComposite.setLayout(new GridLayout(1, false));
-		menuBarComposite.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
-        
-		graphTopComposite = new Composite(mainComposite, SWT.NONE);
-		graphTopComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+        mainComposite = new Composite(parent, SWT.NONE);
+        mainComposite.setLayout(layout);
+        mainComposite.setLayoutData(gd_MainComposite);
+
+        menuBarComposite = new Composite(mainComposite, SWT.NONE);
+        menuBarComposite.setLayout(new GridLayout(1, false));
+        menuBarComposite.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
+
+        graphTopComposite = new Composite(mainComposite, SWT.NONE);
+        graphTopComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
         graphTopComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        
+
         detachDialog = new DetachDialog(parent);
-        
+
         addMenuCoolbar(menuBarComposite);
 
-		visualGraph = new FXGraph(graphTopComposite, SWT.NONE, controller.getDataContainer().getDataSource());
-		visualGraph.setCursor(graphTopComposite.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
-		visualGraph.setForeground(UIStyles.getDefaultTextForeground());
-		visualGraph.setBackground(UIStyles.getDefaultTextBackground());
-		visualGraph.setFont(UIUtils.getMonospaceFont());
-		visualGraph.setLayout(new FillLayout(SWT.FILL));
-		visualGraph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		createGraphListner();
-		
-		createHorizontalLine(parent, 1, 0); 
+        visualGraph =
+                new FXGraph(
+                        graphTopComposite, SWT.NONE, controller.getDataContainer().getDataSource());
+        visualGraph.setCursor(graphTopComposite.getDisplay().getSystemCursor(SWT.CURSOR_IBEAM));
+        visualGraph.setForeground(UIStyles.getDefaultTextForeground());
+        visualGraph.setBackground(UIStyles.getDefaultTextBackground());
+        visualGraph.setFont(UIUtils.getMonospaceFont());
+        visualGraph.setLayout(new FillLayout(SWT.FILL));
+        visualGraph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        createGraphListner();
+
+        createHorizontalLine(parent, 1, 0);
 
         TextEditorUtils.enableHostEditorKeyBindingsSupport(
                 controller.getSite(), visualGraph.getControl());
-		applyCurrentThemeSettings();
+        applyCurrentThemeSettings();
 
-		if (visualGraph != null) {
-			activateTextKeyBindings(controller, visualGraph.getControl());
-		}
-		
-		trackPresentationControl();
-		
-	}
+        if (visualGraph != null) {
+            activateTextKeyBindings(controller, visualGraph.getControl());
+        }
 
-	@Override
-	public void dispose() {
-		System.out.println("visual View dispose");
-		if (monoFont != null) {
-			UIUtils.dispose(monoFont);
-			monoFont = null;
-		}
-		
-		if (visualGraph != null) {
-			visualGraph.finalize();
-		}
-		
-		if (detachDialog != null) {
-			detachDialog.close();
-		}
-		
-		super.dispose();
-	}
+        trackPresentationControl();
+    }
 
-	@Override
-	protected void applyThemeSettings(ITheme currentTheme) {
-		Font rsFont = currentTheme.getFontRegistry().get(ThemeConstants.FONT_SQL_RESULT_SET);
-		if (rsFont != null) {
-			int fontHeight = rsFont.getFontData()[0].getHeight();
-			Font font = UIUtils.getMonospaceFont();
+    @Override
+    public void dispose() {
+        System.out.println("visual View dispose");
+        if (monoFont != null) {
+            UIUtils.dispose(monoFont);
+            monoFont = null;
+        }
 
-			FontData[] fontData = font.getFontData();
-			fontData[0].setHeight(fontHeight);
-			Font newFont = new Font(font.getDevice(), fontData[0]);
+        if (visualGraph != null) {
+            visualGraph.finalize();
+        }
 
-			visualGraph.setFont(newFont);
+        if (detachDialog != null) {
+            detachDialog.close();
+        }
 
-			if (monoFont != null) {
-				UIUtils.dispose(monoFont);
-			}
-			monoFont = newFont;
+        super.dispose();
+    }
 
-		}
-	}
+    @Override
+    protected void applyThemeSettings(ITheme currentTheme) {
+        Font rsFont = currentTheme.getFontRegistry().get(ThemeConstants.FONT_SQL_RESULT_SET);
+        if (rsFont != null) {
+            int fontHeight = rsFont.getFontData()[0].getHeight();
+            Font font = UIUtils.getMonospaceFont();
 
-	@Override
-	public Control getControl() {
-	    if (visualGraph != null) {
-	        return visualGraph.getControl();
-	    } 
-	    return mainComposite;
-	}
+            FontData[] fontData = font.getFontData();
+            fontData[0].setHeight(fontHeight);
+            Font newFont = new Font(font.getDevice(), fontData[0]);
 
-	@Override
-	public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
-		fetchNextButton.setEnabled(controller.isHasMoreData());
-		fetchEndButton.setEnabled(controller.isHasMoreData());
-		
-		if (refreshMetadata) {
-		    lastReadRowCount = 0;
+            visualGraph.setFont(newFont);
+
+            if (monoFont != null) {
+                UIUtils.dispose(monoFont);
+            }
+            monoFont = newFont;
+        }
+    }
+
+    @Override
+    public Control getControl() {
+        if (visualGraph != null) {
+            return visualGraph.getControl();
+        }
+        return mainComposite;
+    }
+
+    @Override
+    public void refreshData(boolean refreshMetadata, boolean append, boolean keepState) {
+        fetchNextButton.setEnabled(controller.isHasMoreData());
+        fetchEndButton.setEnabled(controller.isHasMoreData());
+
+        if (refreshMetadata) {
+            lastReadRowCount = 0;
             if (visualGraph != null) {
                 visualGraph.clearGraph();
             }
-			setShortestMode(false);
-			setDefaultLayoutManager();
-			propertyList.clear();
-			DBDAttributeNodeList.clear();
-			DBDAttributeEdgeList.clear();
-			resultSetRowNodeList.clear();
-			resultSetRowEdgeList.clear();
-			displayStringNodeList.clear();
-			displayStringEdgeList.clear();
+            setShortestMode(false);
+            setDefaultLayoutManager();
+            propertyList.clear();
+            DBDAttributeNodeList.clear();
+            DBDAttributeEdgeList.clear();
+            resultSetRowNodeList.clear();
+            resultSetRowEdgeList.clear();
+            displayStringNodeList.clear();
+            displayStringEdgeList.clear();
 
-			ShowVisualizaion(refreshMetadata, append);
-		} else {
-		    setShortestMode(false);
-	        ShowVisualizaion(refreshMetadata, append);
-		}
-	}
-	
-	private final SelectionListener layoutChangeListener = new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			if (e.widget != null) {
-				setLayoutManager((LayoutStyle) e.widget.getData());
-			}
-		}
-	};
-	
-	private final SelectionListener imageButtonListener = new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			if (e.widget != null && e.widget.getData() != null) {
-				switch((ImageButton) e.widget.getData()) {
-                    case VALUE :
-				        visualGraph.valueShow();
-				        break;
-					case DESIGN :
-					    visualGraph.designEditorShow();
-					    break;
-					case CHART:
-					    visualGraph.chartShow();
-					    break;
-					case CAPTURE :
-					    saveImage();
-					    setShortestMode(false);
-						break;
-					case SHORTEST :
-						if(visualGraph != null) {
-							boolean status = visualGraph.getShortestMode();
-							setShortestMode(!status);
-						}
-					    break;
-					case TO_CSV :
-						saveCSV();
-						setShortestMode(false);
-					    break;
-					case NEXT_DATA:
-                        if(controller != null) {
-                            controller.readNextSegment();
+            ShowVisualizaion(refreshMetadata, append);
+        } else {
+            setShortestMode(false);
+            ShowVisualizaion(refreshMetadata, append);
+        }
+    }
+
+    private final SelectionListener layoutChangeListener =
+            new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    if (e.widget != null) {
+                        setLayoutManager((LayoutStyle) e.widget.getData());
+                    }
+                }
+            };
+
+    private final SelectionListener imageButtonListener =
+            new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    if (e.widget != null && e.widget.getData() != null) {
+                        switch ((ImageButton) e.widget.getData()) {
+                            case VALUE:
+                                visualGraph.valueShow();
+                                break;
+                            case DESIGN:
+                                visualGraph.designEditorShow();
+                                break;
+                            case CHART:
+                                visualGraph.chartShow();
+                                break;
+                            case CAPTURE:
+                                saveImage();
+                                setShortestMode(false);
+                                break;
+                            case SHORTEST:
+                                if (visualGraph != null) {
+                                    boolean status = visualGraph.getShortestMode();
+                                    setShortestMode(!status);
+                                }
+                                break;
+                            case TO_CSV:
+                                saveCSV();
+                                setShortestMode(false);
+                                break;
+                            case NEXT_DATA:
+                                if (controller != null) {
+                                    controller.readNextSegment();
+                                }
+                                break;
+                            case ALL_DATA:
+                                if (controller != null) {
+                                    controller.readAllData();
+                                }
+                                break;
+                            case DETACH_WINDOW:
+                                if (!detach) {
+                                    detach = true;
+                                    detachDialog.create();
+                                    visualGraph.miniMapUpdate(
+                                            detachDialog.getmainComposite(),
+                                            detachDialog.getmainComposite().getShell());
+                                    mainComposite.setParent(detachDialog.getmainComposite());
+                                    parentComposite.layout(true, true);
+                                    detachDialog.open();
+                                } else {
+                                    detach = false;
+                                    mainComposite.setParent(parentComposite);
+                                    visualGraph.miniMapUpdate(
+                                            mainComposite, mainComposite.getShell());
+                                    parentComposite.layout(true, true);
+                                    detachDialog.close();
+                                }
+                                break;
+                            case MINI_MAP:
+                                miniMapToggle();
+                                break;
+                            default:
+                                break;
                         }
-                        break;
-					case ALL_DATA: 
-                        if(controller != null) {
-                            controller.readAllData();
-                        }
-                        break;
-					case DETACH_WINDOW:
-						if (!detach) {
-							detach = true;
-							detachDialog.create();
-							visualGraph.miniMapUpdate(detachDialog.getmainComposite(), detachDialog.getmainComposite().getShell());
-							mainComposite.setParent(detachDialog.getmainComposite());
-							parentComposite.layout(true,true);
-							detachDialog.open();
-						} else {
-							detach = false;
-							mainComposite.setParent(parentComposite);
-							visualGraph.miniMapUpdate(mainComposite, mainComposite.getShell());
-							parentComposite.layout(true,true);
-							detachDialog.close();
-						}
-						break;
-					case MINI_MAP:
-						miniMapToggle();
-						break;
-					default :
-						break;
-				}
-			}
-		}
-	};
-	
-	private void addMenuCoolbar(Composite parent) {
-		coolBar = new CoolBar(parent, SWT.NONE);
-		coolBar.setBackground(parent.getBackground());
+                    }
+                }
+            };
 
-		CoolItem buttonItem0 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
-		CoolItem buttonItem1 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
-		CoolItem buttonItem2 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
-		CoolItem buttonItem3 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
-		CoolItem buttonItem4 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
-		CoolItem buttonItem5 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
-		CoolItem buttonItem6 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+    private void addMenuCoolbar(Composite parent) {
+        coolBar = new CoolBar(parent, SWT.NONE);
+        coolBar.setBackground(parent.getBackground());
 
-		Composite menuComposite0 = new Composite(coolBar, SWT.NONE);
-		menuComposite0.setLayout(new GridLayout(1, true));
-		
-		Button detachButton = new Button(menuComposite0, SWT.PUSH);
+        CoolItem buttonItem0 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        CoolItem buttonItem1 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        CoolItem buttonItem2 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        CoolItem buttonItem3 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        CoolItem buttonItem4 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        CoolItem buttonItem5 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+        CoolItem buttonItem6 = new CoolItem(coolBar, SWT.NONE | SWT.DROP_DOWN);
+
+        Composite menuComposite0 = new Composite(coolBar, SWT.NONE);
+        menuComposite0.setLayout(new GridLayout(1, true));
+
+        Button detachButton = new Button(menuComposite0, SWT.PUSH);
         detachButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DETACH_WINDOW));
-        detachButton.setToolTipText(TurboGraphPPUIMessages.visualization_detach_window_button_tool_tip);
+        detachButton.setToolTipText(
+                TurboGraphPPUIMessages.visualization_detach_window_button_tool_tip);
         detachButton.setData(ImageButton.DETACH_WINDOW);
         detachButton.addSelectionListener(imageButtonListener);
-		
+
         menuComposite0.pack();
-        
+
         Point size = menuComposite0.getSize();
         buttonItem0.setControl(menuComposite0);
         buttonItem0.setSize(buttonItem0.computeSize(size.x, size.y));
-        
+
         Composite menuComposite1 = new Composite(coolBar, SWT.NONE);
         menuComposite1.setLayout(new GridLayout(1, true));
-		
-		Button MiniMapButton = new Button(menuComposite1, SWT.PUSH);
-		MiniMapButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_MINI_MAP));
-		MiniMapButton.setToolTipText(TurboGraphPPUIMessages.visualization_minimap_window_button_tool_tip);
-		MiniMapButton.setData(ImageButton.MINI_MAP);
-		MiniMapButton.addSelectionListener(imageButtonListener);
-		graphButtonList.add(MiniMapButton);
-		
-		menuComposite1.pack();
-		
-		size = menuComposite1.getSize();
-		buttonItem1.setControl(menuComposite1);
-		buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
-		
-		Composite menuComposite2 = new Composite(coolBar, SWT.NONE);
-		menuComposite2.setLayout(new GridLayout(LayoutStyle.values().length, true));
 
-		Button button1; 
-		
-		for (LayoutStyle style : LayoutStyle.values()) {
-			button1 = new Button(menuComposite2, SWT.PUSH);
-			button1.setImage(style.getImage());
-			button1.setToolTipText(style.getText());
-			button1.setData(style);
-			button1.addSelectionListener(layoutChangeListener);
-			button1.pack();
-			graphButtonList.add(button1);
-		}
-		
-		menuComposite2.pack();
+        Button MiniMapButton = new Button(menuComposite1, SWT.PUSH);
+        MiniMapButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_MINI_MAP));
+        MiniMapButton.setToolTipText(
+                TurboGraphPPUIMessages.visualization_minimap_window_button_tool_tip);
+        MiniMapButton.setData(ImageButton.MINI_MAP);
+        MiniMapButton.addSelectionListener(imageButtonListener);
+        graphButtonList.add(MiniMapButton);
 
-		size = menuComposite2.getSize();
-		buttonItem2.setControl(menuComposite2);
-		buttonItem2.setSize(buttonItem1.computeSize(size.x, size.y));
-		
-		Composite menuComposite3 = new Composite(coolBar, SWT.NONE);
-		menuComposite3.setLayout(new GridLayout(2, true));
+        menuComposite1.pack();
 
-		shortestButton = new Button(menuComposite3, SWT.PUSH);
-		shortestButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
-		shortestButton.setToolTipText(TurboGraphPPUIMessages.visualization_shortest_button_tool_tip);
-		shortestButton.setData(ImageButton.SHORTEST);
-		shortestButton.addSelectionListener(imageButtonListener);
-		shortestButton.pack();
-		graphButtonList.add(shortestButton);
-		
-		button1 = new Button(menuComposite3, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
-		button1.setToolTipText("Chart");
-		button1.setData(ImageButton.CHART);
-		button1.addSelectionListener(imageButtonListener);
-		button1.pack();
-		graphButtonList.add(button1);
-		
-		menuComposite3.pack();
+        size = menuComposite1.getSize();
+        buttonItem1.setControl(menuComposite1);
+        buttonItem1.setSize(buttonItem1.computeSize(size.x, size.y));
 
-		size = menuComposite3.getSize();
-		buttonItem3.setControl(menuComposite3);
-		buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
+        Composite menuComposite2 = new Composite(coolBar, SWT.NONE);
+        menuComposite2.setLayout(new GridLayout(LayoutStyle.values().length, true));
 
-		Composite menuComposite4 = new Composite(coolBar, SWT.NONE);
-		menuComposite4.setLayout(new GridLayout(4, true));
+        Button button1;
+
+        for (LayoutStyle style : LayoutStyle.values()) {
+            button1 = new Button(menuComposite2, SWT.PUSH);
+            button1.setImage(style.getImage());
+            button1.setToolTipText(style.getText());
+            button1.setData(style);
+            button1.addSelectionListener(layoutChangeListener);
+            button1.pack();
+            graphButtonList.add(button1);
+        }
+
+        menuComposite2.pack();
+
+        size = menuComposite2.getSize();
+        buttonItem2.setControl(menuComposite2);
+        buttonItem2.setSize(buttonItem1.computeSize(size.x, size.y));
+
+        Composite menuComposite3 = new Composite(coolBar, SWT.NONE);
+        menuComposite3.setLayout(new GridLayout(2, true));
+
+        shortestButton = new Button(menuComposite3, SWT.PUSH);
+        shortestButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_SHORTEST_PATH));
+        shortestButton.setToolTipText(
+                TurboGraphPPUIMessages.visualization_shortest_button_tool_tip);
+        shortestButton.setData(ImageButton.SHORTEST);
+        shortestButton.addSelectionListener(imageButtonListener);
+        shortestButton.pack();
+        graphButtonList.add(shortestButton);
+
+        button1 = new Button(menuComposite3, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
+        button1.setToolTipText("Chart");
+        button1.setData(ImageButton.CHART);
+        button1.addSelectionListener(imageButtonListener);
+        button1.pack();
+        graphButtonList.add(button1);
+
+        menuComposite3.pack();
+
+        size = menuComposite3.getSize();
+        buttonItem3.setControl(menuComposite3);
+        buttonItem3.setSize(buttonItem3.computeSize(size.x, size.y));
+
+        Composite menuComposite4 = new Composite(coolBar, SWT.NONE);
+        menuComposite4.setLayout(new GridLayout(4, true));
 
         button1 = new Button(menuComposite4, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.PROPERTIES));
@@ -436,127 +443,126 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         button1.addSelectionListener(imageButtonListener);
         button1.pack();
         graphButtonList.add(button1);
-        
-		button1 = new Button(menuComposite4, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DESIGN));
-		button1.setToolTipText("Design Editor");
-		button1.setData(ImageButton.DESIGN);
-		button1.addSelectionListener(imageButtonListener);
-		button1.pack();
-		graphButtonList.add(button1);
-		
-		button1 = new Button(menuComposite4, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
-		button1.setToolTipText("Visualization Capture");
-		button1.setData(ImageButton.CAPTURE);
-		button1.addSelectionListener(imageButtonListener);
-		button1.pack();
-		graphButtonList.add(button1);
 
-		button1 = new Button(menuComposite4, SWT.PUSH);
-		button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CSV_FILE));
-		button1.setToolTipText("To CSV File");
-		button1.setData(ImageButton.TO_CSV);
-		button1.addSelectionListener(imageButtonListener);
-		button1.pack();
+        button1 = new Button(menuComposite4, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DESIGN));
+        button1.setToolTipText("Design Editor");
+        button1.setData(ImageButton.DESIGN);
+        button1.addSelectionListener(imageButtonListener);
+        button1.pack();
+        graphButtonList.add(button1);
 
-		menuComposite4.pack();
+        button1 = new Button(menuComposite4, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
+        button1.setToolTipText("Visualization Capture");
+        button1.setData(ImageButton.CAPTURE);
+        button1.addSelectionListener(imageButtonListener);
+        button1.pack();
+        graphButtonList.add(button1);
 
-		size = menuComposite4.getSize();
-		buttonItem4.setControl(menuComposite4);
-		buttonItem4.setSize(buttonItem3.computeSize(size.x, size.y));
-		
-		Composite menuComposite5 = new Composite(coolBar, SWT.NONE);
-		menuComposite5.setLayout(new GridLayout(2, false));
-		
-		fetchNextButton = new Button(menuComposite5, SWT.PUSH);
-		fetchNextButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_NEXT));
-		fetchNextButton.setToolTipText("Next Data");
-		fetchNextButton.setData(ImageButton.NEXT_DATA);
-		fetchNextButton.addSelectionListener(imageButtonListener);
-		fetchNextButton.setEnabled(false);
-		fetchNextButton.pack();
-		
-		fetchEndButton = new Button(menuComposite5, SWT.PUSH);
-		fetchEndButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_ALL));
-		fetchEndButton.setToolTipText("All Data");
-		fetchEndButton.setData(ImageButton.ALL_DATA);
-		fetchEndButton.addSelectionListener(imageButtonListener);
-		fetchEndButton.setEnabled(false);
-		fetchEndButton.pack();
-        
-		menuComposite5.pack();
-		
-		size = menuComposite5.getSize();
-		buttonItem5.setControl(menuComposite5);
-		buttonItem5.setSize(buttonItem4.computeSize(size.x, size.y));
-		
-		Composite menuComposite6 = new Composite(coolBar, SWT.NONE);
-		menuComposite6.setLayout(new GridLayout(4, false));
-		menuComposite6.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        
-		resultLabel = new Label(menuComposite6, SWT.READ_ONLY | SWT.CENTER);
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.horizontalSpan = 4;
-		resultLabel.setLayoutData(gd);
-		resultLabel.setText("Edge : " + "00000" + " Node : " + "00000");
+        button1 = new Button(menuComposite4, SWT.PUSH);
+        button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CSV_FILE));
+        button1.setToolTipText("To CSV File");
+        button1.setData(ImageButton.TO_CSV);
+        button1.addSelectionListener(imageButtonListener);
+        button1.pack();
 
-		menuComposite6.pack();
-        
-		size = menuComposite6.getSize();
-		buttonItem6.setControl(menuComposite6);
-		buttonItem6.setSize(buttonItem6.computeSize(size.x, size.y));
-		
-	}
-	
-	private void graphMenuEnable(boolean enable) {
-	    Iterator<Button> iter = graphButtonList.iterator();
-        
-        while(iter.hasNext()) {
+        menuComposite4.pack();
+
+        size = menuComposite4.getSize();
+        buttonItem4.setControl(menuComposite4);
+        buttonItem4.setSize(buttonItem3.computeSize(size.x, size.y));
+
+        Composite menuComposite5 = new Composite(coolBar, SWT.NONE);
+        menuComposite5.setLayout(new GridLayout(2, false));
+
+        fetchNextButton = new Button(menuComposite5, SWT.PUSH);
+        fetchNextButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_NEXT));
+        fetchNextButton.setToolTipText("Next Data");
+        fetchNextButton.setData(ImageButton.NEXT_DATA);
+        fetchNextButton.addSelectionListener(imageButtonListener);
+        fetchNextButton.setEnabled(false);
+        fetchNextButton.pack();
+
+        fetchEndButton = new Button(menuComposite5, SWT.PUSH);
+        fetchEndButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_ALL));
+        fetchEndButton.setToolTipText("All Data");
+        fetchEndButton.setData(ImageButton.ALL_DATA);
+        fetchEndButton.addSelectionListener(imageButtonListener);
+        fetchEndButton.setEnabled(false);
+        fetchEndButton.pack();
+
+        menuComposite5.pack();
+
+        size = menuComposite5.getSize();
+        buttonItem5.setControl(menuComposite5);
+        buttonItem5.setSize(buttonItem4.computeSize(size.x, size.y));
+
+        Composite menuComposite6 = new Composite(coolBar, SWT.NONE);
+        menuComposite6.setLayout(new GridLayout(4, false));
+        menuComposite6.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        resultLabel = new Label(menuComposite6, SWT.READ_ONLY | SWT.CENTER);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+        gd.horizontalSpan = 4;
+        resultLabel.setLayoutData(gd);
+        resultLabel.setText("Edge : " + "00000" + " Node : " + "00000");
+
+        menuComposite6.pack();
+
+        size = menuComposite6.getSize();
+        buttonItem6.setControl(menuComposite6);
+        buttonItem6.setSize(buttonItem6.computeSize(size.x, size.y));
+    }
+
+    private void graphMenuEnable(boolean enable) {
+        Iterator<Button> iter = graphButtonList.iterator();
+
+        while (iter.hasNext()) {
             Button data = iter.next();
             data.setEnabled(enable);
         }
-	}
+    }
 
-	private static Label createHorizontalLine(Composite parent, int hSpan, int vIndent) {
-		Label horizontalLine = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridData gd = new GridData(GridData.FILL, GridData.FILL, true, false, 1, 1);
-		gd.horizontalSpan = hSpan;
-		gd.verticalIndent = vIndent;
-		horizontalLine.setLayoutData(gd);
-		return horizontalLine;
-	}
+    private static Label createHorizontalLine(Composite parent, int hSpan, int vIndent) {
+        Label horizontalLine = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
+        GridData gd = new GridData(GridData.FILL, GridData.FILL, true, false, 1, 1);
+        gd.horizontalSpan = hSpan;
+        gd.verticalIndent = vIndent;
+        horizontalLine.setLayoutData(gd);
+        return horizontalLine;
+    }
 
-	private void ShowVisualizaion(boolean refreshMetadata, boolean append) {
-		dataSet(refreshMetadata, append);
-		drawGraph(refreshMetadata, append);
-	}
+    private void ShowVisualizaion(boolean refreshMetadata, boolean append) {
+        dataSet(refreshMetadata, append);
+        drawGraph(refreshMetadata, append);
+    }
 
     private boolean addNeo4jNode(
             ResultSetModel model, DBDAttributeBinding attr, ResultSetRow row, String cellString) {
         Object cellValue = model.getCellValue(attr, row);
 
-    	final String ID_KEY = NODE_EDGE_ID;
-    	final String LABEL_KEY = NODE_LABEL;
-        
+        final String ID_KEY = NODE_EDGE_ID;
+        final String LABEL_KEY = NODE_LABEL;
+
         LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
         String id = "";
         List<String> labels;
-        
+
         if (cellValue instanceof LinkedHashMap) {
-        	attrList.putAll((LinkedHashMap)cellValue);
+            attrList.putAll((LinkedHashMap) cellValue);
         }
-        
+
         String regex = "[\\[\\]]";
         id = String.valueOf(attrList.get(ID_KEY)).replaceAll(regex, "");
         if (attrList.get(LABEL_KEY) instanceof String) {
-        	List<String> tempLabels = new ArrayList<>();
-        	tempLabels.add(String.valueOf(attrList.get(LABEL_KEY)));
-        	labels = tempLabels;
+            List<String> tempLabels = new ArrayList<>();
+            tempLabels.add(String.valueOf(attrList.get(LABEL_KEY)));
+            labels = tempLabels;
         } else {
-        	labels = (List<String>)attrList.get(LABEL_KEY);
+            labels = (List<String>) attrList.get(LABEL_KEY);
         }
-        
+
         attrList.remove(ID_KEY);
         attrList.remove(LABEL_KEY);
 
@@ -566,37 +572,37 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         return visualGraph.addNode(id, labels, attrList) == null ? false : true;
     }
 
-    private boolean addNeo4jEdge(ResultSetModel model,
-    		DBDAttributeBinding attr, ResultSetRow row, String cellString) {
-    	final String ID_KEY = NODE_EDGE_ID;
-    	final String LABEL_KEY = EDGE_TYPE;
-    	final String SID_KEY = NEO4J_EDGE_START_ID;
-    	final String TID_KEY = NEO4J_EDGE_END_ID;
-    	
-    	LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
+    private boolean addNeo4jEdge(
+            ResultSetModel model, DBDAttributeBinding attr, ResultSetRow row, String cellString) {
+        final String ID_KEY = NODE_EDGE_ID;
+        final String LABEL_KEY = EDGE_TYPE;
+        final String SID_KEY = NEO4J_EDGE_START_ID;
+        final String TID_KEY = NEO4J_EDGE_END_ID;
+
+        LinkedHashMap<String, Object> attrList = new LinkedHashMap<>();
         Object cellValue = model.getCellValue(attr, row);
 
         String id = "", sId = "", tId = "";
         List<String> types;
 
         if (cellValue instanceof LinkedHashMap) {
-        	attrList.putAll((LinkedHashMap)cellValue);
+            attrList.putAll((LinkedHashMap) cellValue);
         } else {
-        	return false;
+            return false;
         }
-        
+
         String regex = "[\\[\\]]";
         id = String.valueOf(attrList.get(ID_KEY)).replaceAll(regex, "");
         if (attrList.get(LABEL_KEY) instanceof String) {
-        	List<String> tempTypes = new ArrayList<>();
-        	tempTypes.add(String.valueOf(attrList.get(LABEL_KEY)));
-        	types = tempTypes;
+            List<String> tempTypes = new ArrayList<>();
+            tempTypes.add(String.valueOf(attrList.get(LABEL_KEY)));
+            types = tempTypes;
         } else {
-        	types = (List<String>)attrList.get(LABEL_KEY);
+            types = (List<String>) attrList.get(LABEL_KEY);
         }
         sId = String.valueOf(attrList.get(SID_KEY)).replaceAll(regex, "");
         tId = String.valueOf(attrList.get(TID_KEY)).replaceAll(regex, "");
-        
+
         attrList.remove(ID_KEY);
         attrList.remove(LABEL_KEY);
         attrList.remove(SID_KEY);
@@ -606,186 +612,184 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         resultSetRowEdgeList.put(id, row);
         displayStringEdgeList.put(id, cellString);
 
-        return visualGraph.addEdge(id, types, sId, tId, attrList)
-                        == null
-                ? false
-                : true;
+        return visualGraph.addEdge(id, types, sId, tId, attrList) == null ? false : true;
     }
 
-	StringBuilder fixBuffer = new StringBuilder();
+    StringBuilder fixBuffer = new StringBuilder();
 
-	private String getCellString(ResultSetModel model, DBDAttributeBinding attr, ResultSetRow row,
-			DBDDisplayFormat displayFormat) {
-		Object cellValue = model.getCellValue(attr, row);
-		if (cellValue instanceof DBDValueError) {
-			return ((DBDValueError) cellValue).getErrorTitle();
-		}
-		if (cellValue instanceof Number
-				&& controller.getPreferenceStore().getBoolean(ModelPreferences.RESULT_NATIVE_NUMERIC_FORMAT)) {
-			displayFormat = DBDDisplayFormat.NATIVE;
-		}
+    private String getCellString(
+            ResultSetModel model,
+            DBDAttributeBinding attr,
+            ResultSetRow row,
+            DBDDisplayFormat displayFormat) {
+        Object cellValue = model.getCellValue(attr, row);
+        if (cellValue instanceof DBDValueError) {
+            return ((DBDValueError) cellValue).getErrorTitle();
+        }
+        if (cellValue instanceof Number
+                && controller
+                        .getPreferenceStore()
+                        .getBoolean(ModelPreferences.RESULT_NATIVE_NUMERIC_FORMAT)) {
+            displayFormat = DBDDisplayFormat.NATIVE;
+        }
 
-		String displayString = attr.getValueHandler().getValueDisplayString(attr, cellValue, displayFormat);
+        String displayString =
+                attr.getValueHandler().getValueDisplayString(attr, cellValue, displayFormat);
 
-		if (displayString.isEmpty() && showNulls && DBUtils.isNullValue(cellValue)) {
-			displayString = DBConstants.NULL_VALUE_LABEL;
-		}
+        if (displayString.isEmpty() && showNulls && DBUtils.isNullValue(cellValue)) {
+            displayString = DBConstants.NULL_VALUE_LABEL;
+        }
 
-		fixBuffer.setLength(0);
-		for (int i = 0; i < displayString.length(); i++) {
-			char c = displayString.charAt(i);
-			switch (c) {
-			case '\n':
-				c = CommonUtils.PARAGRAPH_CHAR;
-				break;
-			case '\r':
-				continue;
-			case 0:
-			case 255:
-			case '\t':
-				c = ' ';
-				break;
-			}
-			if (c < ' '/* || (c > 127 && c < 255) */) {
-				c = ' ';
-			}
-			fixBuffer.append(c);
-		}
+        fixBuffer.setLength(0);
+        for (int i = 0; i < displayString.length(); i++) {
+            char c = displayString.charAt(i);
+            switch (c) {
+                case '\n':
+                    c = CommonUtils.PARAGRAPH_CHAR;
+                    break;
+                case '\r':
+                    continue;
+                case 0:
+                case 255:
+                case '\t':
+                    c = ' ';
+                    break;
+            }
+            if (c < ' ' /* || (c > 127 && c < 255) */) {
+                c = ' ';
+            }
+            fixBuffer.append(c);
+        }
 
-		return fixBuffer.toString();
-	}
+        return fixBuffer.toString();
+    }
 
-	@Override
-	public void formatData(boolean refreshData) {
-		// controller.refreshData(null);
-	}
+    @Override
+    public void formatData(boolean refreshData) {
+        // controller.refreshData(null);
+    }
 
-	@Override
-	public void clearMetaData() {
-	}
+    @Override
+    public void clearMetaData() {}
 
-	@Override
-	public void updateValueView() {
-	}
+    @Override
+    public void updateValueView() {}
 
-	@Override
-	public void fillMenu(@NotNull IMenuManager menu) {
-	}
+    @Override
+    public void fillMenu(@NotNull IMenuManager menu) {}
 
-	@Override
-	public void changeMode(boolean recordMode) {
-	}
+    @Override
+    public void changeMode(boolean recordMode) {}
 
-	@Override
-	public void scrollToRow(@NotNull RowPosition position) {
-	}
+    @Override
+    public void scrollToRow(@NotNull RowPosition position) {}
 
-	@Nullable
-	@Override
-	public DBDAttributeBinding getCurrentAttribute() {
-		return curAttribute;
-	}
+    @Nullable
+    @Override
+    public DBDAttributeBinding getCurrentAttribute() {
+        return curAttribute;
+    }
 
-	@NotNull
-	@Override
-	public Map<Transfer, Object> copySelection(ResultSetCopySettings settings) {
-		return Collections.singletonMap(TextTransfer.getInstance(), curSelection);
-	}
+    @NotNull
+    @Override
+    public Map<Transfer, Object> copySelection(ResultSetCopySettings settings) {
+        return Collections.singletonMap(TextTransfer.getInstance(), curSelection);
+    }
 
-	@Override
-	public void printResultSet() {
-	}
+    @Override
+    public void printResultSet() {}
 
-	@Override
-	protected void performHorizontalScroll(int scrollCount) {
-	}
+    @Override
+    protected void performHorizontalScroll(int scrollCount) {}
 
-	@Override
-	public <T> T getAdapter(Class<T> adapter) {
-		return null;
-	}
+    @Override
+    public <T> T getAdapter(Class<T> adapter) {
+        return null;
+    }
 
-	@Override
-	public ISelection getSelection() {
-		return new VisualizationSelectionImpl();
-	}
+    @Override
+    public ISelection getSelection() {
+        return new VisualizationSelectionImpl();
+    }
 
-	private class VisualizationSelectionImpl implements IResultSetSelection {
+    private class VisualizationSelectionImpl implements IResultSetSelection {
 
-		@Nullable
-		@Override
-		public Object getFirstElement() {
-			return curSelection;
-		}
+        @Nullable
+        @Override
+        public Object getFirstElement() {
+            return curSelection;
+        }
 
-		@Override
-		public Iterator<String> iterator() {
-			return toList().iterator();
-		}
+        @Override
+        public Iterator<String> iterator() {
+            return toList().iterator();
+        }
 
-		@Override
-		public int size() {
-			return curSelection == null ? 0 : 1;
-		}
+        @Override
+        public int size() {
+            return curSelection == null ? 0 : 1;
+        }
 
-		@Override
-		public Object[] toArray() {
-			return curSelection == null ? new Object[0] : new Object[] { curSelection };
-		}
+        @Override
+        public Object[] toArray() {
+            return curSelection == null ? new Object[0] : new Object[] {curSelection};
+        }
 
-		@Override
-		public List<String> toList() {
-			return curSelection == null ? Collections.emptyList() : Collections.singletonList(curSelection);
-		}
+        @Override
+        public List<String> toList() {
+            return curSelection == null
+                    ? Collections.emptyList()
+                    : Collections.singletonList(curSelection);
+        }
 
-		@Override
-		public boolean isEmpty() {
-			return false;
-		}
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
 
-		@NotNull
-		@Override
-		public IResultSetController getController() {
-			return controller;
-		}
+        @NotNull
+        @Override
+        public IResultSetController getController() {
+            return controller;
+        }
 
-		@NotNull
-		@Override
-		public List<DBDAttributeBinding> getSelectedAttributes() {
-			if (curAttribute == null) {
-				return Collections.emptyList();
-			}
-			return Collections.singletonList(curAttribute);
-		}
+        @NotNull
+        @Override
+        public List<DBDAttributeBinding> getSelectedAttributes() {
+            if (curAttribute == null) {
+                return Collections.emptyList();
+            }
+            return Collections.singletonList(curAttribute);
+        }
 
-		@NotNull
-		@Override
-		public List<ResultSetRow> getSelectedRows() {
-			ResultSetRow currentRow = controller.getCurrentRow();
-			if (currentRow == null) {
-				return Collections.emptyList();
-			}
-			return Collections.singletonList(currentRow);
-		}
+        @NotNull
+        @Override
+        public List<ResultSetRow> getSelectedRows() {
+            ResultSetRow currentRow = controller.getCurrentRow();
+            if (currentRow == null) {
+                return Collections.emptyList();
+            }
+            return Collections.singletonList(currentRow);
+        }
 
-		@Override
-		public DBDAttributeBinding getElementAttribute(Object element) {
-			return curAttribute;
-		}
+        @Override
+        public DBDAttributeBinding getElementAttribute(Object element) {
+            return curAttribute;
+        }
 
-		@Override
-		public ResultSetRow getElementRow(Object element) {
-			return getController().getCurrentRow();
-		}
-	}
+        @Override
+        public ResultSetRow getElementRow(Object element) {
+            return getController().getCurrentRow();
+        }
+    }
 
-	private void setLayoutManager(LayoutStyle layoutStyle) {
-		visualGraph.setLayoutAlgorithm(layoutStyle);
-	}
-	
-	private void setDefaultLayoutManager() {
-		visualGraph.setDefaultLayoutAlgorithm();
-	}
+    private void setLayoutManager(LayoutStyle layoutStyle) {
+        visualGraph.setLayoutAlgorithm(layoutStyle);
+    }
+
+    private void setDefaultLayoutManager() {
+        visualGraph.setDefaultLayoutAlgorithm();
+    }
 
     private void createGraphListner() {
         visualGraph.setVertexSelectAction(
@@ -811,57 +815,57 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                         graphMenuEnable(false);
                     }
                 });
-        
     }
-	private void saveImage() {
-	    
-		if(visualGraph != null) {
-			FileDialog fileDialog = new FileDialog(visualGraph.getGraphModel().getShell(), SWT.SAVE);
-			fileDialog.setFilterExtensions(new String[] {"*.jpg"});
-			fileDialog.setFilterNames(new String[] {"jpg Image File"});
-			String filename = fileDialog.open();
-			if (filename == null) {
-				return;
-			} else if (!filename.toLowerCase().contains(".jpg")){
-				filename = filename + ".jpg";
-			}
-				
-			ImageData imageData = visualGraph.getCaptureImage();
-			
-			if (imageData == null) {
-				return;
-			}
-			
-			ImageLoader imageLoader = new ImageLoader();
-			imageLoader.data = new ImageData[] { imageData };
-			imageLoader.save(filename, SWT.IMAGE_JPEG);
-		}
-	}
-	
-	private void saveCSV() {
-		if (visualGraph != null) {
-			visualGraph.exportCSV();
-		}
-	}
-	
-	public void miniMapToggle() {
-		if (visualGraph != null) {
-			visualGraph.miniMapToggle();
-		}
-	}
-	
+
+    private void saveImage() {
+
+        if (visualGraph != null) {
+            FileDialog fileDialog =
+                    new FileDialog(visualGraph.getGraphModel().getShell(), SWT.SAVE);
+            fileDialog.setFilterExtensions(new String[] {"*.jpg"});
+            fileDialog.setFilterNames(new String[] {"jpg Image File"});
+            String filename = fileDialog.open();
+            if (filename == null) {
+                return;
+            } else if (!filename.toLowerCase().contains(".jpg")) {
+                filename = filename + ".jpg";
+            }
+
+            ImageData imageData = visualGraph.getCaptureImage();
+
+            if (imageData == null) {
+                return;
+            }
+
+            ImageLoader imageLoader = new ImageLoader();
+            imageLoader.data = new ImageData[] {imageData};
+            imageLoader.save(filename, SWT.IMAGE_JPEG);
+        }
+    }
+
+    private void saveCSV() {
+        if (visualGraph != null) {
+            visualGraph.exportCSV();
+        }
+    }
+
+    public void miniMapToggle() {
+        if (visualGraph != null) {
+            visualGraph.miniMapToggle();
+        }
+    }
+
     public void setMiniMapVisible(boolean visible) {
         if (visualGraph != null) {
-        	visualGraph.setMiniMapVisible(visible);
-       }
-	}
-    
+            visualGraph.setMiniMapVisible(visible);
+        }
+    }
+
     private void setShortestMode(boolean status) {
         if (visualGraph != null) {
             visualGraph.setShortestMode(status);
             setColorShortestButton(status);
         }
-    	
     }
 
     private void setColorShortestButton(boolean shortestStatus) {
@@ -873,53 +877,53 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             }
         }
     }
-    
+
     class TurboRowData {
-    	public boolean isEdge;
-    	public String label;
-    	public int startIdx;
-    	public int endIdx;
-    	
-    	TurboRowData(String label, boolean isEdge, int startIdx, int endIdx) {
-    		this.label = label;
-			this.isEdge = isEdge; 
-			this.startIdx = startIdx;
-			this.endIdx = endIdx;
-		}
-    	
-    	TurboRowData(String label, boolean isEdge, int startIdx) {
-    		this.label = label;
-			this.isEdge = isEdge; 
-			this.startIdx = startIdx;
-			this.endIdx = 0;
-		}
+        public boolean isEdge;
+        public String label;
+        public int startIdx;
+        public int endIdx;
+
+        TurboRowData(String label, boolean isEdge, int startIdx, int endIdx) {
+            this.label = label;
+            this.isEdge = isEdge;
+            this.startIdx = startIdx;
+            this.endIdx = endIdx;
+        }
+
+        TurboRowData(String label, boolean isEdge, int startIdx) {
+            this.label = label;
+            this.isEdge = isEdge;
+            this.startIdx = startIdx;
+            this.endIdx = 0;
+        }
     }
-    
+
     class NEO4JRowData {
-    	public int idx;
-    	public boolean isEdge;
-    	public DBDAttributeBinding attr;
-    	
-    	NEO4JRowData(int idx, boolean isEdge, DBDAttributeBinding attr) {
-    		this.idx = idx;
-			this.isEdge = isEdge; 
-			this.attr = attr;
-		}
+        public int idx;
+        public boolean isEdge;
+        public DBDAttributeBinding attr;
+
+        NEO4JRowData(int idx, boolean isEdge, DBDAttributeBinding attr) {
+            this.idx = idx;
+            this.isEdge = isEdge;
+            this.attr = attr;
+        }
     }
-    
+
     private void dataSet(boolean refreshMetadata, boolean append) {
-    
+
         DBPPreferenceStore prefs = getController().getPreferenceStore();
-		String graphType = "";
+        String graphType = "";
 
         DBDDisplayFormat displayFormat =
                 DBDDisplayFormat.safeValueOf(
                         prefs.getString(ResultSetPreferences.RESULT_TEXT_VALUE_FORMAT));
 
-		ResultSetModel model = controller.getModel();
-		List<DBDAttributeBinding> attrs = model.getVisibleAttributes();
+        ResultSetModel model = controller.getModel();
+        List<DBDAttributeBinding> attrs = model.getVisibleAttributes();
 
-		List<ResultSetRow> allRows = model.getAllRows();
+        List<ResultSetRow> allRows = model.getAllRows();
 
         if (visualGraph != null) {
             if (controller != null && controller.getDataContainer() != null) {
@@ -927,124 +931,124 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                 visualGraph.setCurrentQuery(currentQuery, allRows.size());
             }
         }
-        
+
         List<Object> nodeRowData = new ArrayList<>();
         List<Object> edgeRowData = new ArrayList<>();
         TurboRowData temp = null;
-        
-        for (int i = 0; i < attrs.size(); i++) { // classify 
-        	DBDAttributeBinding attr = attrs.get(i);
-        	graphType = attrs.get(i).getTypeName();
-        	
-        	if (graphType == "NODE") { // Neo4j Node
-        		nodeRowData.add(new NEO4JRowData(i, false, attr));
-        	} else if (graphType == "RELATIONSHIP") { // Neo4j Edge
-        		edgeRowData.add(new NEO4JRowData(i, true, attr));
-        	} else { //TurboGraph++
-        		String label = attrs.get(i).getMetaAttribute().getEntityName();
-        		if (!label.isEmpty()) {
-	            	if (attrs.get(i).getName().equals(NODE_EDGE_ID)
-	            			&& attrs.get(i+1).getName().equals(TURBOGRAPH_EDGE_START_ID)) {
-	            		temp = new TurboRowData(label, true, i);
-	            		edgeRowData.add(temp);
-	            	} else if (attrs.get(i).getName().equals(NODE_EDGE_ID)) {
-	            		temp = new TurboRowData(label, false, i);
-	            		nodeRowData.add(temp);
-	            	} else {
-	            		if (temp != null) {
-	            			temp.endIdx = i;
-	            		}
-	            	}
-        		}
-        	}
+
+        for (int i = 0; i < attrs.size(); i++) { // classify
+            DBDAttributeBinding attr = attrs.get(i);
+            graphType = attrs.get(i).getTypeName();
+
+            if (graphType == "NODE") { // Neo4j Node
+                nodeRowData.add(new NEO4JRowData(i, false, attr));
+            } else if (graphType == "RELATIONSHIP") { // Neo4j Edge
+                edgeRowData.add(new NEO4JRowData(i, true, attr));
+            } else { // TurboGraph++
+                String label = attrs.get(i).getMetaAttribute().getEntityName();
+                if (!label.isEmpty()) {
+                    if (attrs.get(i).getName().equals(NODE_EDGE_ID)
+                            && attrs.get(i + 1).getName().equals(TURBOGRAPH_EDGE_START_ID)) {
+                        temp = new TurboRowData(label, true, i);
+                        edgeRowData.add(temp);
+                    } else if (attrs.get(i).getName().equals(NODE_EDGE_ID)) {
+                        temp = new TurboRowData(label, false, i);
+                        nodeRowData.add(temp);
+                    } else {
+                        if (temp != null) {
+                            temp.endIdx = i;
+                        }
+                    }
+                }
+            }
         }
-        
+
         for (int i = lastReadRowCount; i < allRows.size(); i++) { // Add Node
             ResultSetRow row = allRows.get(i);
-    		for (Object obj : nodeRowData) {
-    			if (obj instanceof NEO4JRowData) {
-    				NEO4JRowData data = (NEO4JRowData)obj;
-    				String displayString = getCellString(model, data.attr, row, displayFormat);
+            for (Object obj : nodeRowData) {
+                if (obj instanceof NEO4JRowData) {
+                    NEO4JRowData data = (NEO4JRowData) obj;
+                    String displayString = getCellString(model, data.attr, row, displayFormat);
                     addNeo4jNode(model, data.attr, row, displayString);
-    			} else if (obj instanceof TurboRowData) {
-    				TurboRowData data = (TurboRowData)obj;
-    				List<String> multiLabel = new ArrayList<>(); //temp
-    				multiLabel.add(data.label);
-        			LinkedHashMap<String, Object> attrMap = new LinkedHashMap<>();
-        			String id = "";
-    				for (int j = data.startIdx ; j <= data.endIdx ; j++) {
-    					if (j == data.startIdx) {
-    						id = row.getValues()[j].toString();
-    					} else {
-    						attrMap.put(attrs.get(j).getLabel(), row.getValues()[j]);
-    					}
-    				}
-    				visualGraph.addNode(id, multiLabel, attrMap);
-    			}
-    		}
+                } else if (obj instanceof TurboRowData) {
+                    TurboRowData data = (TurboRowData) obj;
+                    List<String> multiLabel = new ArrayList<>(); // temp
+                    multiLabel.add(data.label);
+                    LinkedHashMap<String, Object> attrMap = new LinkedHashMap<>();
+                    String id = "";
+                    for (int j = data.startIdx; j <= data.endIdx; j++) {
+                        if (j == data.startIdx) {
+                            id = row.getValues()[j].toString();
+                        } else {
+                            attrMap.put(attrs.get(j).getLabel(), row.getValues()[j]);
+                        }
+                    }
+                    visualGraph.addNode(id, multiLabel, attrMap);
+                }
+            }
         }
-    	
+
         for (int i = lastReadRowCount; i < allRows.size(); i++) { // Add Edge
             ResultSetRow row = allRows.get(i);
-    		for (Object obj : edgeRowData) {
-    			if (obj instanceof NEO4JRowData) {
-    				NEO4JRowData data = (NEO4JRowData)obj;
-    				String displayString = getCellString(model, data.attr, row, displayFormat);
+            for (Object obj : edgeRowData) {
+                if (obj instanceof NEO4JRowData) {
+                    NEO4JRowData data = (NEO4JRowData) obj;
+                    String displayString = getCellString(model, data.attr, row, displayFormat);
                     addNeo4jEdge(model, data.attr, row, displayString);
-    			} else if (obj instanceof TurboRowData) {
-    				TurboRowData data = (TurboRowData)obj;
-    				List<String> multiLabel = new ArrayList<>(); //temp
-    				multiLabel.add(data.label);
-    				LinkedHashMap<String, Object> attrMap = new LinkedHashMap<>();
-        			String id = "" , sid = "", tid = "";
-    				for (int j = data.startIdx ; j <= data.endIdx ; j++) {
-    					if (j == data.startIdx) {
-    						id = row.getValues()[j].toString();
-    						j++;
-    						sid = row.getValues()[j].toString();
-    						j++;
-    						tid = row.getValues()[j].toString();
-    					} else {
-    						attrMap.put(attrs.get(j).getLabel(), row.getValues()[j]);
-    					}
-    				}
-    				visualGraph.addEdge(id, multiLabel, sid, tid, attrMap);
-    			}
-    		}
+                } else if (obj instanceof TurboRowData) {
+                    TurboRowData data = (TurboRowData) obj;
+                    List<String> multiLabel = new ArrayList<>(); // temp
+                    multiLabel.add(data.label);
+                    LinkedHashMap<String, Object> attrMap = new LinkedHashMap<>();
+                    String id = "", sid = "", tid = "";
+                    for (int j = data.startIdx; j <= data.endIdx; j++) {
+                        if (j == data.startIdx) {
+                            id = row.getValues()[j].toString();
+                            j++;
+                            sid = row.getValues()[j].toString();
+                            j++;
+                            tid = row.getValues()[j].toString();
+                        } else {
+                            attrMap.put(attrs.get(j).getLabel(), row.getValues()[j]);
+                        }
+                    }
+                    visualGraph.addEdge(id, multiLabel, sid, tid, attrMap);
+                }
+            }
         }
-    	
-    	lastReadRowCount = allRows.size();
+
+        lastReadRowCount = allRows.size();
     }
-    
+
     private void drawGraph(boolean refreshMetadata, boolean append) {
-    	int nodesNum = visualGraph.getNumNodes();
-		int sqrt = (int) Math.sqrt(nodesNum);
-		int compositeSizeX = graphTopComposite.getSize().x - 100;
-		int compositeSizeY = graphTopComposite.getSize().y - 100;
-		double drawSizeX = sqrt * 162;
-		double drawSizeY = sqrt * 129;
-        
-		if (visualGraph != null) {
+        int nodesNum = visualGraph.getNumNodes();
+        int sqrt = (int) Math.sqrt(nodesNum);
+        int compositeSizeX = graphTopComposite.getSize().x - 100;
+        int compositeSizeY = graphTopComposite.getSize().y - 100;
+        double drawSizeX = sqrt * 162;
+        double drawSizeY = sqrt * 129;
+
+        if (visualGraph != null) {
             resultLabel.setText(
                     "Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
-			
-			if ( compositeSizeX > drawSizeX){
-			    drawSizeX = compositeSizeX;
-			}
-			
-			if ( compositeSizeY > drawSizeY){
-			    drawSizeY = compositeSizeY;
+
+            if (compositeSizeX > drawSizeX) {
+                drawSizeX = compositeSizeX;
             }
-			
-		    visualGraph.drawGraph(refreshMetadata, drawSizeX, drawSizeY);
-		}
+
+            if (compositeSizeY > drawSizeY) {
+                drawSizeY = compositeSizeY;
+            }
+
+            visualGraph.drawGraph(refreshMetadata, drawSizeX, drawSizeY);
+        }
     }
 
     private class DetachDialog extends BaseDialog {
-    	private Composite parentComposite;
-    	private Composite composite;
-    	
-    	public DetachDialog(Composite parent) {
+        private Composite parentComposite;
+        private Composite composite;
+
+        public DetachDialog(Composite parent) {
             this(parent, SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | SWT.MIN);
             parentComposite = parent;
         }
@@ -1053,54 +1057,53 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             super(parent.getShell(), "Visual view", null);
             setShellStyle(style);
         }
-		
-		public Composite getmainComposite() {
-			return composite;
-		}
-		
-		public Shell getParentShell() {
-			return this.getShell();
-		}
-		
-		@Override
-		protected Composite createDialogArea(Composite parent) {
-			Composite area = (Composite) super.createDialogArea(parent);
-			
-			composite = new Composite(area, SWT.NONE);
-			GridLayout layout = new GridLayout(1, false);
-	        layout.marginHeight = 5;
-	        layout.marginWidth = 5;
-			composite.setLayout(layout);
-			
-			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-			gridData.widthHint = mainComposite.getBounds().width;
-			gridData.heightHint = mainComposite.getBounds().height;
-			composite.setLayoutData(gridData);
-			
-			return parent;
-		}
-		
-		@Override
-		protected void createButtonsForButtonBar(Composite parent) {
-		}
-		
-		@Override
-	    protected boolean isResizable() {
-	        return true;
-	    }
-		
-		@Override
-		public int open() {
-			composite.layout(true, true);
-			return super.open();
-		}
-		
-		@Override
-		public boolean close() {
-			detach = false;
-			mainComposite.setParent(parentComposite);
-			parentComposite.layout(true,true);
-			return super.close();
-		}
+
+        public Composite getmainComposite() {
+            return composite;
+        }
+
+        public Shell getParentShell() {
+            return this.getShell();
+        }
+
+        @Override
+        protected Composite createDialogArea(Composite parent) {
+            Composite area = (Composite) super.createDialogArea(parent);
+
+            composite = new Composite(area, SWT.NONE);
+            GridLayout layout = new GridLayout(1, false);
+            layout.marginHeight = 5;
+            layout.marginWidth = 5;
+            composite.setLayout(layout);
+
+            GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+            gridData.widthHint = mainComposite.getBounds().width;
+            gridData.heightHint = mainComposite.getBounds().height;
+            composite.setLayoutData(gridData);
+
+            return parent;
+        }
+
+        @Override
+        protected void createButtonsForButtonBar(Composite parent) {}
+
+        @Override
+        protected boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public int open() {
+            composite.layout(true, true);
+            return super.open();
+        }
+
+        @Override
+        public boolean close() {
+            detach = false;
+            mainComposite.setParent(parentComposite);
+            parentComposite.layout(true, true);
+            return super.close();
+        }
     }
 }

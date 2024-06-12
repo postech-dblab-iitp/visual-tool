@@ -44,13 +44,15 @@ public class ContentResizerPane extends Pane {
         Scale scale = new Scale(1, 1);
         content.getTransforms().add(scale);
 
-        resizeFActor.addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            scale.setX(newValue.doubleValue());
-            scale.setY(newValue.doubleValue());
-            requestLayout();
-        });
+        resizeFActor.addListener(
+                (ObservableValue<? extends Number> observable,
+                        Number oldValue,
+                        Number newValue) -> {
+                    scale.setX(newValue.doubleValue());
+                    scale.setY(newValue.doubleValue());
+                    requestLayout();
+                });
     }
-
 
     @Override
     protected void layoutChildren() {
@@ -63,9 +65,14 @@ public class ContentResizerPane extends Pane {
         double bottom = getInsets().getBottom();
         double contentWidth = (width - left - right) / resizeFActor.get();
         double contentHeight = (height - top - bottom) / resizeFActor.get();
-        layoutInArea(content, left, top,
-                contentWidth, contentHeight,
-                0, null,
+        layoutInArea(
+                content,
+                left,
+                top,
+                contentWidth,
+                contentHeight,
+                0,
+                null,
                 pos.getHpos(),
                 pos.getVpos());
     }

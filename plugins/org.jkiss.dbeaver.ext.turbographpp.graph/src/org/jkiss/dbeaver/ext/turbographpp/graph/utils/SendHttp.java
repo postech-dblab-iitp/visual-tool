@@ -1,5 +1,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,14 +10,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 public class SendHttp {
 
@@ -40,7 +38,7 @@ public class SendHttp {
 
             BufferedReader in =
                     new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "UTF-8"));
-            //System.out.println(in.readLine());
+            // System.out.println(in.readLine());
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -75,7 +73,7 @@ public class SendHttp {
 
             BufferedReader in =
                     new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "UTF-8"));
-            //System.out.println(in.readLine());
+            // System.out.println(in.readLine());
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -102,10 +100,10 @@ public class SendHttp {
             jsonData.addProperty("id", requestNode.get(nodeKey).element().getID());
             jsonData.addProperty("label", requestNode.get(nodeKey).element().getLabelsString());
             jsonData.addProperty("display", requestNode.get(nodeKey).element().getDisplay());
-            //jsonData.addProperty("label", 1);
-            //retString += "{";
+            // jsonData.addProperty("label", 1);
+            // retString += "{";
             retString += gson.toJson(jsonData);
-            //retString += "},";
+            // retString += "},";
             if (requestNode.size() != count) {
                 retString += ",";
             }
@@ -130,7 +128,7 @@ public class SendHttp {
 
         long afterTime = System.currentTimeMillis();
         long secDiffTime = (afterTime - beforeTime);
-        //System.out.println("(m) : " + secDiffTime);
+        // System.out.println("(m) : " + secDiffTime);
 
         return retString;
     }

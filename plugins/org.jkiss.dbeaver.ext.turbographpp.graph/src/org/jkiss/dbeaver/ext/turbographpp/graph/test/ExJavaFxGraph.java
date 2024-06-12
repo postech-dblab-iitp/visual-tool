@@ -1,8 +1,5 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.test;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Graph;
@@ -13,52 +10,57 @@ import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
-
 import java.util.Random;
 import javafx.embed.swt.FXCanvas;
 import javafx.scene.Scene;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 
 public class ExJavaFxGraph {
-    
+
     private volatile boolean running;
     private FXCanvas canvas;
-    
+
     public ExJavaFxGraph(Composite parent) {
-        
+
         canvas = new FXCanvas(parent, SWT.NONE);
         Graph<String, String> g = build_flower_graph();
         System.out.println(g);
-        
+
         SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
         SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
-        
+
         graphView.setAutomaticLayout(true);
         Scene scene = new Scene(graphView, 1024, 768);
 
         graphView.init();
-        
-        graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
-            System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
-                      
-            if( !graphVertex.removeStyleClass("myVertex") ) {
-                graphVertex.addStyleClass("myVertex");
-            }
-            
-        });
 
-        graphView.setEdgeDoubleClickAction(graphEdge -> {
-            System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
-            graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
-            graphEdge.getStylableArrow().setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
-        });
-        
+        graphView.setVertexDoubleClickAction(
+                (SmartGraphVertex<String> graphVertex) -> {
+                    System.out.println(
+                            "Vertex contains element: "
+                                    + graphVertex.getUnderlyingVertex().element());
+
+                    if (!graphVertex.removeStyleClass("myVertex")) {
+                        graphVertex.addStyleClass("myVertex");
+                    }
+                });
+
+        graphView.setEdgeDoubleClickAction(
+                graphEdge -> {
+                    System.out.println(
+                            "Edge contains element: " + graphEdge.getUnderlyingEdge().element());
+                    graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
+                    graphEdge
+                            .getStylableArrow()
+                            .setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
+                });
+
         canvas.setScene(scene);
     }
 
-    public void finalize() {
-        
-    }
-    
+    public void finalize() {}
+
     private Graph<String, String> build_sample_digraph() {
 
         Digraph<String, String> g = new DigraphEdgeList<>();
@@ -80,7 +82,7 @@ public class ExJavaFxGraph {
         g.insertEdge("F", "D", "DF");
         g.insertEdge("F", "D", "DF2");
 
-        //yep, its a loop!
+        // yep, its a loop!
         g.insertEdge("A", "A", "Loop");
 
         return g;
@@ -124,57 +126,58 @@ public class ExJavaFxGraph {
 
         return g;
     }
-    
-    private static final Random random = new Random(/* seed to reproduce*/);
 
-    private void continuously_test_adding_elements(Graph<String, String> g, SmartGraphPanel<String, String> graphView) {
+    private static final Random random = new Random(/* seed to reproduce*/ );
+
+    private void continuously_test_adding_elements(
+            Graph<String, String> g, SmartGraphPanel<String, String> graphView) {
         running = true;
-        final long ITERATION_WAIT = 3000; //milliseconds
+        final long ITERATION_WAIT = 3000; // milliseconds
 
         Runnable r;
-        r = () -> {
-            int count = 0;
-            
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ex) {
-                
-            }
-            
-            while (running) {
-                try {
-                    Thread.sleep(ITERATION_WAIT);
-                } catch (InterruptedException ex) {
- 
-                }
-                
-                String id = String.format("%02d", ++count);
-                if (random.nextInt(3) < 2) {
-                    Vertex<String> existing = get_random_vertex(g);
-                    Vertex<String> vertexId = g.insertVertex(("V" + id));
-                    g.insertEdge(existing, vertexId, ("E" + id));
-                    
-                    graphView.updateAndWait();
-                    
-                    SmartStylableNode stylableVertex = graphView.getStylableVertex(vertexId);
-                    if(stylableVertex != null) {
-                        stylableVertex.setStyle("-fx-fill: orange;");
-                    }
-                } else {
-                    Vertex<String> existing1 = get_random_vertex(g);
-                    Vertex<String> existing2 = get_random_vertex(g);
-                    g.insertEdge(existing1, existing2, ("E" + id));
-                    
-                    graphView.update();
-                }
+        r =
+                () -> {
+                    int count = 0;
 
-                
-            }
-        };
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+
+                    }
+
+                    while (running) {
+                        try {
+                            Thread.sleep(ITERATION_WAIT);
+                        } catch (InterruptedException ex) {
+
+                        }
+
+                        String id = String.format("%02d", ++count);
+                        if (random.nextInt(3) < 2) {
+                            Vertex<String> existing = get_random_vertex(g);
+                            Vertex<String> vertexId = g.insertVertex(("V" + id));
+                            g.insertEdge(existing, vertexId, ("E" + id));
+
+                            graphView.updateAndWait();
+
+                            SmartStylableNode stylableVertex =
+                                    graphView.getStylableVertex(vertexId);
+                            if (stylableVertex != null) {
+                                stylableVertex.setStyle("-fx-fill: orange;");
+                            }
+                        } else {
+                            Vertex<String> existing1 = get_random_vertex(g);
+                            Vertex<String> existing2 = get_random_vertex(g);
+                            g.insertEdge(existing1, existing2, ("E" + id));
+
+                            graphView.update();
+                        }
+                    }
+                };
 
         new Thread(r).start();
     }
-    
+
     private static Vertex<String> get_random_vertex(Graph<String, String> g) {
 
         int size = g.numVertices();
@@ -190,4 +193,3 @@ public class ExJavaFxGraph {
         return existing;
     }
 }
-

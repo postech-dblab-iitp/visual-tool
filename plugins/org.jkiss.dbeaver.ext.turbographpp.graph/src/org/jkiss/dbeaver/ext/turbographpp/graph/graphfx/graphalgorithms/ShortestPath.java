@@ -1,5 +1,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphalgorithms;
 
+import java.util.*;
+import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.NodesEdges;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Entry;
@@ -9,9 +11,6 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.TurboGraphList;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPanel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartStyleProxy;
-import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
-
-import java.util.*;
 
 /**
  * A shortest path algorithm which implements Dijkstra’s algorithm that can be used on a directed
@@ -76,7 +75,8 @@ public class ShortestPath {
         Map<Vertex<CypherNode>, Integer> cloud = new LinkedHashMap<>();
         HeapAdaptablePriorityQueue<Integer, Vertex<CypherNode>> pq =
                 new HeapAdaptablePriorityQueue<>();
-        Map<Vertex<CypherNode>, Entry<Integer, Vertex<CypherNode>>> pqTokens = new LinkedHashMap<>();
+        Map<Vertex<CypherNode>, Entry<Integer, Vertex<CypherNode>>> pqTokens =
+                new LinkedHashMap<>();
         // for each vertex of the graph, add an entry to the priority queue with the
         // source having
         // distance 0 and all others having infinite distance
@@ -124,7 +124,7 @@ public class ShortestPath {
         // and return a
         // boolean value
         if (cloud.get(endVertex) >= Integer.MAX_VALUE) {
-        	weight[0] = 0;
+            weight[0] = 0;
             return false;
         } else return Integer.signum(cloud.get(endVertex)) != -1;
     }
@@ -194,7 +194,8 @@ public class ShortestPath {
             oldVertexInPath = vertexInPath;
             vertexInPath = path.pop();
             nodesEdges.addNode(vertexInPath);
-            CypherNode node = graphView.getGraphVertex(vertexInPath).getUnderlyingVertex().element();
+            CypherNode node =
+                    graphView.getGraphVertex(vertexInPath).getUnderlyingVertex().element();
             graphView
                     .getStylableVertex(vertexInPath)
                     .setStyle(SmartStyleProxy.HIGHLIGHT_VERTEX + node.getFillColor());
