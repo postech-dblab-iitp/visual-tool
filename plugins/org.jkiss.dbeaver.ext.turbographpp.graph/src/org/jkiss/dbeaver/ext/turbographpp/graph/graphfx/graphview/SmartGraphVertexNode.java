@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License
  *
  * Copyright 2018 brunomnsilva@gmail.com.
@@ -26,7 +26,6 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
@@ -36,23 +35,17 @@ import javafx.scene.shape.Circle;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 
 /**
- * Internal implementation of a graph vertex for the {@link SmartGraphPanel}
- * class.
- * <br>
- * Visually it depicts a vertex as a circle, extending from {@link Circle}.
- * <br>
- * The vertex internally deals with mouse drag events that visually move
- * it in the {@link SmartGraphPanel} when displayed, if parameterized to do so.
- * 
- * 
+ * Internal implementation of a graph vertex for the {@link SmartGraphPanel} class. <br>
+ * Visually it depicts a vertex as a circle, extending from {@link Circle}. <br>
+ * The vertex internally deals with mouse drag events that visually move it in the {@link
+ * SmartGraphPanel} when displayed, if parameterized to do so.
  *
  * @param <T> the type of the underlying vertex
- *
  * @see SmartGraphPanel
- *
  * @author brunomnsilva
  */
-public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<T>, SmartLabelledNode {
+public class SmartGraphVertexNode<T> extends Circle
+        implements SmartGraphVertex<T>, SmartLabelledNode {
 
     private final Vertex<T> underlyingVertex;
     /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
@@ -69,10 +62,10 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
 
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
-    
+
     private ChangeListener<Bounds> labelBoundsChangeListener;
-    private boolean needlabelUpdate = false; 
-    
+    private boolean needlabelUpdate = false;
+
     /**
      * Constructor which sets the instance attributes.
      *
@@ -92,30 +85,51 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         this.adjacentVertices = new HashSet<>();
 
         styleProxy = new SmartStyleProxy(this);
-        //styleProxy.addStyleClass("vertex");
-        styleProxy.setStyle("-fx-stroke-width: 4;"
-        		+ " -fx-stroke: #61B5F1;"
-        		+ " -fx-stroke-type: inside;"
-        		+ " -fx-fill: #B1DFF7;");
+        // styleProxy.addStyleClass("vertex");
+        styleProxy.setStyle(
+                "-fx-stroke-width: 4;"
+                        + " -fx-stroke: #61B5F1;"
+                        + " -fx-stroke-type: inside;"
+                        + " -fx-fill: #B1DFF7;");
 
         if (allowMove) {
             enableDrag();
         }
-        
-        labelBoundsChangeListener = new ChangeListener<Bounds>(){
-            @Override
-            public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
-            	if (needlabelUpdate) {
-	            	if (attachedLabel != null) {
-	            		attachedLabel.xProperty().bind(centerXProperty().subtract(attachedLabel.getLayoutBounds().getWidth() / 2.0 ));
-	            		attachedLabel.yProperty().bind(centerYProperty().add(attachedLabel.getLayoutBounds().getHeight() / 2.0));
-	            	}
-	            	//needlabelUpdate = false;
-            	}
-            }
-        };
+
+        labelBoundsChangeListener =
+                new ChangeListener<Bounds>() {
+                    @Override
+                    public void changed(
+                            ObservableValue<? extends Bounds> observableValue,
+                            Bounds oldBounds,
+                            Bounds newBounds) {
+                        if (needlabelUpdate) {
+                            if (attachedLabel != null) {
+                                attachedLabel
+                                        .xProperty()
+                                        .bind(
+                                                centerXProperty()
+                                                        .subtract(
+                                                                attachedLabel
+                                                                                .getLayoutBounds()
+                                                                                .getWidth()
+                                                                        / 2.0));
+                                attachedLabel
+                                        .yProperty()
+                                        .bind(
+                                                centerYProperty()
+                                                        .add(
+                                                                attachedLabel
+                                                                                .getLayoutBounds()
+                                                                                .getHeight()
+                                                                        / 2.0));
+                            }
+                            // needlabelUpdate = false;
+                        }
+                    }
+                };
     }
-    
+
     /**
      * Adds a vertex to the internal list of adjacent vertices.
      *
@@ -136,8 +150,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     }
 
     /**
-     * Removes a collection of vertices from the internal list of adjacent
-     * vertices.
+     * Removes a collection of vertices from the internal list of adjacent vertices.
      *
      * @param col collection of vertices
      * @return true if any vertex was effectively removed
@@ -180,8 +193,8 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         setCenterX(x);
         setCenterY(y);
     }
-    
-     @Override
+
+    @Override
     public double getPositionCenterX() {
         return getCenterX();
     }
@@ -190,7 +203,6 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     public double getPositionCenterY() {
         return getCenterY();
     }
-
 
     /**
      * Sets the position of the instance in pixels.
@@ -201,10 +213,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         setPosition(p.getX(), p.getY());
     }
 
-    /**
-     * Resets the current computed external force vector.
-     *
-     */
+    /** Resets the current computed external force vector. */
     public void resetForces() {
         forceVector.x = forceVector.y = 0;
         updatedPosition.x = getCenterX();
@@ -212,12 +221,10 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     }
 
     /**
-     * Adds the vector represented by <code>(x,y)</code> to the current external
-     * force vector.
+     * Adds the vector represented by <code>(x,y)</code> to the current external force vector.
      *
      * @param x x-component of the force vector
      * @param y y-component of the force vector
-     *
      */
     public void addForceVector(double x, double y) {
         forceVector.x += x;
@@ -243,8 +250,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     }
 
     /**
-     * Updates the future position according to the current internal force
-     * vector.
+     * Updates the future position according to the current internal force vector.
      *
      * @see SmartGraphPanel#updateForces()
      */
@@ -255,14 +261,14 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
 
     /**
      * Moves the vertex position to the computed future position.
-     * <p>
-     * Moves are constrained within the parent pane dimensions.
+     *
+     * <p>Moves are constrained within the parent pane dimensions.
      *
      * @see SmartGraphPanel#applyForces()
      */
     public void moveFromForces() {
 
-        //limit movement to parent bounds
+        // limit movement to parent bounds
         double height = getParent().getLayoutBounds().getHeight();
         double width = getParent().getLayoutBounds().getWidth();
 
@@ -272,59 +278,62 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         setPosition(updatedPosition.x, updatedPosition.y);
     }
 
-    /**
-     * Make a node movable by dragging it around with the mouse primary button.
-     */
+    /** Make a node movable by dragging it around with the mouse primary button. */
     private void enableDrag() {
         final PointVector dragDelta = new PointVector(0, 0);
 
-        setOnMousePressed((mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
-                // record a delta distance for the drag and drop operation.
-                dragDelta.x = getCenterX() - mouseEvent.getX();
-                dragDelta.y = getCenterY() - mouseEvent.getY();
-                getScene().setCursor(Cursor.MOVE);
-                isDragging = true;
+        setOnMousePressed(
+                (mouseEvent) -> {
+                    if (mouseEvent.isPrimaryButtonDown()) {
+                        // record a delta distance for the drag and drop operation.
+                        dragDelta.x = getCenterX() - mouseEvent.getX();
+                        dragDelta.y = getCenterY() - mouseEvent.getY();
+                        getScene().setCursor(Cursor.MOVE);
+                        isDragging = true;
 
-                mouseEvent.consume();
-            }
+                        mouseEvent.consume();
+                    }
+                });
 
-        });
+        setOnMouseReleased(
+                (mouseEvent) -> {
+                    getScene().setCursor(Cursor.HAND);
+                    isDragging = false;
 
-        setOnMouseReleased((mouseEvent) -> {
-            getScene().setCursor(Cursor.HAND);
-            isDragging = false;
+                    mouseEvent.consume();
+                });
 
-            mouseEvent.consume();
-        });
+        setOnMouseDragged(
+                (mouseEvent) -> {
+                    if (mouseEvent.isPrimaryButtonDown()) {
+                        double newX = mouseEvent.getX() + dragDelta.x;
+                        double x =
+                                boundCenterCoordinate(
+                                        newX, 0, getParent().getLayoutBounds().getWidth());
+                        setCenterX(x);
 
-        setOnMouseDragged((mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
-                double newX = mouseEvent.getX() + dragDelta.x;
-                double x = boundCenterCoordinate(newX, 0, getParent().getLayoutBounds().getWidth());
-                setCenterX(x);
+                        double newY = mouseEvent.getY() + dragDelta.y;
+                        double y =
+                                boundCenterCoordinate(
+                                        newY, 0, getParent().getLayoutBounds().getHeight());
+                        setCenterY(y);
+                        mouseEvent.consume();
+                    }
+                });
 
-                double newY = mouseEvent.getY() + dragDelta.y;
-                double y = boundCenterCoordinate(newY, 0, getParent().getLayoutBounds().getHeight());
-                setCenterY(y);
-                mouseEvent.consume();
-            }
+        setOnMouseEntered(
+                (mouseEvent) -> {
+                    if (!mouseEvent.isPrimaryButtonDown()) {
+                        getScene().setCursor(Cursor.HAND);
+                    }
+                });
 
-        });
-
-        setOnMouseEntered((mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                getScene().setCursor(Cursor.HAND);
-            }
-
-        });
-
-        setOnMouseExited((mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                getScene().setCursor(Cursor.DEFAULT);
-            }
-
-        });
+        setOnMouseExited(
+                (mouseEvent) -> {
+                    if (!mouseEvent.isPrimaryButtonDown()) {
+                        getScene().setCursor(Cursor.DEFAULT);
+                    }
+                });
     }
 
     private double boundCenterCoordinate(double value, double min, double max) {
@@ -343,7 +352,8 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
         cutLabel();
-        label.xProperty().bind(centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2.0 ));
+        label.xProperty()
+                .bind(centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2.0));
         label.yProperty().bind(centerYProperty().add(label.getLayoutBounds().getHeight() / 2.0));
         attachedLabel.layoutBoundsProperty().addListener(labelBoundsChangeListener);
     }
@@ -358,7 +368,6 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         return underlyingVertex;
     }
 
-     
     @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
@@ -378,35 +387,30 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     public SmartStylableNode getStylableLabel() {
         return this.attachedLabel;
     }
-    
+
     public void setNodeRadius(double size) {
-    	setRadius(size);
+        setRadius(size);
     }
-    
+
     @Override
     public synchronized void setTextSize(int size) {
-    	String labelStyle = "-fx-font: bold " 
-        		+ size 
-        		+ "pt \"sans-serif\";";
-    	attachedLabel.setStyle(labelStyle);
+        String labelStyle = "-fx-font: bold " + size + "pt \"sans-serif\";";
+        attachedLabel.setStyle(labelStyle);
     }
-    
+
     @Override
     public synchronized void updateLabelText() {
         String label = underlyingVertex.element().toString();
         attachedLabel.setText(label);
         cutLabel();
     }
-    
+
     @Override
     public synchronized void updateLabelPosition() {
-    	needlabelUpdate = true;
+        needlabelUpdate = true;
     }
-    
-    /**
-     * Internal representation of a 2D point or vector for quick access to its
-     * attributes.
-     */
+
+    /** Internal representation of a 2D point or vector for quick access to its attributes. */
     private class PointVector {
 
         double x, y;
@@ -416,16 +420,17 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
             this.y = y;
         }
     }
-    
+
     private void cutLabel() {
         if (attachedLabel != null) {
             double nodeWidth = this.getLayoutBounds().getWidth();
             double labelWidth = attachedLabel.getLayoutBounds().getWidth();
-            
+
             if (nodeWidth < labelWidth) {
                 double oneTextSize = labelWidth / attachedLabel.getText().length();
-                attachedLabel.setText(attachedLabel.getText().
-                        substring(0, (int)(nodeWidth/oneTextSize - 1)) + ".");
+                attachedLabel.setText(
+                        attachedLabel.getText().substring(0, (int) (nodeWidth / oneTextSize - 1))
+                                + ".");
             }
         }
     }

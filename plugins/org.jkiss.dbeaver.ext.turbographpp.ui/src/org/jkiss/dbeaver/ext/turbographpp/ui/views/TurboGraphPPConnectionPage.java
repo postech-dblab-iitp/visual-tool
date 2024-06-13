@@ -16,6 +16,10 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.ui.views;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.List;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -43,16 +47,8 @@ import org.jkiss.dbeaver.ui.UIUtils;
 import org.jkiss.dbeaver.ui.dialogs.connection.ConnectionPageWithAuth;
 import org.jkiss.utils.CommonUtils;
 
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.*;
-
-/**
- * TurboGraphConnectionPage
- */
-public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth 
-{
+/** TurboGraphConnectionPage */
+public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth {
     private static final Log log = Log.getLog(TurboGraphPPConnectionPage.class);
 
     // Host/port
@@ -72,30 +68,36 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
 
     private Map<String, List<Control>> propGroupMap = new HashMap<>();
 
-    private static final String GROUP_URL = "url"; //$NON-NLS-1$
-    private static final String GROUP_HOST = "host"; //$NON-NLS-1$
-    private static final String GROUP_SERVER = "server"; //$NON-NLS-1$
-    private static final String GROUP_DB = "db"; //$NON-NLS-1$
-    private static final String GROUP_PATH = "path"; //$NON-NLS-1$
-    private static final String GROUP_LOGIN = "login"; //$NON-NLS-1$
+    private static final String GROUP_URL = "url"; // $NON-NLS-1$
+    private static final String GROUP_HOST = "host"; // $NON-NLS-1$
+    private static final String GROUP_SERVER = "server"; // $NON-NLS-1$
+    private static final String GROUP_DB = "db"; // $NON-NLS-1$
+    private static final String GROUP_PATH = "path"; // $NON-NLS-1$
+    private static final String GROUP_LOGIN = "login"; // $NON-NLS-1$
     private boolean activated;
     private Button createButton;
 
     @Override
-    public void createControl(Composite composite)
-    {
-        ModifyListener textListener = e -> {
-            if (activated) {
-                saveAndUpdate();
-            }
-        };
+    public void createControl(Composite composite) {
+        ModifyListener textListener =
+                e -> {
+                    if (activated) {
+                        saveAndUpdate();
+                    }
+                };
 
         Composite addrGroup = new Composite(composite, SWT.NONE);
         addrGroup.setLayout(new GridLayout(1, false));
         GridData gd = new GridData(GridData.FILL_BOTH);
         addrGroup.setLayoutData(gd);
 
-        settingsGroup = UIUtils.createControlGroup(addrGroup, TurboGraphPPUIMessages.dialog_connection_general_tab, 4, GridData.FILL_HORIZONTAL, 0);
+        settingsGroup =
+                UIUtils.createControlGroup(
+                        addrGroup,
+                        TurboGraphPPUIMessages.dialog_connection_general_tab,
+                        4,
+                        GridData.FILL_HORIZONTAL,
+                        0);
         GridLayout gl = new GridLayout(4, false);
         settingsGroup.setLayout(gl);
 
@@ -135,7 +137,7 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
             gd = new GridData(GridData.CENTER);
             gd.widthHint = UIUtils.getFontHeight(portText) * 7;
             portText.setLayoutData(gd);
-            //portText.addVerifyListener(UIUtils.INTEGER_VERIFY_LISTENER);
+            // portText.addVerifyListener(UIUtils.INTEGER_VERIFY_LISTENER);
             portText.addModifyListener(textListener);
 
             addControlToGroup(GROUP_HOST, hostLabel);
@@ -152,7 +154,7 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
             serverText = new Text(settingsGroup, SWT.BORDER);
             gd = new GridData(GridData.FILL_HORIZONTAL);
             gd.grabExcessHorizontalSpace = true;
-            //gd.widthHint = 270;
+            // gd.widthHint = 270;
             serverText.setLayoutData(gd);
             serverText.addModifyListener(textListener);
 
@@ -171,8 +173,8 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
             dbText = new Text(settingsGroup, SWT.BORDER);
             gd = new GridData(GridData.FILL_HORIZONTAL);
             gd.grabExcessHorizontalSpace = true;
-            //gd.widthHint = 270;
-            //gd.horizontalSpan = 3;
+            // gd.widthHint = 270;
+            // gd.horizontalSpan = 3;
             dbText.setLayoutData(gd);
             dbText.addModifyListener(textListener);
 
@@ -204,52 +206,63 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
             gl.marginWidth = 0;
             buttonsPanel.setLayout(gl);
             gd = new GridData(GridData.HORIZONTAL_ALIGN_END);
-            //gd.widthHint = 150;
+            // gd.widthHint = 150;
             buttonsPanel.setLayoutData(gd);
 
             UIUtils.createDialogButton(
-                buttonsPanel,
-                TurboGraphPPUIMessages.dialog_connection_browse_button,
-                new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent e)
-                    {
-                        if (metaURL.getAvailableProperties().contains(JDBCConstants.PROP_FILE)) {
-                            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SINGLE);
-                            dialog.setFileName(pathText.getText());
-                            dialog.setText(TurboGraphPPUIMessages.dialog_connection_db_file_chooser_text);
-                            String file = dialog.open();
-                            if (file != null) {
-                                pathText.setText(file);
-                            }
-                        } else {
-                            DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.NONE);
-                            final String curPath = pathText.getText();
-                            File curFolder = new File(curPath);
-                            if (curFolder.exists()) {
-                                if (curFolder.isDirectory()) {
-                                    dialog.setFilterPath(curFolder.getAbsolutePath());
-                                } else {
-                                    dialog.setFilterPath(curFolder.getParentFile().getAbsolutePath());
+                    buttonsPanel,
+                    TurboGraphPPUIMessages.dialog_connection_browse_button,
+                    new SelectionAdapter() {
+                        @Override
+                        public void widgetSelected(SelectionEvent e) {
+                            if (metaURL.getAvailableProperties()
+                                    .contains(JDBCConstants.PROP_FILE)) {
+                                FileDialog dialog =
+                                        new FileDialog(getShell(), SWT.OPEN | SWT.SINGLE);
+                                dialog.setFileName(pathText.getText());
+                                dialog.setText(
+                                        TurboGraphPPUIMessages
+                                                .dialog_connection_db_file_chooser_text);
+                                String file = dialog.open();
+                                if (file != null) {
+                                    pathText.setText(file);
+                                }
+                            } else {
+                                DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.NONE);
+                                final String curPath = pathText.getText();
+                                File curFolder = new File(curPath);
+                                if (curFolder.exists()) {
+                                    if (curFolder.isDirectory()) {
+                                        dialog.setFilterPath(curFolder.getAbsolutePath());
+                                    } else {
+                                        dialog.setFilterPath(
+                                                curFolder.getParentFile().getAbsolutePath());
+                                    }
+                                }
+                                dialog.setText(
+                                        TurboGraphPPUIMessages
+                                                .dialog_connection_db_folder_chooser_text);
+                                dialog.setMessage(
+                                        TurboGraphPPUIMessages
+                                                .dialog_connection_db_folder_chooser_message);
+                                String folder = dialog.open();
+                                if (folder != null) {
+                                    pathText.setText(folder);
                                 }
                             }
-                            dialog.setText(TurboGraphPPUIMessages.dialog_connection_db_folder_chooser_text);
-                            dialog.setMessage(TurboGraphPPUIMessages.dialog_connection_db_folder_chooser_message);
-                            String folder = dialog.open();
-                            if (folder != null) {
-                                pathText.setText(folder);
-                            }
                         }
-                    }
-                });
+                    });
 
-            createButton = UIUtils.createDialogButton(buttonsPanel, "Create",
-                new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent e) {
-                        createEmbeddedDatabase();
-                    }
-                });
+            createButton =
+                    UIUtils.createDialogButton(
+                            buttonsPanel,
+                            "Create",
+                            new SelectionAdapter() {
+                                @Override
+                                public void widgetSelected(SelectionEvent e) {
+                                    createEmbeddedDatabase();
+                                }
+                            });
             createButton.setEnabled(false);
 
             addControlToGroup(GROUP_PATH, pathLabel);
@@ -268,9 +281,7 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
         setControl(addrGroup);
     }
 
-    public void createAdvancedSettingsGroup(Composite composite) {
-
-    }
+    public void createAdvancedSettingsGroup(Composite composite) {}
 
     @Override
     protected void updateDriverInfo(DBPDriver driver) {
@@ -282,8 +293,7 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
     }
 
     @Override
-    public boolean isComplete()
-    {
+    public boolean isComplete() {
         if (isCustom) {
             return !CommonUtils.isEmpty(urlText.getText());
         } else {
@@ -291,12 +301,15 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
                 return false;
             }
             for (String prop : metaURL.getRequiredProperties()) {
-                if (
-                    (prop.equals(JDBCConstants.PROP_HOST) && CommonUtils.isEmptyTrimmed(hostText.getText())) ||
-                    (prop.equals(JDBCConstants.PROP_PORT) && CommonUtils.isEmptyTrimmed(portText.getText())) ||
-                    (prop.equals(JDBCConstants.PROP_DATABASE) && CommonUtils.isEmptyTrimmed(dbText.getText())) ||
-                    ((prop.equals(JDBCConstants.PROP_FILE) || prop.equals(JDBCConstants.PROP_FOLDER)) && CommonUtils.isEmptyTrimmed(pathText.getText())))
-                {
+                if ((prop.equals(JDBCConstants.PROP_HOST)
+                                && CommonUtils.isEmptyTrimmed(hostText.getText()))
+                        || (prop.equals(JDBCConstants.PROP_PORT)
+                                && CommonUtils.isEmptyTrimmed(portText.getText()))
+                        || (prop.equals(JDBCConstants.PROP_DATABASE)
+                                && CommonUtils.isEmptyTrimmed(dbText.getText()))
+                        || ((prop.equals(JDBCConstants.PROP_FILE)
+                                        || prop.equals(JDBCConstants.PROP_FOLDER))
+                                && CommonUtils.isEmptyTrimmed(pathText.getText()))) {
                     return false;
                 }
             }
@@ -305,8 +318,7 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
     }
 
     @Override
-    protected boolean isCustomURL()
-    {
+    protected boolean isCustomURL() {
         return isCustom;
     }
 
@@ -329,19 +341,19 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
     }
 
     @Override
-    public void loadSettings()
-    {
+    public void loadSettings() {
         super.loadSettings();
 
         // Load values from new connection info
-        DBPConnectionConfiguration connectionInfo = site.getActiveDataSource().getConnectionConfiguration();
+        DBPConnectionConfiguration connectionInfo =
+                site.getActiveDataSource().getConnectionConfiguration();
         this.parseSampleURL(site.getDriver());
         if (!isCustom) {
             if (hostText != null) {
                 if (!CommonUtils.isEmpty(connectionInfo.getHostName())) {
                     hostText.setText(CommonUtils.notEmpty(connectionInfo.getHostName()));
                 } else {
-                    hostText.setText("localhost"); //$NON-NLS-1$
+                    hostText.setText("localhost"); // $NON-NLS-1$
                 }
             }
             if (portText != null) {
@@ -369,11 +381,11 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
                 pathText.setText(CommonUtils.notEmpty(connectionInfo.getDatabaseName()));
             }
         } else {
-            hostText.setText(""); //$NON-NLS-1$
-            portText.setText(""); //$NON-NLS-1$
-            serverText.setText(""); //$NON-NLS-1$
-            dbText.setText(""); //$NON-NLS-1$
-            pathText.setText(""); //$NON-NLS-1$
+            hostText.setText(""); // $NON-NLS-1$
+            portText.setText(""); // $NON-NLS-1$
+            serverText.setText(""); // $NON-NLS-1$
+            dbText.setText(""); // $NON-NLS-1$
+            pathText.setText(""); // $NON-NLS-1$
         }
 
         if (urlText != null) {
@@ -387,34 +399,34 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
             if (connectionInfo.getUrl() != null) {
                 urlText.setText(CommonUtils.notEmpty(connectionInfo.getUrl()));
             } else {
-                urlText.setText(""); //$NON-NLS-1$
+                urlText.setText(""); // $NON-NLS-1$
             }
         }
 
         activated = true;
 
-        UIUtils.asyncExec(() -> {
-            // Set first control
-            if (CommonUtils.isEmpty(site.getDriver().getSampleURL())) {
-                urlText.setFocus();
-            } else  if (hostText != null && hostText.isVisible()) {
-                hostText.setFocus();
-            } else  if (serverText != null && serverText.isVisible()) {
-                serverText.setFocus();
-            } else  if (dbText != null && dbText.isVisible()) {
-                dbText.setFocus();
-            } else  if (pathText != null && pathText.isVisible()) {
-                pathText.setFocus();
-            }
-        });
-
+        UIUtils.asyncExec(
+                () -> {
+                    // Set first control
+                    if (CommonUtils.isEmpty(site.getDriver().getSampleURL())) {
+                        urlText.setFocus();
+                    } else if (hostText != null && hostText.isVisible()) {
+                        hostText.setFocus();
+                    } else if (serverText != null && serverText.isVisible()) {
+                        serverText.setFocus();
+                    } else if (dbText != null && dbText.isVisible()) {
+                        dbText.setFocus();
+                    } else if (pathText != null && pathText.isVisible()) {
+                        pathText.setFocus();
+                    }
+                });
     }
 
     @Override
-    public void saveSettings(DBPDataSourceContainer dataSource)
-    {
+    public void saveSettings(DBPDataSourceContainer dataSource) {
         DBPConnectionConfiguration connectionInfo = dataSource.getConnectionConfiguration();
-        final Set<String> properties = metaURL == null ? Collections.emptySet() : metaURL.getAvailableProperties();
+        final Set<String> properties =
+                metaURL == null ? Collections.emptySet() : metaURL.getAvailableProperties();
 
         if (hostText != null && properties.contains(JDBCConstants.PROP_HOST)) {
             connectionInfo.setHostName(hostText.getText().trim());
@@ -428,7 +440,9 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
         if (dbText != null && properties.contains(JDBCConstants.PROP_DATABASE)) {
             connectionInfo.setDatabaseName(dbText.getText().trim());
         }
-        if (pathText != null && (properties.contains(JDBCConstants.PROP_FOLDER) || properties.contains(JDBCConstants.PROP_FILE))) {
+        if (pathText != null
+                && (properties.contains(JDBCConstants.PROP_FOLDER)
+                        || properties.contains(JDBCConstants.PROP_FILE))) {
             connectionInfo.setDatabaseName(pathText.getText().trim());
         }
 
@@ -445,8 +459,7 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
         }
     }
 
-    private void parseSampleURL(DBPDriver driver)
-    {
+    private void parseSampleURL(DBPDriver driver) {
         metaURL = null;
 
         if (!CommonUtils.isEmpty(driver.getSampleURL())) {
@@ -462,7 +475,10 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
             showControlGroup(GROUP_HOST, properties.contains(JDBCConstants.PROP_HOST));
             showControlGroup(GROUP_SERVER, properties.contains(JDBCConstants.PROP_SERVER));
             showControlGroup(GROUP_DB, properties.contains(JDBCConstants.PROP_DATABASE));
-            showControlGroup(GROUP_PATH, properties.contains(JDBCConstants.PROP_FOLDER) || properties.contains(JDBCConstants.PROP_FILE));
+            showControlGroup(
+                    GROUP_PATH,
+                    properties.contains(JDBCConstants.PROP_FOLDER)
+                            || properties.contains(JDBCConstants.PROP_FILE));
         } else {
             isCustom = true;
             showControlGroup(GROUP_HOST, false);
@@ -484,19 +500,26 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
             return;
         }
         // Enable ""Create" button
-        String paramCreate = CommonUtils.toString(driver.getDriverParameter(GenericConstants.PARAM_CREATE_URL_PARAM));
-        createButton.setEnabled(!CommonUtils.isEmpty(paramCreate) && !CommonUtils.isEmpty(pathText.getText()));
+        String paramCreate =
+                CommonUtils.toString(
+                        driver.getDriverParameter(GenericConstants.PARAM_CREATE_URL_PARAM));
+        createButton.setEnabled(
+                !CommonUtils.isEmpty(paramCreate) && !CommonUtils.isEmpty(pathText.getText()));
     }
 
     private void createEmbeddedDatabase() {
-        String paramCreate = CommonUtils.toString(site.getDriver().getDriverParameter(GenericConstants.PARAM_CREATE_URL_PARAM));
+        String paramCreate =
+                CommonUtils.toString(
+                        site.getDriver()
+                                .getDriverParameter(GenericConstants.PARAM_CREATE_URL_PARAM));
 
         DataSourceDescriptor dataSource = (DataSourceDescriptor) site.getActiveDataSource();
-        final DataSourceDescriptor testDataSource = new DataSourceDescriptor(
-            site.getDataSourceRegistry(),
-            dataSource.getId(),
-            dataSource.getDriver(),
-            new DBPConnectionConfiguration(dataSource.getConnectionConfiguration()));
+        final DataSourceDescriptor testDataSource =
+                new DataSourceDescriptor(
+                        site.getDataSourceRegistry(),
+                        dataSource.getId(),
+                        dataSource.getDriver(),
+                        new DBPConnectionConfiguration(dataSource.getConnectionConfiguration()));
 
         saveSettings(testDataSource);
         DBPConnectionConfiguration cfg = testDataSource.getConnectionConfiguration();
@@ -504,28 +527,39 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
         String databaseName = cfg.getDatabaseName();
         testDataSource.setName(databaseName);
 
-        if (!UIUtils.confirmAction(getShell(), "Create Database", "Are you sure you want to create database '" + databaseName + "'?")) {
+        if (!UIUtils.confirmAction(
+                getShell(),
+                "Create Database",
+                "Are you sure you want to create database '" + databaseName + "'?")) {
             testDataSource.dispose();
             return;
         }
 
         try {
-            site.getRunnableContext().run(true, true, monitor -> {
-                try {
-                    createEmbeddedDatabase(monitor, testDataSource);
-                } catch (DBException e1) {
-                    throw new InvocationTargetException(e1);
-                }
-            });
-            MessageDialog.openInformation(getShell(), "Database Create", "Database '" + databaseName + "' created!");
+            site.getRunnableContext()
+                    .run(
+                            true,
+                            true,
+                            monitor -> {
+                                try {
+                                    createEmbeddedDatabase(monitor, testDataSource);
+                                } catch (DBException e1) {
+                                    throw new InvocationTargetException(e1);
+                                }
+                            });
+            MessageDialog.openInformation(
+                    getShell(), "Database Create", "Database '" + databaseName + "' created!");
         } catch (InvocationTargetException e1) {
-            DBWorkbench.getPlatformUI().showError("Create database", "Error creating database", e1.getTargetException());
+            DBWorkbench.getPlatformUI()
+                    .showError(
+                            "Create database", "Error creating database", e1.getTargetException());
         } catch (InterruptedException e1) {
             // Just ignore
         }
     }
 
-    private void createEmbeddedDatabase(DBRProgressMonitor monitor, DataSourceDescriptor testDataSource) throws DBException {
+    private void createEmbeddedDatabase(
+            DBRProgressMonitor monitor, DataSourceDescriptor testDataSource) throws DBException {
         try {
             // Connect and disconnect immediately
             testDataSource.connect(monitor, true, true);
@@ -536,16 +570,14 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
         }
     }
 
-    private void saveAndUpdate()
-    {
+    private void saveAndUpdate() {
         // Save settings to update URL
         saveSettings(site.getActiveDataSource());
         // Update buttons
         site.updateButtons();
     }
 
-    private void showControlGroup(String group, boolean show)
-    {
+    private void showControlGroup(String group, boolean show) {
         List<Control> controlList = propGroupMap.get(group);
         if (controlList != null) {
             for (Control control : controlList) {
@@ -555,18 +587,15 @@ public class TurboGraphPPConnectionPage extends ConnectionPageWithAuth
                     control.setLayoutData(gd);
                 }
                 if (gd instanceof GridData) {
-                    ((GridData)gd).exclude = !show;
+                    ((GridData) gd).exclude = !show;
                 }
                 control.setVisible(show);
             }
         }
     }
 
-    private void addControlToGroup(String group, Control control)
-    {
-        List<Control> controlList = propGroupMap.computeIfAbsent(
-            group,
-            k -> new ArrayList<>());
+    private void addControlToGroup(String group, Control control) {
+        List<Control> controlList = propGroupMap.computeIfAbsent(group, k -> new ArrayList<>());
         controlList.add(control);
     }
 }

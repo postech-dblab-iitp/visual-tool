@@ -27,7 +27,7 @@ class TurboGraphPPDataSourceInfo extends JDBCDataSourceInfo {
     public TurboGraphPPDataSourceInfo(JDBCDatabaseMetaData metaData) {
         super(metaData);
     }
-    
+
     @Override
     public DBSObjectType[] getSupportedObjectTypes() {
         return new DBSObjectType[] {

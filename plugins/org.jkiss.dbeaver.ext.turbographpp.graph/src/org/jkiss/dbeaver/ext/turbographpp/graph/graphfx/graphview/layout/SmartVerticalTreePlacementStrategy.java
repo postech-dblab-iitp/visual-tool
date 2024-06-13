@@ -30,7 +30,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;

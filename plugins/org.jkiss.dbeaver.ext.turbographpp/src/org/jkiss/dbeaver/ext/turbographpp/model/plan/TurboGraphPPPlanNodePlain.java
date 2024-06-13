@@ -1,5 +1,14 @@
 package org.jkiss.dbeaver.ext.turbographpp.model.plan;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.model.exec.plan.DBCPlanCostNode;
 import org.jkiss.dbeaver.model.impl.PropertyDescriptor;
@@ -9,18 +18,8 @@ import org.jkiss.dbeaver.model.preferences.DBPPropertyDescriptor;
 import org.jkiss.dbeaver.model.preferences.DBPPropertySource;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode implements DBCPlanCostNode, DBPPropertySource{
+public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode
+        implements DBCPlanCostNode, DBPPropertySource {
 
     private TurboGraphPPPlanNodePlain parent;
     private String name;
@@ -28,7 +27,8 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
     private Map<String, String> nodeProps = new LinkedHashMap<>();
     private List<TurboGraphPPPlanNodePlain> nested = new ArrayList<>();
 
-    public TurboGraphPPPlanNodePlain(TurboGraphPPPlanNodePlain parent, String name, JsonObject object) {
+    public TurboGraphPPPlanNodePlain(
+            TurboGraphPPPlanNodePlain parent, String name, JsonObject object) {
         this.parent = parent;
         this.name = name;
         this.object = object;
@@ -36,7 +36,8 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
         parseObject(name, object);
     }
 
-    public TurboGraphPPPlanNodePlain(TurboGraphPPPlanNodePlain parent,  Map<String, String> attributes) {
+    public TurboGraphPPPlanNodePlain(
+            TurboGraphPPPlanNodePlain parent, Map<String, String> attributes) {
         this.parent = parent;
         this.nodeProps.putAll(attributes);
     }
@@ -51,9 +52,9 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
             JsonElement value = prop.getValue();
             if (value instanceof JsonPrimitive) {
                 if ("Node Type".equals(propName)) {
-                    this.name =  String.valueOf(value);
+                    this.name = String.valueOf(value);
                     nodeProps.put(propName, value.toString());
-                } 
+                }
             } else if (value instanceof JsonArray) {
                 boolean isProp = false;
                 int itemIndex = 0;
@@ -79,9 +80,7 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
         if (nested == null) {
             nested = new ArrayList<>();
         }
-        nested.add(
-            new TurboGraphPPPlanNodePlain(this, name, value)
-        );
+        nested.add(new TurboGraphPPPlanNodePlain(this, name, value));
     }
 
     @Property(order = 0, viewable = true)
@@ -93,16 +92,16 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
     @Property(order = 1, viewable = true)
     @Override
     public String getNodeName() {
-//        Object nodeName = nodeProps.get("node_name");
-//        return nodeName == null ? null : String.valueOf(nodeName);
+        //        Object nodeName = nodeProps.get("node_name");
+        //        return nodeName == null ? null : String.valueOf(nodeName);
         return "";
     }
 
     @Property(order = 10, viewable = true)
     @Override
     public Number getNodeCost() {
-//        Object readCost = nodeProps.get("cost");
-//        return CommonUtils.toDouble(readCost);
+        //        Object readCost = nodeProps.get("cost");
+        //        return CommonUtils.toDouble(readCost);
         return 0;
     }
 
@@ -119,8 +118,8 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
     @Property(order = 11, viewable = true)
     @Override
     public Number getNodeRowCount() {
-//        Object rowCount = nodeProps.get("rows");
-//        return rowCount == null ? null : CommonUtils.toLong(rowCount);
+        //        Object rowCount = nodeProps.get("rows");
+        //        return rowCount == null ? null : CommonUtils.toLong(rowCount);
         return 0;
     }
 
@@ -156,16 +155,17 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
         DBPPropertyDescriptor[] props = new DBPPropertyDescriptor[nodeProps.size()];
         int index = 0;
         for (Map.Entry<String, String> attr : nodeProps.entrySet()) {
-            props[index++] = new PropertyDescriptor(
-                "Details",
-                attr.getKey(),
-                attr.getKey(),
-                null,
-                String.class,
-                false,
-                null,
-                null,
-                false);
+            props[index++] =
+                    new PropertyDescriptor(
+                            "Details",
+                            attr.getKey(),
+                            attr.getKey(),
+                            null,
+                            String.class,
+                            false,
+                            null,
+                            null,
+                            false);
         }
         return props;
     }
@@ -186,18 +186,11 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode impleme
     }
 
     @Override
-    public void resetPropertyValue(@Nullable DBRProgressMonitor monitor, String id) {
-
-    }
+    public void resetPropertyValue(@Nullable DBRProgressMonitor monitor, String id) {}
 
     @Override
-    public void resetPropertyValueToDefault(String id) {
-
-    }
+    public void resetPropertyValueToDefault(String id) {}
 
     @Override
-    public void setPropertyValue(@Nullable DBRProgressMonitor monitor, String id, Object value) {
-
-    }
-
+    public void setPropertyValue(@Nullable DBRProgressMonitor monitor, String id, Object value) {}
 }

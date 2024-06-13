@@ -19,7 +19,6 @@ package org.jkiss.dbeaver.ext.turbographpp.model;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.model.DBPIdentifierCase;

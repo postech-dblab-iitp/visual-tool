@@ -16,6 +16,7 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
+import java.util.*;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.DBException;
@@ -47,9 +48,9 @@ import org.jkiss.dbeaver.model.sql.SQLUtils;
 import org.jkiss.dbeaver.model.struct.DBSDataContainer;
 import org.jkiss.dbeaver.model.struct.DBSObject;
 
-import java.util.*;
-
-public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSource, TurboGraphPPStructContainer> implements DBPRefreshableObject, DBPSystemObject, DBPScriptObject {
+public abstract class TurboGraphPPTableBase
+        extends JDBCTable<TurboGraphPPDataSource, TurboGraphPPStructContainer>
+        implements DBPRefreshableObject, DBPSystemObject, DBPScriptObject {
     private static final Log log = Log.getLog(TurboGraphPPTableBase.class);
 
     private String tableType;
@@ -57,10 +58,10 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
     private Long rowCount;
 
     public TurboGraphPPTableBase(
-        TurboGraphPPStructContainer container,
-        @Nullable String tableName,
-        @Nullable String tableType,
-        @Nullable JDBCResultSet dbResult) {
+            TurboGraphPPStructContainer container,
+            @Nullable String tableName,
+            @Nullable String tableType,
+            @Nullable JDBCResultSet dbResult) {
         super(container, tableName, dbResult != null);
         this.tableType = tableType;
         if (this.tableType == null) {
@@ -69,7 +70,6 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
 
         final TurboGraphPPMetaModel metaModel = container.getDataSource().getMetaModel();
         this.isSystem = metaModel.isSystemTable(this);
-
     }
 
     @Override
@@ -90,15 +90,13 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
     @NotNull
     @Override
     public String getFullyQualifiedName(DBPEvaluationContext context) {
-        if (isView() && context == DBPEvaluationContext.DDL && !getDataSource().getMetaModel().useCatalogInObjectNames()) {
+        if (isView()
+                && context == DBPEvaluationContext.DDL
+                && !getDataSource().getMetaModel().useCatalogInObjectNames()) {
             // [SQL Server] workaround. You can't use catalog name in operations with views.
-            return DBUtils.getFullQualifiedName(
-                getDataSource(),
-                this);
+            return DBUtils.getFullQualifiedName(getDataSource(), this);
         }
-        return DBUtils.getFullQualifiedName(
-            getDataSource(),
-            this);
+        return DBUtils.getFullQualifiedName(getDataSource(), this);
     }
 
     @Override
@@ -115,19 +113,19 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
         return tableType;
     }
 
-
-
     @Nullable
     @Override
-    public List<? extends TurboGraphPPTableColumn> getAttributes(@NotNull DBRProgressMonitor monitor)
-        throws DBException {
+    public List<? extends TurboGraphPPTableColumn> getAttributes(
+            @NotNull DBRProgressMonitor monitor) throws DBException {
         return this.getContainer().getTableCache().getChildren(monitor, getContainer(), this);
     }
 
     @Override
-    public TurboGraphPPTableColumn getAttribute(@NotNull DBRProgressMonitor monitor, @NotNull String attributeName)
-        throws DBException {
-        return this.getContainer().getTableCache().getChild(monitor, getContainer(), this, attributeName);
+    public TurboGraphPPTableColumn getAttribute(
+            @NotNull DBRProgressMonitor monitor, @NotNull String attributeName) throws DBException {
+        return this.getContainer()
+                .getTableCache()
+                .getChild(monitor, getContainer(), this, attributeName);
     }
 
     public void addAttribute(TurboGraphPPTableColumn column) {
@@ -146,7 +144,12 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
 
     @Nullable
     @Override
-    @Property(viewable = true, editableExpr = "object.dataSource.metaModel.tableCommentEditable", updatableExpr = "object.dataSource.metaModel.tableCommentEditable", length = PropertyLength.MULTILINE, order = 100)
+    @Property(
+            viewable = true,
+            editableExpr = "object.dataSource.metaModel.tableCommentEditable",
+            updatableExpr = "object.dataSource.metaModel.tableCommentEditable",
+            length = PropertyLength.MULTILINE,
+            order = 100)
     public String getDescription() {
         return "";
     }
@@ -156,7 +159,8 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
         return this.getContainer().getTableCache().refreshObject(monitor, getContainer(), this);
     }
 
-    // Comment row count calculation - it works too long and takes a lot of resources without serious reason
+    // Comment row count calculation - it works too long and takes a lot of resources without
+    // serious reason
     @Nullable
     @Property(viewable = false, expensive = true, order = 5, category = DBConstants.CAT_STATISTICS)
     public Long getRowCount(DBRProgressMonitor monitor) {
@@ -167,21 +171,30 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
             // Do not count rows for views
             return null;
         }
-        if (Boolean.FALSE.equals(getDataSource().getContainer().getDriver().getDriverParameter(GenericConstants.PARAM_SUPPORTS_SELECT_COUNT))) {
+        if (Boolean.FALSE.equals(
+                getDataSource()
+                        .getContainer()
+                        .getDriver()
+                        .getDriverParameter(GenericConstants.PARAM_SUPPORTS_SELECT_COUNT))) {
             // Select count not supported
             return null;
         }
         if (rowCount == null) {
             // Query row count
             try (DBCSession session = DBUtils.openUtilSession(monitor, this, "Read row count")) {
-                rowCount = countData(
-                    new AbstractExecutionSource(this, session.getExecutionContext(), this), session, null, DBSDataContainer.FLAG_NONE);
+                rowCount =
+                        countData(
+                                new AbstractExecutionSource(
+                                        this, session.getExecutionContext(), this),
+                                session,
+                                null,
+                                DBSDataContainer.FLAG_NONE);
             } catch (DBException e) {
                 // do not throw this error - row count is optional info and some providers may fail
                 log.debug("Can't fetch row count: " + e.getMessage());
-//                if (indexes != null) {
-//                    rowCount = getRowCountFromIndexes(monitor);
-//                }
+                //                if (indexes != null) {
+                //                    rowCount = getRowCountFromIndexes(monitor);
+                //                }
             }
         }
         if (rowCount == null) {
@@ -193,9 +206,16 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
 
     @NotNull
     @Override
-    public DBCStatistics readData(@NotNull DBCExecutionSource source, @NotNull DBCSession session, @NotNull DBDDataReceiver dataReceiver, @Nullable DBDDataFilter dataFilter, long firstRow, long maxRows, long flags, int fetchSize)
-        throws DBCException
-    {
+    public DBCStatistics readData(
+            @NotNull DBCExecutionSource source,
+            @NotNull DBCSession session,
+            @NotNull DBDDataReceiver dataReceiver,
+            @Nullable DBDDataFilter dataFilter,
+            long firstRow,
+            long maxRows,
+            long flags,
+            int fetchSize)
+            throws DBCException {
         DBCStatistics statistics = new DBCStatistics();
         boolean hasLimits = firstRow >= 0 && maxRows > 0;
 
@@ -207,8 +227,8 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
             log.warn(e);
         }
 
-        DBDPseudoAttribute rowIdAttribute = (flags & FLAG_READ_PSEUDO) != 0 ?
-            DBUtils.getRowIdAttribute(this) : null;
+        DBDPseudoAttribute rowIdAttribute =
+                (flags & FLAG_READ_PSEUDO) != 0 ? DBUtils.getRowIdAttribute(this) : null;
 
         String tableAlias = null;
 
@@ -229,14 +249,9 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
 
         monitor.subTask(ModelMessages.model_jdbc_fetch_table_data);
 
-        try (DBCStatement dbStat = DBUtils.makeStatement(
-            source,
-            session,
-            DBCStatementType.SCRIPT,
-            sqlQuery,
-            firstRow,
-            maxRows))
-        {
+        try (DBCStatement dbStat =
+                DBUtils.makeStatement(
+                        source, session, DBCStatementType.SCRIPT, sqlQuery, firstRow, maxRows)) {
             if (monitor.isCanceled()) {
                 return statistics;
             }
@@ -253,9 +268,11 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
                     try {
                         dataReceiver.fetchStart(session, dbResult, firstRow, maxRows);
 
-                        DBFetchProgress fetchProgress = new DBFetchProgress(session.getProgressMonitor());
+                        DBFetchProgress fetchProgress =
+                                new DBFetchProgress(session.getProgressMonitor());
                         while (dbResult.nextRow()) {
-                            if (fetchProgress.isCanceled() || (hasLimits && fetchProgress.isMaxRowsFetched(maxRows))) {
+                            if (fetchProgress.isCanceled()
+                                    || (hasLimits && fetchProgress.isMaxRowsFetched(maxRows))) {
                                 // Fetch not more than max rows
                                 break;
                             }
@@ -268,13 +285,13 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
                         try {
                             dbResult.close();
                         } catch (Throwable e) {
-                            log.error("Error closing result set", e); //$NON-NLS-1$
+                            log.error("Error closing result set", e); // $NON-NLS-1$
                         }
                         // Then - signal that fetch was ended
                         try {
                             dataReceiver.fetchEnd(session, dbResult);
                         } catch (Throwable e) {
-                            log.error("Error while finishing result set fetch", e); //$NON-NLS-1$
+                            log.error("Error while finishing result set fetch", e); // $NON-NLS-1$
                         }
                     }
                 }
@@ -284,9 +301,8 @@ public abstract class TurboGraphPPTableBase extends JDBCTable<TurboGraphPPDataSo
             dataReceiver.close();
         }
     }
-    
+
     public boolean isEdge() {
         return isView() ? true : false;
     }
-    
 }

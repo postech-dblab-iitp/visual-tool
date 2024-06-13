@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
+import javafx.geometry.Point2D;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
@@ -35,8 +35,6 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphPane
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.SmartGraphVertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.UtilitiesPoint2D;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview.type.DoublePoint;
-
-import javafx.geometry.Point2D;
 
 public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrategy {
 
@@ -59,10 +57,8 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
         paneWidth = width;
         paneHeight = height;
 
-        HashSet<SmartGraphVertex<V>> visitedVertexs =
-                new HashSet<SmartGraphVertex<V>>();
-        HashSet<SmartGraphVertex<V>> notVisitedVertexs =
-                new HashSet<SmartGraphVertex<V>>();
+        HashSet<SmartGraphVertex<V>> visitedVertexs = new HashSet<SmartGraphVertex<V>>();
+        HashSet<SmartGraphVertex<V>> notVisitedVertexs = new HashSet<SmartGraphVertex<V>>();
         SmartGraphVertex<V> leaderVertex = null;
         HashSet<SmartGraphVertex<V>> groupVertexs = new HashSet<SmartGraphVertex<V>>();
 
@@ -80,74 +76,85 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
                     continue;
                 }
                 vertex = targetVertex;
-                
+
                 Iterable<FxEdge<E, V>> outBoundEdges =
                         graph.outboundEdges(vertex.getUnderlyingVertex());
-                
+
                 if (((Collection<?>) outBoundEdges).size() > 0) {
                     if (!visitedVertexs.contains(vertex)) {
                         leaderVertex = vertex;
                         groupVertexs.clear();
-                        outBoundPlace(smartGraphPanel, visitedVertexs, groupVertexs, vertex, leaderVertex, true);
+                        outBoundPlace(
+                                smartGraphPanel,
+                                visitedVertexs,
+                                groupVertexs,
+                                vertex,
+                                leaderVertex,
+                                true);
                         drawGroup(smartGraphPanel, leaderVertex, groupVertexs);
                     }
                 } else {
                     notVisitedVertexs.add(vertex);
                 }
-            } else { //inbound
+            } else { // inbound
                 targetVertex = searchChildParent(smartGraphPanel, graph, vertex, vertex, null);
-                
-                    if (targetVertex != null) {
-                        if (targetVertex.equals(vertex)) {
-                            notVisitedVertexs.add(vertex);
-                            continue;
-                        }
-                        vertex = targetVertex;
-                    }
-                    
-                    Iterable<FxEdge<E, V>> inBoundEdges =
-                            graph.incomingEdges(vertex.getUnderlyingVertex());
-                    
-                    if (((Collection<?>) inBoundEdges).size() > 0) {
-                        if (!visitedVertexs.contains(vertex)) {
-                            leaderVertex = vertex;
-                            groupVertexs.clear();
-                            inBoundPlace(smartGraphPanel, visitedVertexs, groupVertexs, vertex, leaderVertex, true);
-                            drawGroup(smartGraphPanel, leaderVertex, groupVertexs);
-                        }
-                    } else {
-                        notVisitedVertexs.add(vertex);
-                    }
-                    
-            } 
 
+                if (targetVertex != null) {
+                    if (targetVertex.equals(vertex)) {
+                        notVisitedVertexs.add(vertex);
+                        continue;
+                    }
+                    vertex = targetVertex;
+                }
+
+                Iterable<FxEdge<E, V>> inBoundEdges =
+                        graph.incomingEdges(vertex.getUnderlyingVertex());
+
+                if (((Collection<?>) inBoundEdges).size() > 0) {
+                    if (!visitedVertexs.contains(vertex)) {
+                        leaderVertex = vertex;
+                        groupVertexs.clear();
+                        inBoundPlace(
+                                smartGraphPanel,
+                                visitedVertexs,
+                                groupVertexs,
+                                vertex,
+                                leaderVertex,
+                                true);
+                        drawGroup(smartGraphPanel, leaderVertex, groupVertexs);
+                    }
+                } else {
+                    notVisitedVertexs.add(vertex);
+                }
+            }
         }
 
         drawGroup(smartGraphPanel, null, notVisitedVertexs);
-        
-//        boolean first = true;
-//        
-//        for (SmartGraphVertex<V> vertex : notVisitedVertexs) {
-//            if (!visitedVertexs.contains(vertex)) {
-//                visitedVertexs.add(vertex);
-//            } else {
-//                System.out.println("Debug CHECK visitedlist and not visited");
-//            }
-//        }
+
+        //        boolean first = true;
+        //
+        //        for (SmartGraphVertex<V> vertex : notVisitedVertexs) {
+        //            if (!visitedVertexs.contains(vertex)) {
+        //                visitedVertexs.add(vertex);
+        //            } else {
+        //                System.out.println("Debug CHECK visitedlist and not visited");
+        //            }
+        //        }
     }
 
     protected <V, E> void outBoundPlace(
             SmartGraphPanel<V, E> smartGraphPanel,
             HashSet<SmartGraphVertex<V>> visitedVertexs,
             HashSet<SmartGraphVertex<V>> groupVertexs,
-            SmartGraphVertex<V> vertex, 
-            SmartGraphVertex<V> leaderVertex, boolean first) {
+            SmartGraphVertex<V> vertex,
+            SmartGraphVertex<V> leaderVertex,
+            boolean first) {
         Graph<V, E> graph = smartGraphPanel.getGraph();
-        
+
         if (visitedVertexs.contains(vertex) || groupVertexs.contains(vertex)) {
             return;
         }
-        
+
         if (!first) {
             if (leaderVertex != null && leaderVertex.equals(vertex)) {
                 return;
@@ -160,14 +167,20 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
             Vertex<V> childV = (Vertex<V>) edge.vertices()[1];
             SmartGraphVertex<V> smartChildV = smartGraphPanel.getGraphVertex(childV);
             if (!visitedVertexs.contains(smartChildV)) {
-                outBoundPlace(smartGraphPanel, visitedVertexs, groupVertexs, smartChildV, leaderVertex, false);
+                outBoundPlace(
+                        smartGraphPanel,
+                        visitedVertexs,
+                        groupVertexs,
+                        smartChildV,
+                        leaderVertex,
+                        false);
             }
         }
-        
+
         if (groupVertexs.size() > 1) {
             visitedVertexs.addAll(groupVertexs);
         }
-        
+
         return;
     }
 
@@ -175,14 +188,15 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
             SmartGraphPanel<V, E> smartGraphPanel,
             HashSet<SmartGraphVertex<V>> visitedVertexs,
             HashSet<SmartGraphVertex<V>> groupVertexs,
-            SmartGraphVertex<V> vertex, 
-            SmartGraphVertex<V> leaderVertex, boolean first) {
+            SmartGraphVertex<V> vertex,
+            SmartGraphVertex<V> leaderVertex,
+            boolean first) {
         Graph<V, E> graph = smartGraphPanel.getGraph();
-        
+
         if (visitedVertexs.contains(vertex) || groupVertexs.contains(vertex)) {
             return;
         }
-        
+
         if (!first) {
             if (leaderVertex != null && leaderVertex.equals(vertex)) {
                 return;
@@ -195,17 +209,23 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
             Vertex<V> childV = (Vertex<V>) edge.vertices()[0];
             SmartGraphVertex<V> smartChildV = smartGraphPanel.getGraphVertex(childV);
             if (!visitedVertexs.contains(smartChildV)) {
-                inBoundPlace(smartGraphPanel, visitedVertexs, groupVertexs, smartChildV, leaderVertex, false);
+                inBoundPlace(
+                        smartGraphPanel,
+                        visitedVertexs,
+                        groupVertexs,
+                        smartChildV,
+                        leaderVertex,
+                        false);
             }
         }
-        
+
         if (groupVertexs.size() > 1) {
             visitedVertexs.addAll(groupVertexs);
         }
-        
+
         return;
     }
-    
+
     protected <V> Collection<SmartGraphVertex<V>> toList(
             Collection<? extends SmartGraphVertex<V>> vertices) {
 
@@ -263,7 +283,7 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
 
         return smartGrandParentV;
     }
-    
+
     protected <V, E> SmartGraphVertex<V> searchGrandParent(
             SmartGraphPanel<V, E> smartGraphPanel,
             Graph<V, E> graph,
@@ -313,8 +333,7 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
         return smartGrandParentV;
     }
 
-    protected <V, E> void changePaneArea(
-            SmartGraphPanel<V, E> smartGraphPanel, DoublePoint size) {
+    protected <V, E> void changePaneArea(SmartGraphPanel<V, E> smartGraphPanel, DoublePoint size) {
         if (size.getX() > paneWidth) {
             paneWidth = size.getX();
         }
@@ -333,7 +352,7 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
             HashSet<SmartGraphVertex<V>> groupVertexs) {
 
         SmartGraphVertex<V> tempVertex = null;
-    
+
         if (groupVertexs.size() > 0) {
             for (SmartGraphVertex<V> temp : groupVertexs) {
                 tempVertex = temp;
@@ -342,7 +361,7 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
         } else {
             return;
         }
-    
+
         int N = groupVertexs.size();
         double PI = 3.141592;
         double circumference = tempVertex.getRadius() * 2 * N;
@@ -355,10 +374,10 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
         if (circleHeight < 300) {
             circleHeight = 300;
         }
-        
+
         double areaWidth = circleWidth * 1.2;
         double areaHeight = circleHeight * 1.2;
-        
+
         if (drawMaxSize.x == 0 && drawMaxSize.y == 0) {
             drawMaxSize.setPoint(areaWidth, areaHeight);
             changePaneArea(smartGraphPanel, drawMaxSize);
@@ -371,15 +390,15 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
                     drawingHeight = areaHeight;
                 }
                 drawingWidth = drawingWidth + areaWidth;
-                
+
                 drawMaxSize.setX(drawingWidth);
                 drawMaxSize.setY(drawingHeight);
                 changePaneArea(smartGraphPanel, drawMaxSize);
-                
+
             } else {
                 incrementSize.setX(80);
                 incrementSize.setY(drawingHeight);
-                
+
                 drawingWidth = areaWidth;
                 drawingHeight = drawingHeight + areaHeight;
 
@@ -391,12 +410,15 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
             }
         }
 
-        Point2D center = new Point2D(circleWidth / 2 + incrementSize.getX(), circleHeight / 2 + incrementSize.getY());
+        Point2D center =
+                new Point2D(
+                        circleWidth / 2 + incrementSize.getX(),
+                        circleHeight / 2 + incrementSize.getY());
         double angleIncrement = -360f / N;
 
         boolean first = true;
         Point2D p = null;
-        
+
         for (SmartGraphVertex<V> vertex : toList(groupVertexs)) {
 
             if (first) {
@@ -422,7 +444,7 @@ public class SmartCircularGroupPlacementStrategy implements SmartPlacementStrate
 
             vertex.setPosition(p.getX(), p.getY());
         }
-        
+
         return;
     }
 }

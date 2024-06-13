@@ -26,19 +26,17 @@ package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 import javafx.scene.text.Text;
 
 /**
- * A label contains text and can be attached to any {@link SmartLabelledNode}.
- * <br>
- * This class extends from {@link Text} and is allowed any corresponding
- * css formatting.
- * 
+ * A label contains text and can be attached to any {@link SmartLabelledNode}. <br>
+ * This class extends from {@link Text} and is allowed any corresponding css formatting.
+ *
  * @author Bruno Silva
  */
 public class SmartLabel extends Text implements SmartStylableNode {
-    
+
     private final SmartStyleProxy styleProxy;
-    
+
     public SmartLabel() {
-        this(0,0,"");
+        this(0, 0, "");
     }
 
     public SmartLabel(String text) {
@@ -49,7 +47,7 @@ public class SmartLabel extends Text implements SmartStylableNode {
         super(x, y, text);
         styleProxy = new SmartStyleProxy(this);
     }
-    
+
     @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
@@ -64,5 +62,4 @@ public class SmartLabel extends Text implements SmartStylableNode {
     public boolean removeStyleClass(String cssClass) {
         return styleProxy.removeStyleClass(cssClass);
     }
-    
 }

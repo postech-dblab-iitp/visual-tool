@@ -75,6 +75,5 @@ public class GraphMessages extends NLS {
         NLS.initializeMessages(BUNDLE_NAME, GraphMessages.class);
     }
 
-    private GraphMessages() {
-    }
+    private GraphMessages() {}
 }

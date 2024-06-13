@@ -16,6 +16,10 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model.meta;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
@@ -26,11 +30,6 @@ import org.jkiss.dbeaver.model.sql.SQLDialectMetadata;
 import org.jkiss.dbeaver.model.sql.registry.SQLDialectRegistry;
 import org.jkiss.utils.ArrayUtils;
 import org.jkiss.utils.CommonUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class TurboGraphPPMetaModelDescriptor extends AbstractDescriptor {
 
@@ -72,7 +71,9 @@ public class TurboGraphPPMetaModelDescriptor extends AbstractDescriptor {
         }
 
         implType = new ObjectType(cfg.getAttribute("class"));
-        dialectId = CommonUtils.toString(cfg.getAttribute("dialect"), TurboPPSQLDialect.TURBOGRAPHPP_DIALECT_ID);
+        dialectId =
+                CommonUtils.toString(
+                        cfg.getAttribute("dialect"), TurboPPSQLDialect.TURBOGRAPHPP_DIALECT_ID);
 
         IConfigurationElement[] replaceElements = cfg.getChildren("replace");
         for (IConfigurationElement replace : replaceElements) {
@@ -84,8 +85,7 @@ public class TurboGraphPPMetaModelDescriptor extends AbstractDescriptor {
         }
     }
 
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
@@ -94,8 +94,7 @@ public class TurboGraphPPMetaModelDescriptor extends AbstractDescriptor {
         return driverClass;
     }
 
-    public GenericMetaObject getObject(String id)
-    {
+    public GenericMetaObject getObject(String id) {
         return objects.get(id);
     }
 
@@ -115,9 +114,13 @@ public class TurboGraphPPMetaModelDescriptor extends AbstractDescriptor {
         if (instance != null) {
             return instance;
         }
-        Class<? extends TurboGraphPPMetaModel> implClass = implType.getObjectClass(TurboGraphPPMetaModel.class);
+        Class<? extends TurboGraphPPMetaModel> implClass =
+                implType.getObjectClass(TurboGraphPPMetaModel.class);
         if (implClass == null) {
-            throw new DBException("Can't create turbographpp meta model instance '" + implType.getImplName() + "'");
+            throw new DBException(
+                    "Can't create turbographpp meta model instance '"
+                            + implType.getImplName()
+                            + "'");
         }
         try {
             instance = implClass.getDeclaredConstructor().newInstance();
@@ -127,5 +130,4 @@ public class TurboGraphPPMetaModelDescriptor extends AbstractDescriptor {
         instance.descriptor = this;
         return instance;
     }
-
 }

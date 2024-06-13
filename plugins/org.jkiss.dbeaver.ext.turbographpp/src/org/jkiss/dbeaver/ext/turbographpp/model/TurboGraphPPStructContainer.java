@@ -16,15 +16,13 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
+import java.util.List;
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSObjectContainer;
 
-import java.util.List;
-
-public interface TurboGraphPPStructContainer extends DBSObjectContainer
-{
+public interface TurboGraphPPStructContainer extends DBSObjectContainer {
 
     @NotNull
     @Override
@@ -34,9 +32,12 @@ public interface TurboGraphPPStructContainer extends DBSObjectContainer
 
     TableCache getTableCache();
 
-    List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor) throws DBException;
+    List<? extends TurboGraphPPTable> getPhysicalNode(DBRProgressMonitor monitor)
+            throws DBException;
+
     List<? extends TurboGraphPPTableBase> getTables(DBRProgressMonitor monitor) throws DBException;
+
     TurboGraphPPTableBase getTable(DBRProgressMonitor monitor, String name) throws DBException;
-    
+
     List<? extends TurboGraphPPView> getPhysicalEdge(DBRProgressMonitor monitor) throws DBException;
 }

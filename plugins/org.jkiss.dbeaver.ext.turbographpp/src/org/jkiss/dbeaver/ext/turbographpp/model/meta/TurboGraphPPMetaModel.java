@@ -16,6 +16,9 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model.meta;
 
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.*;
 import org.jkiss.code.NotNull;
 import org.jkiss.code.Nullable;
 import org.jkiss.dbeaver.DBException;
@@ -42,10 +45,6 @@ import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.dbeaver.model.struct.DBSObjectFilter;
 import org.jkiss.dbeaver.model.struct.DBStructUtils;
 import org.jkiss.utils.CommonUtils;
-
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.*;
 
 public class TurboGraphPPMetaModel {
 
@@ -343,11 +342,9 @@ public class TurboGraphPPMetaModel {
             @NotNull GenericMetaObject tableObject,
             @NotNull JDBCResultSet dbResult) {
         String tableName =
-                GenericUtils.safeGetStringTrimmed(
-                        tableObject, dbResult, JDBCConstants.TABLE_NAME);
+                GenericUtils.safeGetStringTrimmed(tableObject, dbResult, JDBCConstants.TABLE_NAME);
         String tableType =
-                GenericUtils.safeGetStringTrimmed(
-                        tableObject, dbResult, JDBCConstants.TABLE_TYPE);
+                GenericUtils.safeGetStringTrimmed(tableObject, dbResult, JDBCConstants.TABLE_TYPE);
 
         String tableSchema =
                 GenericUtils.safeGetStringTrimmed(tableObject, dbResult, JDBCConstants.TABLE_SCHEM);

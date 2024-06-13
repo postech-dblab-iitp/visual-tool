@@ -7,7 +7,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.embed.swt.FXCanvas;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.StackedBarChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -27,20 +39,6 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.data.GraphDataModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphMessages;
 import org.jkiss.dbeaver.model.DBPDataSource;
-
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.embed.swt.FXCanvas;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.StackedBarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Series;
-import javafx.scene.control.Tooltip;
 
 public class GraphChart extends MoveBox {
 
@@ -64,22 +62,22 @@ public class GraphChart extends MoveBox {
     private int rowCount = 0;
 
     private StackPane chartPane = null;
-    
+
     private static StackedBarChart<Number, String> barChart;
-    
+
     private DBPDataSource dataSource;
-    
+
     private Button buttonGraph;
     private Button buttonQuery;
     private Button buttonAll;
-    
+
     public GraphChart(Control control, FXGraph graph, DBPDataSource dataSource) {
         super(control, GraphMessages.graphbox_title, OVERLAY_WIDTH, OVERLAY_HEIGHT);
         this.graph = graph;
         this.dataSource = dataSource;
         Composite itemComposite = new Composite(this.getShell(), SWT.NONE);
         GridData gd = new GridData();
-        gd.horizontalAlignment = GridData.CENTER; 
+        gd.horizontalAlignment = GridData.CENTER;
         GridLayout layout = new GridLayout(7, false);
         layout.marginHeight = 0;
         layout.marginWidth = 0;
@@ -121,21 +119,20 @@ public class GraphChart extends MoveBox {
                     }
                 });
 
-        
         buttonGraph = new Button(itemComposite, SWT.RADIO | SWT.CENTER);
         buttonGraph.setText(GraphMessages.graphbox_radio_by_visualGraph);
         buttonGraph.setSelection(true);
-        
+
         buttonQuery = new Button(itemComposite, SWT.RADIO | SWT.CENTER);
         buttonQuery.setText(GraphMessages.graphbox_radio_by_query);
         buttonQuery.setSelection(false);
         buttonQuery.setVisible(false);
-        
+
         buttonAll = new Button(itemComposite, SWT.RADIO | SWT.CENTER);
         buttonAll.setText(GraphMessages.graphbox_radio_by_all);
         buttonAll.setSelection(false);
         buttonAll.setVisible(false);
-        
+
         tabFolder = new TabFolder(this.getShell(), SWT.BORDER);
         tabFolder.setEnabled(true);
         gd = new GridData();
@@ -164,7 +161,6 @@ public class GraphChart extends MoveBox {
         tab1Composite.setLayoutData(gd);
         tab1.setControl(tab1Composite);
         create2dChartCanva(tab1Composite);
-
     }
 
     private void create2dChartCanva(Composite composite) {
@@ -180,8 +176,8 @@ public class GraphChart extends MoveBox {
     public static Node create2dChartNode() {
         final NumberAxis xAxis = new NumberAxis();
         final CategoryAxis yAxis = new CategoryAxis();
-        yAxis.setCategories(FXCollections.<String>observableArrayList(
-                Arrays.asList("a", "b", "c", "d", "e")));
+        yAxis.setCategories(
+                FXCollections.<String>observableArrayList(Arrays.asList("a", "b", "c", "d", "e")));
         barChart = new StackedBarChart<Number, String>(xAxis, yAxis);
         barChart.setTitle("Bar Chart");
         xAxis.setLabel("Count");
@@ -198,18 +194,19 @@ public class GraphChart extends MoveBox {
         CypherNode node = (CypherNode) item;
 
         for (String label : node.getLabels()) {
-	        int labelIndex = nodeLableList.indexOf(label);
-	        if (labelIndex != -1) {
-	            nodeLableList.select(labelIndex);
-	            break;
-	        }
+            int labelIndex = nodeLableList.indexOf(label);
+            if (labelIndex != -1) {
+                nodeLableList.select(labelIndex);
+                break;
+            }
         }
 
         ArrayList<String> intProperyList = new ArrayList<>();
         for (String protype : node.getProperties().keySet()) {
-        	if (node.getProperty(protype) instanceof Integer || node.getProperty(protype) instanceof Long) {
-        		intProperyList.add(protype);
-        	}
+            if (node.getProperty(protype) instanceof Integer
+                    || node.getProperty(protype) instanceof Long) {
+                intProperyList.add(protype);
+            }
         }
         propertyList.setItems(intProperyList.toArray(new String[intProperyList.size()]));
         int idx = propertyList.indexOf(node.getDisplayProperty());
@@ -250,7 +247,7 @@ public class GraphChart extends MoveBox {
             }
         }
     }
-    
+
     private String getProperyType(String properyName) {
         GraphDataModel g = graph.getDataModel();
         if (nodeLableList.getItemCount() > 0) {
@@ -262,7 +259,7 @@ public class GraphChart extends MoveBox {
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -270,13 +267,13 @@ public class GraphChart extends MoveBox {
     public void show() {
         super.show();
         if (nodeSelectItem != null) {
-        	setSelectNode(nodeSelectItem);
+            setSelectNode(nodeSelectItem);
         }
     }
 
     @Override
     public void show(int x, int y) {
-    	show();
+        show();
     }
 
     protected <V> Collection<Vertex<CypherNode>> sort(
@@ -313,20 +310,20 @@ public class GraphChart extends MoveBox {
         currentQuery = query;
         rowCount = count;
     }
-    
+
     public void runUpdateChart(HashMap<String, Object> data) {
-	    Platform.runLater(
-				new Runnable() {
-					@Override
-					public void run() {
-		              updateChart(data);
-					}
-				});
+        Platform.runLater(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        updateChart(data);
+                    }
+                });
     }
-    
+
     public void updateChart(HashMap<String, Object> data) {
         barChart = null;
-        
+
         XYChart.Series series = new XYChart.Series();
         int val = 0;
         for (String key : data.keySet()) {
@@ -335,13 +332,12 @@ public class GraphChart extends MoveBox {
         }
         final NumberAxis xAxis = new NumberAxis();
         final CategoryAxis yAxis = new CategoryAxis();
-        yAxis.setCategories(FXCollections.<String>observableArrayList(
-                data.keySet()));
+        yAxis.setCategories(FXCollections.<String>observableArrayList(data.keySet()));
         barChart = new StackedBarChart<Number, String>(xAxis, yAxis);
         barChart.getData().add(series);
         chartPane.getChildren().remove(0);
         chartPane.getChildren().add(barChart);
-        
+
         for (final Series<Number, String> tempseries : barChart.getData()) {
             for (final XYChart.Data<Number, String> tempdata : tempseries.getData()) {
                 Tooltip tooltip = new Tooltip();
@@ -350,61 +346,57 @@ public class GraphChart extends MoveBox {
             }
         }
     }
-    
+
     public void dataAnalyze(String label, String property, String propertyType) {
-    	
-	    if (property == null && label == null) {
-	    	return;
-	    }
-	    
-	    if (buttonGraph.getSelection()) {
-	    	GetChartInfoInGraphJob startUpdateJob =
-	                new GetChartInfoInGraphJob("Get Graph ChartInfo",
-	                		graph,
-	                		this, label, property);
-	
-	        if (!startUpdateJob.isFinished()) {
-	            startUpdateJob.schedule();
-	        }
-	    } else {
-	        if (dataSource == null) {
-	        	return;
-	        }
-	
-	        String query = currentQuery;
-	        if (buttonAll.getSelection()) {
-	        	query = "MATCH (n) return n";
-	        }
-	        
-	        GetChartInfoQueryJob startUpdateJob =
-	                new GetChartInfoQueryJob("Get Graph ChartInfo",
-	                		dataSource,
-	                		this, query, label, property);
-	
-	        if (!startUpdateJob.isFinished()) {
-	            startUpdateJob.schedule();
-	        }
-	    }
-	}
-   
+
+        if (property == null && label == null) {
+            return;
+        }
+
+        if (buttonGraph.getSelection()) {
+            GetChartInfoInGraphJob startUpdateJob =
+                    new GetChartInfoInGraphJob("Get Graph ChartInfo", graph, this, label, property);
+
+            if (!startUpdateJob.isFinished()) {
+                startUpdateJob.schedule();
+            }
+        } else {
+            if (dataSource == null) {
+                return;
+            }
+
+            String query = currentQuery;
+            if (buttonAll.getSelection()) {
+                query = "MATCH (n) return n";
+            }
+
+            GetChartInfoQueryJob startUpdateJob =
+                    new GetChartInfoQueryJob(
+                            "Get Graph ChartInfo", dataSource, this, query, label, property);
+
+            if (!startUpdateJob.isFinished()) {
+                startUpdateJob.schedule();
+            }
+        }
+    }
+
     public void UILock() {
-    	Platform.runLater(
-				new Runnable() {
-					@Override
-					public void run() {
-						propertyList.setEnabled(false);
-					}
-				});
+        Platform.runLater(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        propertyList.setEnabled(false);
+                    }
+                });
     }
-    
+
     public void UIUnLock() {
-    	Platform.runLater(
-				new Runnable() {
-					@Override
-					public void run() {
-						propertyList.setEnabled(true);
-					}
-				});
+        Platform.runLater(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        propertyList.setEnabled(true);
+                    }
+                });
     }
-    
 }

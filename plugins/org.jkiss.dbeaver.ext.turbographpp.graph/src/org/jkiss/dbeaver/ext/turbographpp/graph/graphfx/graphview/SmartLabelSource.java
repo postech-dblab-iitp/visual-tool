@@ -12,21 +12,17 @@ import java.lang.annotation.Target;
 
 /**
  * Method annotation to override an element's label provider.
- * 
- * The annotated method must return a value, otherwise the a reflection
- * exception will be thrown.
- * 
- * By default the text label is obtained from the toString method if this
- * annotation is not present in any other class method; this is also the case
- * with String and other boxed-types, e.g., Integer, Double, etc.
- * 
- * If multiple annotations exist, the behavior is undefined.
- * 
+ *
+ * <p>The annotated method must return a value, otherwise the a reflection exception will be thrown.
+ *
+ * <p>By default the text label is obtained from the toString method if this annotation is not
+ * present in any other class method; this is also the case with String and other boxed-types, e.g.,
+ * Integer, Double, etc.
+ *
+ * <p>If multiple annotations exist, the behavior is undefined.
+ *
  * @author brunomnsilva
  */
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface SmartLabelSource {
-    
-}
+public @interface SmartLabelSource {}

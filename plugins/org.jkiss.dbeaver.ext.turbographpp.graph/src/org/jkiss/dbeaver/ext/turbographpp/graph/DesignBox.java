@@ -1,7 +1,6 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph;
 
 import java.util.Iterator;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,21 +28,21 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphMessages;
 
 public class DesignBox extends MoveBox {
 
-	private final FXGraph graph;
-	
-	private final TabFolder tabFolder;
-	private final TabItem nodeTab;
-	private final TabItem edgeTab;
-	
-	//Node widget
-	private Combo nodeLableList;
+    private final FXGraph graph;
+
+    private final TabFolder tabFolder;
+    private final TabItem nodeTab;
+    private final TabItem edgeTab;
+
+    // Node widget
+    private Combo nodeLableList;
     private Spinner radius;
     private Button colorButton;
     private Spinner textSize;
     private Combo displayType;
     private Combo displayProperty;
-    
-    //Edge widget
+
+    // Edge widget
     private Combo edgeTypeList;
     private Spinner lineStrength;
     private Button lineColor;
@@ -56,15 +55,15 @@ public class DesignBox extends MoveBox {
 
     private Object nodeSelectItem = null;
     private Object edgeSelectItem = null;
-    
+
     private static final int OVERLAY_WIDTH = 200;
     private static final int OVERLAY_NODE_HEIGHT = 200;
     private static final int OVERLAY_EDGE_HEIGHT = 175;
-    
+
     public DesignBox(Control control, FXGraph graph) {
         super(control, GraphMessages.designbox_title, OVERLAY_WIDTH, OVERLAY_NODE_HEIGHT);
         this.graph = graph;
-        
+
         tabFolder = new TabFolder(this.getShell(), SWT.BORDER);
         tabFolder.setEnabled(true);
         GridData gd = new GridData();
@@ -74,10 +73,10 @@ public class DesignBox extends MoveBox {
 
         nodeTab = new TabItem(tabFolder, SWT.NULL);
         nodeTab.setText(GraphMessages.designbox_table_node_tab_title);
-        
+
         edgeTab = new TabItem(tabFolder, SWT.NULL);
         edgeTab.setText(GraphMessages.designbox_table_edge_tab_title);
-        
+
         Composite nodeComposite = new Composite(tabFolder, SWT.NONE);
         gd = new GridData();
         GridLayout layout1 = new GridLayout(2, false);
@@ -88,9 +87,9 @@ public class DesignBox extends MoveBox {
         nodeComposite.setLayout(layout1);
         nodeComposite.setLayoutData(gd);
         nodeTab.setControl(nodeComposite);
-        
+
         createNodeWidget(nodeComposite);
-        
+
         Composite edgeComposite = new Composite(tabFolder, SWT.NONE);
         GridLayout layout2 = new GridLayout(2, false);
         layout2.marginHeight = 0;
@@ -100,28 +99,28 @@ public class DesignBox extends MoveBox {
         edgeComposite.setLayout(layout2);
         edgeComposite.setLayoutData(gd);
         edgeTab.setControl(edgeComposite);
-        
+
         createEdgeWidget(edgeComposite);
-        
     }
 
     private void createEdgeWidget(Composite composite) {
-    	
-    	Label edgeType = new Label(composite, SWT.NONE);
-    	edgeType.setText(GraphMessages.fxgraph_all_type);
-    	
-    	edgeTypeList = new Combo(composite, SWT.READ_ONLY);
-    	edgeTypeList.setItems(graph.getDataModel().getEdgeTypeList());
-    	
-    	edgeTypeList.addSelectionListener(new SelectionAdapter(){
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	updateItem();
-            }
-        });
-    	
-    	Label strengthLabel = new Label(composite, SWT.NONE);
-    	strengthLabel.setText(GraphMessages.designbox_table_tab_line_str);
+
+        Label edgeType = new Label(composite, SWT.NONE);
+        edgeType.setText(GraphMessages.fxgraph_all_type);
+
+        edgeTypeList = new Combo(composite, SWT.READ_ONLY);
+        edgeTypeList.setItems(graph.getDataModel().getEdgeTypeList());
+
+        edgeTypeList.addSelectionListener(
+                new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        updateItem();
+                    }
+                });
+
+        Label strengthLabel = new Label(composite, SWT.NONE);
+        strengthLabel.setText(GraphMessages.designbox_table_tab_line_str);
 
         lineStrength = new Spinner(composite, SWT.NONE);
         lineStrength.setDigits(1);
@@ -135,7 +134,7 @@ public class DesignBox extends MoveBox {
         lineColor = new Button(composite, SWT.NONE);
         lineColor.setBackground(new Color(255, 0, 0));
         lineColor.addSelectionListener(
-        		new SelectionAdapter() {
+                new SelectionAdapter() {
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
@@ -155,25 +154,25 @@ public class DesignBox extends MoveBox {
 
         lineStyle = new Combo(composite, SWT.READ_ONLY);
         String[] nameList = new String[LineStyle.values().length];
-    	int i = 0;
-    	for (LineStyle style : LineStyle.values()) {
-			nameList[i] = style.name();
-			i++;
-		}
+        int i = 0;
+        for (LineStyle style : LineStyle.values()) {
+            nameList[i] = style.name();
+            i++;
+        }
         lineStyle.setItems(nameList);
 
-        lineStyle.addSelectionListener(new SelectionAdapter(){
-        
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	if (displayType.getSelectionIndex() == DisplayType.ID.ordinal()
-            			|| displayType.getSelectionIndex() == DisplayType.TYPE.ordinal()) {
-            		displayProperty.setEnabled(false);
-            	}
+        lineStyle.addSelectionListener(
+                new SelectionAdapter() {
 
-            }
-        });
-        
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        if (displayType.getSelectionIndex() == DisplayType.ID.ordinal()
+                                || displayType.getSelectionIndex() == DisplayType.TYPE.ordinal()) {
+                            displayProperty.setEnabled(false);
+                        }
+                    }
+                });
+
         Label textSizeLable = new Label(composite, SWT.NONE);
         textSizeLable.setText(GraphMessages.designbox_table_tab_text_size);
 
@@ -187,32 +186,33 @@ public class DesignBox extends MoveBox {
         Button applyButton = new Button(composite, SWT.NONE);
         applyButton.setText(GraphMessages.designbox_table_apply);
         applyButton.addSelectionListener(
-        		new SelectionAdapter() {
+                new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
                         edgeApplyUpdate();
                     }
                 });
-        
+
         Label empty = new Label(composite, SWT.NONE);
     }
-    
-    private void createNodeWidget(Composite composite) {
-    	
-    	Label nodeLabel = new Label(composite, SWT.NONE);
-    	nodeLabel.setText(GraphMessages.fxgraph_all_label);
-    	
-    	nodeLableList = new Combo(composite, SWT.READ_ONLY);
 
-    	nodeLableList.addSelectionListener(new SelectionAdapter() {
-        
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	updateItem();
-            }
-        });
-    	
-    	Label radiusLabel = new Label(composite, SWT.NONE);
+    private void createNodeWidget(Composite composite) {
+
+        Label nodeLabel = new Label(composite, SWT.NONE);
+        nodeLabel.setText(GraphMessages.fxgraph_all_label);
+
+        nodeLableList = new Combo(composite, SWT.READ_ONLY);
+
+        nodeLableList.addSelectionListener(
+                new SelectionAdapter() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        updateItem();
+                    }
+                });
+
+        Label radiusLabel = new Label(composite, SWT.NONE);
         radiusLabel.setText(GraphMessages.designbox_table_tab_radius);
 
         radius = new Spinner(composite, SWT.NONE);
@@ -228,7 +228,7 @@ public class DesignBox extends MoveBox {
         colorButton = new Button(composite, SWT.NONE);
         colorButton.setBackground(new Color(255, 0, 0));
         colorButton.addSelectionListener(
-        		new SelectionAdapter() {
+                new SelectionAdapter() {
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
@@ -259,20 +259,20 @@ public class DesignBox extends MoveBox {
         displayType = new Combo(composite, SWT.READ_ONLY);
         displayType.setItems(typeList);
 
-        displayType.addSelectionListener(new SelectionAdapter() {
-        
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            	if (displayType.getSelectionIndex() == DisplayType.ID.ordinal()
-            			|| displayType.getSelectionIndex() == DisplayType.TYPE.ordinal()) {
-            		displayProperty.setEnabled(false);
-            	} else {
-            		displayProperty.setEnabled(true);
-            	}
+        displayType.addSelectionListener(
+                new SelectionAdapter() {
 
-            }
-        });
-        
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        if (displayType.getSelectionIndex() == DisplayType.ID.ordinal()
+                                || displayType.getSelectionIndex() == DisplayType.TYPE.ordinal()) {
+                            displayProperty.setEnabled(false);
+                        } else {
+                            displayProperty.setEnabled(true);
+                        }
+                    }
+                });
+
         Label PropertyLabel = new Label(composite, SWT.NONE);
         PropertyLabel.setText(GraphMessages.designbox_table_tab_display_propeties);
 
@@ -281,29 +281,29 @@ public class DesignBox extends MoveBox {
         Button applyButton = new Button(composite, SWT.NONE);
         applyButton.setText(GraphMessages.designbox_table_apply);
         applyButton.addSelectionListener(
-        		new SelectionAdapter() {
+                new SelectionAdapter() {
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                    	nodeApplyUpdate();
+                        nodeApplyUpdate();
                     }
                 });
     }
-    
+
     public void setSelectItem(Object item) {
         if (item instanceof CypherNode) {
-        	nodeSelectItem = item;
+            nodeSelectItem = item;
             CypherNode node = (CypherNode) item;
             DisplayType type = node.getDisplayType();
 
             for (String label : node.getLabels()) {
-            	int labelIndex = nodeLableList.indexOf(label);
-            	if (labelIndex != -1) {
-            		nodeLableList.select(labelIndex);
-            		break;
-            	}
+                int labelIndex = nodeLableList.indexOf(label);
+                if (labelIndex != -1) {
+                    nodeLableList.select(labelIndex);
+                    break;
+                }
             }
-            
+
             radius.setSelection((int) (node.getRadius() * 10));
             colorButton.setBackground(stringToColor(node.getFillColorHexString()));
             textSize.setSelection(node.getTextSize());
@@ -323,41 +323,41 @@ public class DesignBox extends MoveBox {
                 displayProperty.setEnabled(false);
             }
         } else {
-        	edgeSelectItem = item;
-        	CypherEdge edge = (CypherEdge) item;
-        	
-        	int index = -1;
-        	for (String type : edge.getTypes()) {        	
-	        	index = edgeTypeList.indexOf(type);
-	            if (index != -1) {
-	            	edgeTypeList.select(index);
-	            	break;
-	            }
-        	}
-            lineStrength.setSelection((int)(Double.valueOf(edge.getLineStrength()) * 10));
+            edgeSelectItem = item;
+            CypherEdge edge = (CypherEdge) item;
+
+            int index = -1;
+            for (String type : edge.getTypes()) {
+                index = edgeTypeList.indexOf(type);
+                if (index != -1) {
+                    edgeTypeList.select(index);
+                    break;
+                }
+            }
+            lineStrength.setSelection((int) (Double.valueOf(edge.getLineStrength()) * 10));
             lineColor.setBackground(stringToColor(edge.getLineColor()));
             for (LineStyle style : LineStyle.values()) {
-            	if (style.getValue().equals(edge.getLineStyle())) {
-            		lineStyle.select(style.ordinal());
-            		break;
-            	}
+                if (style.getValue().equals(edge.getLineStyle())) {
+                    lineStyle.select(style.ordinal());
+                    break;
+                }
             }
-            
+
             if (index != -1) {
-            	lineStyle.select(index);
+                lineStyle.select(index);
             }
             edgeTextSize.setSelection(edge.getTextSize());
         }
     }
 
     private void switchWidget(boolean isNode) {
-    	if (isNode) {
-    		tabFolder.setSelection(0);
-    	} else {
-    		tabFolder.setSelection(1);
-    	}
+        if (isNode) {
+            tabFolder.setSelection(0);
+        } else {
+            tabFolder.setSelection(1);
+        }
     }
-    
+
     private Color stringToColor(String colorString) {
         int r = Integer.parseInt(colorString.substring(0, 2), 16);
         int g = Integer.parseInt(colorString.substring(2, 4), 16);
@@ -395,105 +395,115 @@ public class DesignBox extends MoveBox {
     }
 
     private void nodeApplyUpdate() {
-    	if (nodeSelectItem != null) {
+        if (nodeSelectItem != null) {
             if (nodeSelectItem instanceof CypherNode) {
                 CypherNode node = (CypherNode) nodeSelectItem;
                 compareItem();
                 if (ChangeItem.isChanged()) {
-                	for (String label : node.getLabels()) {
-	                    Iterator<String> iterator =
-	                            graph.getDataModel().getNodeLabelList(label).iterator();
-	                    final int selecetIndex = displayType.getSelectionIndex();
-	                    while (iterator.hasNext()) {
-	                        String id = iterator.next();
-	                        Vertex<CypherNode> vertex = graph.getDataModel().getNode(id);
-	                        CypherNode saveNode = vertex.element();
-	                        if (ChangeItem.changedRadius) {
-	                            saveNode.setRadius(radius.getSelection() / 10);
-	                            graph.getGraphView()
-	                                    .getGraphVertex(vertex)
-	                                    .setNodeRadius(saveNode.getRadius());
-	                            graph.getGraphView().updateEdgeArrowForRadius();
-	                        }
-	                        if (ChangeItem.changedColor) {
-	                            String color = ColorToString(colorButton.getBackground());
-	                            saveNode.setFillColor(color);
-	                            graph.getGraphView()
-	                                    .getStylableVertex(vertex)
-	                                    .setStyle(
-	                                            SmartStyleProxy.DEFAULT_VERTEX
-	                                                    + saveNode.getFillColor());
-	                        }
-	
-	                        if (ChangeItem.changedTextSize) {
-	                            saveNode.setTextSize(textSize.getSelection());
-	                            graph.getGraphView().getGraphVertex(vertex).setTextSize(saveNode.getTextSize());
-	                        }
-	
-	                        if (ChangeItem.changedType || ChangeItem.changedProperty) {
-		                        if (selecetIndex == DisplayType.ID.ordinal()) {
-		                        	saveNode.setDisplayType(DisplayType.ID);
-		                        } else if (selecetIndex == DisplayType.TYPE.ordinal()) {
-		                        	saveNode.setDisplayType(DisplayType.TYPE);
-		                        } else if (selecetIndex == DisplayType.PROPERTY.ordinal()) {
-		                        	saveNode.setDisplayType(DisplayType.PROPERTY);
-		                            if (!displayProperty.getText().isEmpty()) {
-		                            	saveNode.setDisplayProperty(displayProperty.getText());
-		                            }
-		                        } else {
-		                        	saveNode.setDisplayType(DisplayType.PROPERTY);
-		                        }
-		                        graph.getGraphView().getGraphVertex(vertex).updateLabelText();
-		                        
-	                        }
-	                        
-	                        if (ChangeItem.changedTextSize || ChangeItem.changedType || ChangeItem.changedProperty) {
-	                        	graph.getGraphView().getGraphVertex(vertex).updateLabelPosition();
-	                        }
-	                    }
-	                }
+                    for (String label : node.getLabels()) {
+                        Iterator<String> iterator =
+                                graph.getDataModel().getNodeLabelList(label).iterator();
+                        final int selecetIndex = displayType.getSelectionIndex();
+                        while (iterator.hasNext()) {
+                            String id = iterator.next();
+                            Vertex<CypherNode> vertex = graph.getDataModel().getNode(id);
+                            CypherNode saveNode = vertex.element();
+                            if (ChangeItem.changedRadius) {
+                                saveNode.setRadius(radius.getSelection() / 10);
+                                graph.getGraphView()
+                                        .getGraphVertex(vertex)
+                                        .setNodeRadius(saveNode.getRadius());
+                                graph.getGraphView().updateEdgeArrowForRadius();
+                            }
+                            if (ChangeItem.changedColor) {
+                                String color = ColorToString(colorButton.getBackground());
+                                saveNode.setFillColor(color);
+                                graph.getGraphView()
+                                        .getStylableVertex(vertex)
+                                        .setStyle(
+                                                SmartStyleProxy.DEFAULT_VERTEX
+                                                        + saveNode.getFillColor());
+                            }
+
+                            if (ChangeItem.changedTextSize) {
+                                saveNode.setTextSize(textSize.getSelection());
+                                graph.getGraphView()
+                                        .getGraphVertex(vertex)
+                                        .setTextSize(saveNode.getTextSize());
+                            }
+
+                            if (ChangeItem.changedType || ChangeItem.changedProperty) {
+                                if (selecetIndex == DisplayType.ID.ordinal()) {
+                                    saveNode.setDisplayType(DisplayType.ID);
+                                } else if (selecetIndex == DisplayType.TYPE.ordinal()) {
+                                    saveNode.setDisplayType(DisplayType.TYPE);
+                                } else if (selecetIndex == DisplayType.PROPERTY.ordinal()) {
+                                    saveNode.setDisplayType(DisplayType.PROPERTY);
+                                    if (!displayProperty.getText().isEmpty()) {
+                                        saveNode.setDisplayProperty(displayProperty.getText());
+                                    }
+                                } else {
+                                    saveNode.setDisplayType(DisplayType.PROPERTY);
+                                }
+                                graph.getGraphView().getGraphVertex(vertex).updateLabelText();
+                            }
+
+                            if (ChangeItem.changedTextSize
+                                    || ChangeItem.changedType
+                                    || ChangeItem.changedProperty) {
+                                graph.getGraphView().getGraphVertex(vertex).updateLabelPosition();
+                            }
+                        }
+                    }
                 }
             }
-    	}
+        }
     }
+
     private void edgeApplyUpdate() {
         if (edgeSelectItem != null) {
-            	CypherEdge edge = (CypherEdge) edgeSelectItem;
-            	for (String type : edge.getTypes()) {
-	            	Iterator<String> iterator =
-	                        graph.getDataModel().getEdgeTypeList(type).iterator();
-	                final int selecetIndex = edgeTypeList.getSelectionIndex();
-	                while (iterator.hasNext()) {
-	                    String id = iterator.next();
-	                    FxEdge<CypherEdge, CypherNode> fxEdge = graph.getDataModel().getEdge(id);
-	                    CypherEdge saveEdge = fxEdge.element();
-	                    String color = ColorToString(lineColor.getBackground());
-	                    saveEdge.setLineColor(color);
-	                    
-	                    String styleValue = "";
-	                    for (LineStyle style : LineStyle.values()) {
-	                    	if (style.ordinal() == lineStyle.getSelectionIndex()) {
-	                    		styleValue = style.getValue();
-	                    		break;
-	                    	}
-	                    }
-	                    saveEdge.setLineStyle(styleValue);
-	                    
-	                    double tempStStrength = (double)lineStrength.getSelection() / 10;
-	                    String Strength = String.valueOf(tempStStrength);
-	                    saveEdge.setLineStrength(Strength);
-	                    
-	                    if (!color.isEmpty() | !styleValue.isEmpty() | !Strength.isEmpty()) {
-	                    	String lineStyle = SmartStyleProxy.getEdgeStyleInputValue(color, styleValue, Strength);
-	                    	graph.getGraphView().getGraphEdgeBase(fxEdge.element().getID()).setStyle(lineStyle);
-	                    }
-	                    
-	                    saveEdge.setTextSize(edgeTextSize.getSelection());
-	                    graph.getGraphView().getGraphEdgeBase(fxEdge.element().getID()).setTextSize(saveEdge.getTextSize());
-	                   	graph.getGraphView().getGraphEdgeBase(fxEdge.element().getID()).updateLabelPosition();
-	                }
-            	}
+            CypherEdge edge = (CypherEdge) edgeSelectItem;
+            for (String type : edge.getTypes()) {
+                Iterator<String> iterator = graph.getDataModel().getEdgeTypeList(type).iterator();
+                final int selecetIndex = edgeTypeList.getSelectionIndex();
+                while (iterator.hasNext()) {
+                    String id = iterator.next();
+                    FxEdge<CypherEdge, CypherNode> fxEdge = graph.getDataModel().getEdge(id);
+                    CypherEdge saveEdge = fxEdge.element();
+                    String color = ColorToString(lineColor.getBackground());
+                    saveEdge.setLineColor(color);
+
+                    String styleValue = "";
+                    for (LineStyle style : LineStyle.values()) {
+                        if (style.ordinal() == lineStyle.getSelectionIndex()) {
+                            styleValue = style.getValue();
+                            break;
+                        }
+                    }
+                    saveEdge.setLineStyle(styleValue);
+
+                    double tempStStrength = (double) lineStrength.getSelection() / 10;
+                    String Strength = String.valueOf(tempStStrength);
+                    saveEdge.setLineStrength(Strength);
+
+                    if (!color.isEmpty() | !styleValue.isEmpty() | !Strength.isEmpty()) {
+                        String lineStyle =
+                                SmartStyleProxy.getEdgeStyleInputValue(color, styleValue, Strength);
+                        graph.getGraphView()
+                                .getGraphEdgeBase(fxEdge.element().getID())
+                                .setStyle(lineStyle);
+                    }
+
+                    saveEdge.setTextSize(edgeTextSize.getSelection());
+                    graph.getGraphView()
+                            .getGraphEdgeBase(fxEdge.element().getID())
+                            .setTextSize(saveEdge.getTextSize());
+                    graph.getGraphView()
+                            .getGraphEdgeBase(fxEdge.element().getID())
+                            .updateLabelPosition();
+                }
             }
+        }
     }
 
     private void compareItem() {
@@ -504,8 +514,10 @@ public class DesignBox extends MoveBox {
                 ChangeItem.changedRadius = true;
             }
 
-            if (!stringToColor(node.getFillColorHexString()).getRGB().toString().equals(
-                    colorButton.getBackground().getRGB().toString())) {
+            if (!stringToColor(node.getFillColorHexString())
+                    .getRGB()
+                    .toString()
+                    .equals(colorButton.getBackground().getRGB().toString())) {
                 ChangeItem.changedColor = true;
             }
 
@@ -522,7 +534,6 @@ public class DesignBox extends MoveBox {
                     ChangeItem.changedProperty = true;
                 }
             }
-
         }
     }
 
@@ -545,86 +556,84 @@ public class DesignBox extends MoveBox {
             return changedRadius | changedColor | changedTextSize | changedType | changedProperty;
         }
     }
-    
-    
+
     private enum LineStyle {
-	    SOLID("1 0 1 0"),
-	    DOTTED("1 3 1 3"),
-	    DASHED("4 4 4 4"),
-	    LONG_DASHED("8 4 8 4"),
-	    DASH_SINGGGLE_DOOTTED("8 4 2 4"),
-	    DASH_DOUBLE_DOTTED("8 4 2 4 2 4");
-    	
-	    private final String lineValue;
-	    
-	    LineStyle(String value) { 
-	    	this.lineValue = value; 
-	    }
-	    
-	    public String getValue() 
-	    { 
-	    	return lineValue;
-	    }
+        SOLID("1 0 1 0"),
+        DOTTED("1 3 1 3"),
+        DASHED("4 4 4 4"),
+        LONG_DASHED("8 4 8 4"),
+        DASH_SINGGGLE_DOOTTED("8 4 2 4"),
+        DASH_DOUBLE_DOTTED("8 4 2 4 2 4");
+
+        private final String lineValue;
+
+        LineStyle(String value) {
+            this.lineValue = value;
+        }
+
+        public String getValue() {
+            return lineValue;
+        }
     }
-    
+
     public void open(int positionX, int positionY) {
-    	nodeLableList.setItems(graph.getDataModel().getNodeLabelList());
-    	edgeTypeList.setItems(graph.getDataModel().getEdgeTypeList());
-    	show();
-    	setOverlaySize(positionX, positionY, tabFolder.getSize().x, tabFolder.getSize().y);
+        nodeLableList.setItems(graph.getDataModel().getNodeLabelList());
+        edgeTypeList.setItems(graph.getDataModel().getEdgeTypeList());
+        show();
+        setOverlaySize(positionX, positionY, tabFolder.getSize().x, tabFolder.getSize().y);
     }
-    
+
     private void updateItem() {
-    	if (tabFolder.getSelectionIndex() == 0) { // NodeTab
-    		GraphDataModel g = graph.getDataModel();
-        	if (nodeLableList.getItemCount() > 0) {
-        		String label = nodeLableList.getText();
-        		if (label != null) {
-        			CypherNode node = g.getNode(g.getNodeLabelList(label).get(0)).element();
-        			if (node != null) {
-                		setSelectItem(node);
-                	}
-        		}
-        	}
-    	} else { // EdgeTab
-    		GraphDataModel g = graph.getDataModel();
-        	if (edgeTypeList.getItemCount() > 0) {
-        		String type = edgeTypeList.getText();
-        		if (type != null) {
-        			CypherEdge edge = g.getEdge(g.getEdgeTypeList(type).get(0)).element();
-        			if (edge != null) {
-                		setSelectItem(edge);
-                	}
-        		}
-        	}
-    	}
+        if (tabFolder.getSelectionIndex() == 0) { // NodeTab
+            GraphDataModel g = graph.getDataModel();
+            if (nodeLableList.getItemCount() > 0) {
+                String label = nodeLableList.getText();
+                if (label != null) {
+                    CypherNode node = g.getNode(g.getNodeLabelList(label).get(0)).element();
+                    if (node != null) {
+                        setSelectItem(node);
+                    }
+                }
+            }
+        } else { // EdgeTab
+            GraphDataModel g = graph.getDataModel();
+            if (edgeTypeList.getItemCount() > 0) {
+                String type = edgeTypeList.getText();
+                if (type != null) {
+                    CypherEdge edge = g.getEdge(g.getEdgeTypeList(type).get(0)).element();
+                    if (edge != null) {
+                        setSelectItem(edge);
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void remove() {
         super.remove();
     }
-    
+
     @Override
     public void show() {
         super.show();
         if (nodeSelectItem != null) {
-        	setSelectItem(nodeSelectItem);
+            setSelectItem(nodeSelectItem);
         }
-        
+
         if (edgeSelectItem != null) {
-        	setSelectItem(edgeSelectItem);
+            setSelectItem(edgeSelectItem);
         }
     }
-    
+
     @Override
     public void show(int x, int y) {
-    	 if (nodeSelectItem != null) {
-         	setSelectItem(nodeSelectItem);
-         }
-         
-         if (edgeSelectItem != null) {
-         	setSelectItem(edgeSelectItem);
-         }
+        if (nodeSelectItem != null) {
+            setSelectItem(nodeSelectItem);
+        }
+
+        if (edgeSelectItem != null) {
+            setSelectItem(edgeSelectItem);
+        }
     }
 }

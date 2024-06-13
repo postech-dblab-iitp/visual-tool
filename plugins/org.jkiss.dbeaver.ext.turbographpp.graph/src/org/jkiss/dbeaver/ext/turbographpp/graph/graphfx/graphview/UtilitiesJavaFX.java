@@ -7,20 +7,18 @@ import javafx.scene.Parent;
 
 /**
  * Utility methods for JavaFX.
- * 
+ *
  * @author brunomnsilva
  */
 public class UtilitiesJavaFX {
     /**
-     * Determines the closest node that resides in the x,y scene position, if any.
-     * <br>
+     * Determines the closest node that resides in the x,y scene position, if any. <br>
      * Obtained from: http://fxexperience.com/2016/01/node-picking-in-javafx/
-     * 
-     * @param node      parent node
-     * @param sceneX    x-coordinate of picking point
-     * @param sceneY    y-coordinate of picking point
-     * 
-     * @return          topmost node containing (sceneX, sceneY) point
+     *
+     * @param node parent node
+     * @param sceneX x-coordinate of picking point
+     * @param sceneY y-coordinate of picking point
+     * @return topmost node containing (sceneX, sceneY) point
      */
     public static Node pick(Node node, double sceneX, double sceneY) {
         Point2D p = node.sceneToLocal(sceneX, sceneY, true /* rootScene */);

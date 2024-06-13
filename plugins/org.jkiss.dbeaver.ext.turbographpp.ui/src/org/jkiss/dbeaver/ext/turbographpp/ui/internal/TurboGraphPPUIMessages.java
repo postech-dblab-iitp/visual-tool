@@ -20,7 +20,8 @@ package org.jkiss.dbeaver.ext.turbographpp.ui.internal;
 import org.eclipse.osgi.util.NLS;
 
 public class TurboGraphPPUIMessages extends NLS {
-    static final String BUNDLE_NAME = "org.jkiss.dbeaver.ext.turbographpp.ui.internal.TurboGraphPPUIMessages"; //$NON-NLS-1$
+    static final String BUNDLE_NAME =
+            "org.jkiss.dbeaver.ext.turbographpp.ui.internal.TurboGraphPPUIMessages"; //$NON-NLS-1$
     public static String dialog_connection_advanced_tab;
     public static String dialog_connection_advanced_tab_tooltip;
     public static String dialog_connection_browse_button;
@@ -41,12 +42,11 @@ public class TurboGraphPPUIMessages extends NLS {
     public static String visualization_shortest_button_tool_tip;
     public static String visualization_detach_window_button_tool_tip;
     public static String visualization_minimap_window_button_tool_tip;
-    
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, TurboGraphPPUIMessages.class);
     }
-    
-    private TurboGraphPPUIMessages() {
-    }
+
+    private TurboGraphPPUIMessages() {}
 }

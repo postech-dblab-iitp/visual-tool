@@ -40,12 +40,10 @@ import javafx.scene.text.Text;
 /**
  * This class provides zooming and panning for a JavaFX node.
  *
- * It shows the zoom level with a slider control and reacts to mouse scrolls and
- * mouse dragging.
+ * <p>It shows the zoom level with a slider control and reacts to mouse scrolls and mouse dragging.
  *
- * The content node is out forward in the z-index so it can react to mouse
- * events first. The node should consume any event not meant to propagate to
- * this pane.
+ * <p>The content node is out forward in the z-index so it can react to mouse events first. The node
+ * should consume any event not meant to propagate to this pane.
  *
  * @author brunomnsilva
  */
@@ -120,68 +118,73 @@ public class ContentZoomPane extends BorderPane {
 
     private void enablePanAndZoom() {
 
-        setOnScroll((ScrollEvent event) -> {
+        setOnScroll(
+                (ScrollEvent event) -> {
+                    double direction = event.getDeltaY() >= 0 ? 1 : -1;
 
-            double direction = event.getDeltaY() >= 0 ? 1 : -1;
+                    double currentScale = scaleFactorProperty.getValue();
+                    double computedScale = currentScale + direction * SCROLL_DELTA;
 
-            double currentScale = scaleFactorProperty.getValue();
-            double computedScale = currentScale + direction * SCROLL_DELTA;
+                    computedScale = boundValue(computedScale, MIN_SCALE, MAX_SCALE);
 
-            computedScale = boundValue(computedScale, MIN_SCALE, MAX_SCALE);
+                    if (currentScale != computedScale) {
 
-            if (currentScale != computedScale) {
+                        content.setScaleX(computedScale);
+                        content.setScaleY(computedScale);
 
-                content.setScaleX(computedScale);
-                content.setScaleY(computedScale);
+                        if (computedScale == 1) {
+                            content.setTranslateX(-getTranslateX());
+                            content.setTranslateY(-getTranslateY());
+                        } else {
+                            scaleFactorProperty.setValue(computedScale);
 
-                if (computedScale == 1) {
-                    content.setTranslateX(-getTranslateX());
-                    content.setTranslateY(-getTranslateY());
-                } else {
-                    scaleFactorProperty.setValue(computedScale);
+                            Bounds bounds = content.localToScene(content.getBoundsInLocal());
+                            double f = (computedScale / currentScale) - 1;
+                            double dx = (event.getX() - (bounds.getWidth() / 2 + bounds.getMinX()));
+                            double dy =
+                                    (event.getY() - (bounds.getHeight() / 2 + bounds.getMinY()));
 
-                    Bounds bounds = content.localToScene(content.getBoundsInLocal());
-                    double f = (computedScale / currentScale) - 1;
-                    double dx = (event.getX() - (bounds.getWidth() / 2 + bounds.getMinX()));
-                    double dy = (event.getY() - (bounds.getHeight() / 2 + bounds.getMinY()));
-
-                    setContentPivot(f * dx, f * dy);
-                }
-
-            }
-            //do not propagate
-            event.consume();
-
-        });
+                            setContentPivot(f * dx, f * dy);
+                        }
+                    }
+                    // do not propagate
+                    event.consume();
+                });
 
         final DragContext sceneDragContext = new DragContext();
 
-        setOnMousePressed((MouseEvent event) -> {
+        setOnMousePressed(
+                (MouseEvent event) -> {
+                    if (event.isSecondaryButtonDown()) {
+                        getScene().setCursor(Cursor.MOVE);
 
-            if (event.isSecondaryButtonDown()) {
-                getScene().setCursor(Cursor.MOVE);
+                        sceneDragContext.mouseAnchorX = event.getX();
+                        sceneDragContext.mouseAnchorY = event.getY();
 
-                sceneDragContext.mouseAnchorX = event.getX();
-                sceneDragContext.mouseAnchorY = event.getY();
+                        sceneDragContext.translateAnchorX = content.getTranslateX();
+                        sceneDragContext.translateAnchorY = content.getTranslateY();
+                    }
+                });
 
-                sceneDragContext.translateAnchorX = content.getTranslateX();
-                sceneDragContext.translateAnchorY = content.getTranslateY();
-            }
+        setOnMouseReleased(
+                (MouseEvent event) -> {
+                    getScene().setCursor(Cursor.DEFAULT);
+                });
 
-        });
+        setOnMouseDragged(
+                (MouseEvent event) -> {
+                    if (event.isSecondaryButtonDown()) {
 
-        setOnMouseReleased((MouseEvent event) -> {
-            getScene().setCursor(Cursor.DEFAULT);
-        });
-
-        setOnMouseDragged((MouseEvent event) -> {
-            if (event.isSecondaryButtonDown()) {
-                
-                content.setTranslateX(sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX);
-                content.setTranslateY(sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY);
-            }
-        });
-
+                        content.setTranslateX(
+                                sceneDragContext.translateAnchorX
+                                        + event.getX()
+                                        - sceneDragContext.mouseAnchorX);
+                        content.setTranslateY(
+                                sceneDragContext.translateAnchorY
+                                        + event.getY()
+                                        - sceneDragContext.mouseAnchorY);
+                    }
+                });
     }
 
     public DoubleProperty scaleFactorProperty() {
@@ -195,7 +198,5 @@ public class ContentZoomPane extends BorderPane {
 
         double translateAnchorX;
         double translateAnchorY;
-
     }
-
 }

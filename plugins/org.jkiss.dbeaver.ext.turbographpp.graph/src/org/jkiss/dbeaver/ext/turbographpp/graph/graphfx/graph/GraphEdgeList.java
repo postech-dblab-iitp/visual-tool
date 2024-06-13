@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License
  *
  * Copyright 2019 brunomnsilva@gmail.com.
@@ -30,26 +30,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * ADT Graph implementation that stores a collection of edges (and vertices) and
- * where each edge contains the references for the vertices it connects.
- * <br>
+ * ADT Graph implementation that stores a collection of edges (and vertices) and where each edge
+ * contains the references for the vertices it connects. <br>
  * Does not allow duplicates of stored elements through <b>equals</b> criteria.
  *
  * @param <V> Type of element stored at a vertex
  * @param <E> Type of element stored at an edge
- * 
  * @author brunomnsilva
  */
 public class GraphEdgeList<V, E> implements Graph<V, E> {
 
-    /* inner classes are defined at the end of the class, so are the auxiliary methods 
+    /* inner classes are defined at the end of the class, so are the auxiliary methods
      */
     private Map<V, Vertex<V>> vertices;
     private Map<E, FxEdge<E, V>> edges;
 
-    /**
-     * Creates a empty graph.
-     */
+    /** Creates a empty graph. */
     public GraphEdgeList() {
         this.vertices = new HashMap<>();
         this.edges = new HashMap<>();
@@ -95,14 +91,14 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
                 /* edge.vertices()[0] == v || edge.vertices()[1] == v */
                 incidentEdges.add(edge);
             }
-
         }
 
         return incidentEdges;
     }
-    
+
     @Override
-    public synchronized Collection<FxEdge<E, V>> outboundEdges(Vertex<V> outbound) throws InvalidVertexException {
+    public synchronized Collection<FxEdge<E, V>> outboundEdges(Vertex<V> outbound)
+            throws InvalidVertexException {
         checkVertex(outbound);
 
         List<FxEdge<E, V>> outboundEdges = new ArrayList<>();
@@ -116,7 +112,8 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public Vertex<V> opposite(Vertex<V> v, FxEdge<E, V> e) throws InvalidVertexException, InvalidEdgeException {
+    public Vertex<V> opposite(Vertex<V> v, FxEdge<E, V> e)
+            throws InvalidVertexException, InvalidEdgeException {
         checkVertex(v);
         MyEdge edge = checkEdge(e);
 
@@ -129,12 +126,12 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
         } else {
             return edge.vertices()[0];
         }
-
     }
 
     @Override
-    public synchronized boolean areAdjacent(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
-        //we allow loops, so we do not check if u == v
+    public synchronized boolean areAdjacent(Vertex<V> u, Vertex<V> v)
+            throws InvalidVertexException {
+        // we allow loops, so we do not check if u == v
         checkVertex(v);
         checkVertex(u);
 
@@ -161,7 +158,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public synchronized FxEdge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E edgeElement) 
+    public synchronized FxEdge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E edgeElement)
             throws InvalidVertexException, InvalidEdgeException {
 
         if (existsEdgeWith(edgeElement)) {
@@ -176,13 +173,12 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
         edges.put(edgeElement, newEdge);
 
         return newEdge;
-
     }
 
     @Override
-    public synchronized FxEdge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement) 
+    public synchronized FxEdge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement)
             throws InvalidVertexException, InvalidEdgeException {
-        
+
         if (existsEdgeWith(edgeElement)) {
             throw new InvalidEdgeException("There's already an edge with this element.");
         }
@@ -202,7 +198,6 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
         edges.put(edgeElement, newEdge);
 
         return newEdge;
-
     }
 
     @Override
@@ -211,7 +206,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 
         V element = v.element();
 
-        //remove incident edges
+        // remove incident edges
         Iterable<FxEdge<E, V>> incidentEdges = incomingEdges(v);
         for (FxEdge<E, V> edge : incidentEdges) {
             edges.remove(edge.element());
@@ -279,9 +274,11 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(
-                String.format("Graph with %d vertices and %d edges:\n", numVertices(), numEdges())
-        );
+        StringBuilder sb =
+                new StringBuilder(
+                        String.format(
+                                "Graph with %d vertices and %d edges:\n",
+                                numVertices(), numEdges()));
 
         sb.append("--- Vertices: \n");
         for (Vertex<V> v : vertices.values()) {
@@ -345,14 +342,19 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 
         @Override
         public String toString() {
-            return "Edge{{" + element + "}, vertexOutbound=" + vertexOutbound.toString()
-                    + ", vertexInbound=" + vertexInbound.toString() + '}';
+            return "Edge{{"
+                    + element
+                    + "}, vertexOutbound="
+                    + vertexOutbound.toString()
+                    + ", vertexInbound="
+                    + vertexInbound.toString()
+                    + '}';
         }
-        
+
         public Vertex<V> getOutbound() {
             return vertexOutbound;
         }
-        
+
         public Vertex<V> getInbound() {
             return vertexInbound;
         }
@@ -366,8 +368,8 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
      * @throws InvalidVertexException
      */
     private MyVertex checkVertex(Vertex<V> v) throws InvalidVertexException {
-        if(v == null) throw new InvalidVertexException("Null vertex.");
-        
+        if (v == null) throw new InvalidVertexException("Null vertex.");
+
         MyVertex vertex;
         try {
             vertex = (MyVertex) v;
@@ -383,8 +385,8 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     private MyEdge checkEdge(FxEdge<E, V> e) throws InvalidEdgeException {
-        if(e == null) throw new InvalidEdgeException("Null edge.");
-        
+        if (e == null) throw new InvalidEdgeException("Null edge.");
+
         MyEdge edge;
         try {
             edge = (MyEdge) e;
@@ -399,14 +401,14 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
         return edge;
     }
 
-	@Override
-	public void clearElement() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void clearElement() {
+        // TODO Auto-generated method stub
 
-	@Override
-	public FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
-		return null;
-	}
+    }
+
+    @Override
+    public FxEdge<E, V> getEdge(Vertex<V> u, Vertex<V> v) throws InvalidVertexException {
+        return null;
+    }
 }
