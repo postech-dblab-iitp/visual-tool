@@ -130,7 +130,6 @@ public class MiniMap {
         gdata.heightHint = MINIMAP_HEIGHT / 2;
         zoomOut.setLayoutData(gdata);
 
-        System.out.println("create showing set false");
         showing = false;
         overlayShell.open();
         overlayShell.setVisible(showing);
@@ -263,6 +262,14 @@ public class MiniMap {
     }
 
     private void rePosition() {
+        if (parentComposite.isDisposed()) {
+            return;
+        }
+
+        if (overlayShell.isDisposed()) {
+            return;
+        }
+
         if (!parentComposite.isVisible()) {
             if (!overlayShell.isDisposed()) {
                 overlayShell.setBounds(new Rectangle(0, 0, 0, 0));
