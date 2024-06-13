@@ -28,9 +28,11 @@ public class GetChartInfoQueryJob extends AbstractJob {
     private long min;
     private long max;
 
-    private LinkedHashMap<String, Object> data = new LinkedHashMap<>();
+    private LinkedHashMap<String, Object> stepData = new LinkedHashMap<>();
 
     private List<String> retVars = new ArrayList<>();
+
+    private final String STEP_RANGE_SEPARATOR = "-";
 
     public GetChartInfoQueryJob(
             String jobName,
@@ -61,7 +63,7 @@ public class GetChartInfoQueryJob extends AbstractJob {
             long count = 0;
             min = 0;
             max = 0;
-            data.clear();
+            stepData.clear();
 
             graphChart.UILock();
 
@@ -78,17 +80,26 @@ public class GetChartInfoQueryJob extends AbstractJob {
                 return Status.CANCEL_STATUS;
             }
 
-            for (String key : data.keySet()) {
-                if (key.contains("-")) {
-                    temp = key.split("-");
-                    count = getNumofStepInfo(valList, Long.valueOf(temp[0]), Long.valueOf(temp[1]));
-                    data.put(key, count);
+            int index = 0;
+
+            for (String key : stepData.keySet()) {
+                index = key.lastIndexOf(STEP_RANGE_SEPARATOR);
+                if (index > 1) {
+                    temp = new String[2];
+                    temp[0] = key.substring(0, index - 1);
+                    temp[1] = key.substring(index, key.length());
+                    count =
+                            getNumofStepInfo(
+                                    monitor, valList, Long.valueOf(temp[0]), Long.valueOf(temp[1]));
+                    stepData.put(key, count);
                 } else {
-                    count = getNumofStepInfo(valList, Long.valueOf(key), Long.valueOf(key));
-                    data.put(key, count);
+                    count =
+                            getNumofStepInfo(
+                                    monitor, valList, Long.valueOf(key), Long.valueOf(key));
+                    stepData.put(key, count);
                 }
             }
-            graphChart.runUpdateChart(data);
+            graphChart.runUpdateChart(stepData);
         } finally {
             monitor.done();
             graphChart.UIUnLock();
@@ -169,7 +180,8 @@ public class GetChartInfoQueryJob extends AbstractJob {
         return true;
     }
 
-    private long getNumofStepInfo(List<Long> valList, long fromVal, long toVal) {
+    protected long getNumofStepInfo(
+            DBRProgressMonitor monitor, List<Long> valList, long fromVal, long toVal) {
         long result = 0;
         Iterator<Long> itr = valList.iterator();
         while (itr.hasNext()) {
@@ -196,22 +208,22 @@ public class GetChartInfoQueryJob extends AbstractJob {
         if (totalStep >= 10) {
             for (int i = 0; i < maxStep; i++) {
                 if (remainder > 0) {
-                    key = String.valueOf(current) + "-";
+                    key = String.valueOf(current) + STEP_RANGE_SEPARATOR;
                     current += quotient + 1;
                     key += String.valueOf(current);
                 } else {
-                    key = String.valueOf(current) + "-";
+                    key = String.valueOf(current) + STEP_RANGE_SEPARATOR;
                     current += quotient;
                     key += String.valueOf(current);
                 }
                 remainder--;
-                data.put(key, 0);
+                stepData.put(key, 0);
             }
         } else {
             for (int i = 0; i < totalStep; i++) {
                 key = String.valueOf(current);
                 current += 1;
-                data.put(key, 0);
+                stepData.put(key, 0);
             }
         }
     }
