@@ -10,7 +10,7 @@
 
     <properties>
         <dbeaver-version>21.2.2</dbeaver-version>
-        <vit-version>2.0.0</vit-version>
+        <vit-version>3.0.0</vit-version>
         <dbeaver-product>DBeaver</dbeaver-product>
         <tycho-version>2.1.0</tycho-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,6 +19,7 @@
         <local-p2-repo.url>https://web.buabu.duckdns.org/iitp-repo/</local-p2-repo.url>
         <eclipse-p2-repo.url>https://download.eclipse.org/releases/2021-12/</eclipse-p2-repo.url>
         <local-gef3-p2-repo.url>https://web.buabu.duckdns.org/gef-repo/</local-gef3-p2-repo.url>
+        <chromium-repo.url>https://web.buabu.duckdns.org/cubrid/chromium/</chromium-repo.url>
         <key.storage.path>/etc/</key.storage.path>
         <tsa/>
     </properties>
@@ -50,13 +51,16 @@
             <layout>p2</layout>
             <url>https://download.eclipse.org/efxclipse/runtime-released/3.7.0/site/</url>
         </repository>
-
+        <repository>
+            <id>chromeium-repo</id>
+            <layout>p2</layout>
+            <url>https://web.buabu.duckdns.org/cubrid/chromium/</url>
+        </repository>
         <repository>
             <id>javafx</id>
             <layout>p2</layout>
             <url>http://downloads.efxclipse.bestsolution.at/p2-repos/openjfx-11/repository/</url>
         </repository>
-
     </repositories>
 
    <build>
