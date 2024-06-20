@@ -135,6 +135,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
     private List<Button> graphButtonList = new ArrayList<>();
 
+    private int graphTapIndex = FXGraph.GRAPH_TAP;
+    private boolean isAddMoreData = false;
+    
     @Override
     public void createPresentation(
             @NotNull final IResultSetController controller, @NotNull Composite parent) {
@@ -191,7 +194,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
     @Override
     public void dispose() {
-        System.out.println("visual View dispose");
         if (monoFont != null) {
             UIUtils.dispose(monoFont);
             monoFont = null;
@@ -535,7 +537,16 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
     private void ShowVisualizaion(boolean refreshMetadata, boolean append) {
         dataSet(refreshMetadata, append);
-        drawGraph(refreshMetadata, append);
+        if (graphTapIndex == FXGraph.GRAPH_TAP) {
+            drawGraph(refreshMetadata, append);
+            isAddMoreData = false;
+        } else {
+            if (!refreshMetadata && append) {
+                isAddMoreData = true;
+            } else {
+                isAddMoreData = false;
+            }
+        }
     }
 
     private boolean addNeo4jNode(
@@ -809,10 +820,14 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                 });
         visualGraph.setTabSelectAction(
                 (Integer id) -> {
+                    graphTapIndex = id;
                     if (id == FXGraph.BROWSER_TAP) {
-                        graphMenuEnable(true);
-                    } else {
                         graphMenuEnable(false);
+                    } else {
+                        if (isAddMoreData) {
+                            drawGraph(false, true);
+                        }
+                        graphMenuEnable(true);
                     }
                 });
     }
@@ -1018,6 +1033,9 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         }
 
         lastReadRowCount = allRows.size();
+        
+        resultLabel.setText(
+                "Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
     }
 
     private void drawGraph(boolean refreshMetadata, boolean append) {
@@ -1029,9 +1047,6 @@ public class VisualizationPresentation extends AbstractPresentation implements I
         double drawSizeY = sqrt * 129;
 
         if (visualGraph != null) {
-            resultLabel.setText(
-                    "Node : " + visualGraph.getNumNodes() + " Edge : " + visualGraph.getNumEdges());
-
             if (compositeSizeX > drawSizeX) {
                 drawSizeX = compositeSizeX;
             }

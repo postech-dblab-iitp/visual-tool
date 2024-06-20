@@ -1,5 +1,6 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -258,7 +259,9 @@ public class GetChartInfoAllJob extends AbstractJob {
         } else if (simpleType.equals("Double") || simpleType.equals("BigDecimal")) {
             double min = Double.valueOf(minString);
             double max = Double.valueOf(maxString);
-            calcStep(min, max);
+            BigDecimal bigMin = BigDecimal.valueOf(min);
+            BigDecimal bigMax = BigDecimal.valueOf(max);
+            calcStep(bigMin, bigMax);
         } else if (simpleType.equals("Date")) {
             Date min = Date.valueOf(minString);
             Date max = Date.valueOf(maxString);
@@ -291,40 +294,68 @@ public class GetChartInfoAllJob extends AbstractJob {
         }
     }
 
-    protected void calcStep(double min, double max) {
-        double maxStep;
-        if (max - min < MAX_STEP) {
-            maxStep = max - min;
-        } else {
-            maxStep = MAX_STEP;
-        }
-        double step = (max - min) / maxStep;
+    protected void calcStep(BigDecimal min, BigDecimal max) {
         DecimalFormat df = new DecimalFormat("0.00");
-        for (int i = 0; i < maxStep; i++) {
-            double start = min + i * step;
-            double end = start + step;
+        BigDecimal maxStep = max.subtract(min);
+
+        if (maxStep.compareTo(BigDecimal.valueOf(0.1)) <= 0) {
+            maxStep = BigDecimal.valueOf(1);
+        } else {
+            maxStep = BigDecimal.valueOf(MAX_STEP);
+        }
+
+        int count = maxStep.intValue();
+
+        BigDecimal step = max.subtract(min).divide(maxStep);
+
+        if (step.compareTo(BigDecimal.valueOf(0.01)) < 0) {
+            step = BigDecimal.valueOf(0.01);
+        }
+
+        for (int i = 0; i < count; i++) {
+            BigDecimal start = min.add(BigDecimal.valueOf(i).multiply(step));
+            BigDecimal end = start.add(step);
+
             if (i > 0) {
-                start += 0.01;
+                if (step.compareTo(BigDecimal.valueOf(0.1)) < 0) {
+                    start = start.add(BigDecimal.valueOf(0.01));
+                } else if (step.compareTo(BigDecimal.valueOf(1)) < 0) {
+                    start = start.add(BigDecimal.valueOf(0.1));
+                } else {
+                    start = start.add(BigDecimal.valueOf(1));
+                }
             }
 
             stepData.put(df.format(start) + STEP_RANGE_SEPARATOR + df.format(end), 0);
+
+            if (end.compareTo(max) >= 0) {
+                break;
+            }
         }
     }
 
     protected void calcStep(long min, long max) {
-        long maxStep;
-        if (max - min < MAX_STEP) {
-            maxStep = max - min;
-        } else {
+        long maxStep = max - min;
+        if (maxStep >= MAX_STEP) {
             maxStep = MAX_STEP;
         }
         long step = (max - min) / maxStep;
+        long remainder = (max - min) % maxStep;
+        if (remainder > 5) {
+            step += 1;
+        }
+
         for (long i = 0; i < maxStep; i++) {
             long start = min + i * step;
             long end = start + step;
             if (i > 0) {
                 start += 1;
             }
+
+            if (end > max) {
+                end = max;
+            }
+
             stepData.put(start + STEP_RANGE_SEPARATOR + end, 0);
         }
     }

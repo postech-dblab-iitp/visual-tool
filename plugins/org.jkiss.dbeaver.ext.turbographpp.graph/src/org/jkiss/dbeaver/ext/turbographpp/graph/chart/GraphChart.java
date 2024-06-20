@@ -113,20 +113,28 @@ public class GraphChart extends MoveBox {
 
         nodeLableList = new Combo(itemComposite, SWT.READ_ONLY);
         nodeLableList.setEnabled(true);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.widthHint = 100;
+        nodeLableList.setLayoutData(gd);
 
         Label propertyLabel = new Label(itemComposite, SWT.NONE);
         propertyLabel.setText(GraphMessages.fxgraph_all_property + " : ");
 
         propertyList = new Combo(itemComposite, SWT.READ_ONLY);
         propertyList.setEnabled(false);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        gd.widthHint = 100;
+        propertyList.setLayoutData(gd);
 
         buttonGraph = new Button(itemComposite, SWT.RADIO | SWT.CENTER);
         buttonGraph.setText(GraphMessages.graphbox_radio_by_visualGraph);
         buttonGraph.setSelection(true);
+        buttonGraph.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         buttonAll = new Button(itemComposite, SWT.RADIO | SWT.CENTER);
         buttonAll.setText(GraphMessages.graphbox_radio_by_all);
         buttonAll.setSelection(false);
+        buttonGraph.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         tabFolder = new TabFolder(this.getShell(), SWT.BORDER);
         tabFolder.setEnabled(true);
@@ -197,11 +205,7 @@ public class GraphChart extends MoveBox {
                     public void widgetSelected(SelectionEvent e) {
                         propertyList.setEnabled(false);
                         propertyList.clearSelection();
-                        if (buttonGraph.getSelection()) {
-                            nodeLableList.setItems(graph.getDataModel().getNodeLabelList());
-                        } else {
-                            updateLabelInSource();
-                        }
+                        updateNodeCombo();
                     }
                 };
 
@@ -268,7 +272,7 @@ public class GraphChart extends MoveBox {
     }
 
     public void open(int positionX, int positionY) {
-        nodeLableList.setItems(graph.getDataModel().getNodeLabelList());
+        updateNodeCombo();
         show();
         setOverlaySize(positionX, positionY, tabFolder.getSize().x, tabFolder.getSize().y);
     }
@@ -632,11 +636,22 @@ public class GraphChart extends MoveBox {
                                         Math.round(
                                                 bounds.getMinX()
                                                         + bounds.getWidth() / 2
-                                                        - dataText.prefWidth(-1) / 2));
+                                                        - dataText.prefWidth(-1) / 2) + 20);
                                 dataText.setLayoutY(
                                         Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5)
                                                 + 25);
                             }
                         });
+    }
+    
+    private void updateNodeCombo() {
+        if (buttonGraph.getSelection()) {
+            nodeLableList.setItems(graph.getDataModel().getNodeLabelList());
+            if (nodeLableList.getItemCount() > 0) {
+                nodeLableList.select(0);
+            }
+        } else {
+            updateLabelInSource();
+        }
     }
 }

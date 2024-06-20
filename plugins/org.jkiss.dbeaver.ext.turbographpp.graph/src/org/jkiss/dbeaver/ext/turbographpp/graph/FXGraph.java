@@ -94,7 +94,7 @@ public class FXGraph implements GraphBase {
     public static final int Y_KEYCODE = 0x79;
 
     public static final int GRAPH_TAP = 0;
-    public static final int BROWSER_TAP = 0;
+    public static final int BROWSER_TAP = 1;
 
     private FXCanvas canvas;
     private TurboGraphList<CypherNode, CypherEdge> graph;
@@ -499,11 +499,8 @@ public class FXGraph implements GraphBase {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
                         tabIDConsumer.accept(tabFolder.getSelectionIndex());
-                        if (tabFolder.getSelectionIndex() == BROWSER_TAP) {
-                            if (miniMap != null && miniMap.isShowing()) {
-                                miniMapToggle();
-                            }
-                        }
+                        setMiniMapVisible(false);
+                        subClose();
                     };
                 });
     }
@@ -1390,4 +1387,5 @@ public class FXGraph implements GraphBase {
     public void sendJsonData(String url) {
         SendHttp.sendPost(url, getDataModel().getNodes(), getDataModel().getEdges());
     }
+    
 }
