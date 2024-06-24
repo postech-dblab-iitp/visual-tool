@@ -82,9 +82,10 @@
                         webURL="https://www.cubrid.org/manual/en/11.2/api/jdbc.html#configuration-connection"
                         categories="vit_graph">
                     <file 
-                    	path="https://github.com/cubrid-iitp/turbograph-jdbc-maven/releases/download/1.0.0.0006/turbograph-jdbc-1.0.0.0006.jar"
+                    	path="maven:/turbograph:turbograph-jdbc:RELEASE"
                     	type="jar">
                     </file>
+
 
                     <property name="altHosts" value=""/>
                     <property name="rcTime" value="600"/>
@@ -115,8 +116,8 @@
     </extension>
 
 	<extension point="org.jkiss.dbeaver.mavenRepository">
-        <repository id="cubrid-turbograph-maven-repo" name="turbograph Repository" url="https://nexus.buabu.duckdns.org/repository/maven-releases/">
-            <scope group="cubrid"/>
+        <repository id="cubrid-turbograph-maven-repo" name="turbograph Repository" url="https://web.buabu.duckdns.org/cubrid">
+            <scope group="turbograph"/>
         </repository>
     </extension>
 
