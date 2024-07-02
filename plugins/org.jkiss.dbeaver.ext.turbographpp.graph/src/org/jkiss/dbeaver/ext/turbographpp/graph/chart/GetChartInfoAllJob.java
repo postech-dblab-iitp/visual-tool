@@ -1,15 +1,13 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
-import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPDataSource;
 import org.jkiss.dbeaver.model.DBPDataSource;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.exec.DBCException;
@@ -23,20 +21,18 @@ import org.jkiss.dbeaver.runtime.DBWorkbench;
 
 public class GetChartInfoAllJob extends AbstractJob {
 
-    protected DBPDataSource dataSource;
+    protected TurboGraphPPDataSource dataSource;
+    protected boolean isTurboGraph = false;
+
     protected GraphChart graphChart;
     protected String infoLabel;
     protected String infoProperty;
     private Object min = 0;
     private Object max = 0;
 
-    private LinkedHashMap<String, Object> stepData = new LinkedHashMap<>();
+    private LinkedHashMap<String, Long> stepData = new LinkedHashMap<>();
 
     private List<String> retVars = new ArrayList<>();
-
-    private final int MAX_STEP = 10;
-
-    private final String STEP_RANGE_SEPARATOR = "~";
 
     private static final String[] SUPPORT_MIN_MAX_TYPE_STRING_NEO4J =
             new String[] {"Double", "Long", "Date"};
@@ -49,10 +45,11 @@ public class GetChartInfoAllJob extends AbstractJob {
             String property) {
         super(jobName);
         setUser(true);
-        this.dataSource = datasource;
+        this.dataSource = (TurboGraphPPDataSource) datasource;
         this.graphChart = chart;
         this.infoLabel = label;
         this.infoProperty = property;
+        this.isTurboGraph = this.dataSource.isTurboGraph();
     }
 
     @Override
@@ -80,13 +77,13 @@ public class GetChartInfoAllJob extends AbstractJob {
                 return Status.CANCEL_STATUS;
             }
 
-            calcStep(min, max);
+            CalculateStep.calcStep(min, max, stepData);
 
             int index = 0;
+            int step = 1;
 
             for (String key : stepData.keySet()) {
-                int step = 1;
-                index = key.lastIndexOf(STEP_RANGE_SEPARATOR);
+                index = key.lastIndexOf(GraphChart.STEP_RANGE_SEPARATOR);
                 if (index > 0) {
                     temp = new String[2];
                     temp[0] = key.substring(0, index);
@@ -118,7 +115,6 @@ public class GetChartInfoAllJob extends AbstractJob {
         queryBuilder.append(" RETURN MINVALUE, MAXVALUE");
 
         String query = queryBuilder.toString();
-        // System.out.println(query);
         try (JDBCSession session =
                 DBUtils.openMetaSession(monitor, dataSource, "Get Min, Max Value")) {
             JDBCPreparedStatement dbStat = session.prepareStatement(query);
@@ -137,49 +133,12 @@ public class GetChartInfoAllJob extends AbstractJob {
         }
 
         if (!checkSupportType(retMin.getClass().getSimpleName())) {
-            // System.out.println("not support");
             DBWorkbench.getPlatformUI().showError("Chart Error", "not support Type");
             return false;
         }
 
-        // min = floor(retMin);
-        // max = ceil(retMax);
-
         setMinMax(retMin, retMax);
         return true;
-    }
-
-    private long ceil(Object val) {
-        String temp = String.valueOf(val);
-        int index = temp.indexOf(".");
-
-        if (index > 0) {
-            long ret = Long.valueOf(temp.substring(0, index));
-            if (ret < 0) {
-                ret--;
-            } else {
-                ret++;
-            }
-            return ret;
-        }
-
-        return Long.valueOf(temp);
-    }
-
-    private long floor(Object val) {
-        String temp = String.valueOf(val);
-        int index = temp.indexOf(".");
-        if (index > 0) {
-            long ret = Long.valueOf(temp.substring(0, index));
-            if (ret < 0) {
-                ret++;
-            } else {
-                ret--;
-            }
-            return ret;
-        }
-
-        return Long.valueOf(temp);
     }
 
     protected long getNumofStepInfo(
@@ -193,7 +152,7 @@ public class GetChartInfoAllJob extends AbstractJob {
             toVal = "date('" + toVal + "')";
         }
 
-        if (!dataSource.getInfo().getDriverName().contains("Neo4j")) {
+        if (isTurboGraph) {
             if (fromVal.indexOf("-") == 0) {
                 fromVal = String.valueOf("0" + fromVal);
             }
@@ -205,6 +164,10 @@ public class GetChartInfoAllJob extends AbstractJob {
         fromOperator = " >= ";
         toOperator = " <= ";
 
+        if (fromVal.contains(".") && step > 1) {
+            fromOperator = " > ";
+        }
+
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("MATCH (n:" + infoLabel + ")");
         queryBuilder.append(" WHERE n." + infoProperty + fromOperator + fromVal);
@@ -212,14 +175,12 @@ public class GetChartInfoAllJob extends AbstractJob {
         queryBuilder.append(" RETURN COUNT(*) AS node_count");
 
         String query = queryBuilder.toString();
-        // System.out.println(query);
         try (JDBCSession session =
                 DBUtils.openMetaSession(monitor, dataSource, "Get Min, Max Value")) {
             JDBCPreparedStatement dbStat = session.prepareStatement(query);
             try (JDBCResultSet dbResult = dbStat.executeQuery()) {
                 while (dbResult.next()) {
                     count = JDBCUtils.safeGetLong(dbResult, 1);
-                    // System.out.println("getNumofStepInfo count : " + count);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -246,118 +207,6 @@ public class GetChartInfoAllJob extends AbstractJob {
             }
         }
         return false;
-    }
-
-    protected void calcStep(Object minVal, Object maxVal) {
-        String simpleType = minVal.getClass().getSimpleName();
-        String minString = String.valueOf(minVal);
-        String maxString = String.valueOf(maxVal);
-        if (simpleType.equals("Long") || simpleType.equals("Integer")) {
-            long min = Long.valueOf(minString);
-            long max = Long.valueOf(maxString);
-            calcStep(min, max);
-        } else if (simpleType.equals("Double") || simpleType.equals("BigDecimal")) {
-            double min = Double.valueOf(minString);
-            double max = Double.valueOf(maxString);
-            BigDecimal bigMin = BigDecimal.valueOf(min);
-            BigDecimal bigMax = BigDecimal.valueOf(max);
-            calcStep(bigMin, bigMax);
-        } else if (simpleType.equals("Date")) {
-            Date min = Date.valueOf(minString);
-            Date max = Date.valueOf(maxString);
-            calcStep(min, max);
-        }
-    }
-
-    protected void calcStep(Date min, Date max) {
-        long minTime = min.getTime();
-        long maxTime = max.getTime();
-        long step = (maxTime - minTime) / 10;
-        final long day = 1000 * 60 * 60 * 24;
-
-        if (step > 0) {
-            for (int i = 0; i < 10; i++) {
-                long start = minTime + i * step;
-                long end = start + step;
-                if (i > 0) {
-                    start += day;
-                }
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                String startStr = format.format(new Date(start));
-                String endStr = format.format(new Date(end));
-                stepData.put(startStr + STEP_RANGE_SEPARATOR + endStr, 0);
-            }
-        } else {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            String startStr = format.format(new Date(minTime));
-            stepData.put(startStr, 0);
-        }
-    }
-
-    protected void calcStep(BigDecimal min, BigDecimal max) {
-        DecimalFormat df = new DecimalFormat("0.00");
-        BigDecimal maxStep = max.subtract(min);
-
-        if (maxStep.compareTo(BigDecimal.valueOf(0.1)) <= 0) {
-            maxStep = BigDecimal.valueOf(1);
-        } else {
-            maxStep = BigDecimal.valueOf(MAX_STEP);
-        }
-
-        int count = maxStep.intValue();
-
-        BigDecimal step = max.subtract(min).divide(maxStep);
-
-        if (step.compareTo(BigDecimal.valueOf(0.01)) < 0) {
-            step = BigDecimal.valueOf(0.01);
-        }
-
-        for (int i = 0; i < count; i++) {
-            BigDecimal start = min.add(BigDecimal.valueOf(i).multiply(step));
-            BigDecimal end = start.add(step);
-
-            if (i > 0) {
-                if (step.compareTo(BigDecimal.valueOf(0.1)) < 0) {
-                    start = start.add(BigDecimal.valueOf(0.01));
-                } else if (step.compareTo(BigDecimal.valueOf(1)) < 0) {
-                    start = start.add(BigDecimal.valueOf(0.1));
-                } else {
-                    start = start.add(BigDecimal.valueOf(1));
-                }
-            }
-
-            stepData.put(df.format(start) + STEP_RANGE_SEPARATOR + df.format(end), 0);
-
-            if (end.compareTo(max) >= 0) {
-                break;
-            }
-        }
-    }
-
-    protected void calcStep(long min, long max) {
-        long maxStep = max - min;
-        if (maxStep >= MAX_STEP) {
-            maxStep = MAX_STEP;
-        }
-        long step = (max - min) / maxStep;
-        long remainder = (max - min) % maxStep;
-        if (remainder > 5) {
-            step += 1;
-        }
-
-        for (long i = 0; i < maxStep; i++) {
-            long start = min + i * step;
-            long end = start + step;
-            if (i > 0) {
-                start += 1;
-            }
-
-            if (end > max) {
-                end = max;
-            }
-
-            stepData.put(start + STEP_RANGE_SEPARATOR + end, 0);
-        }
     }
 
     public static List<String> calculateDoubleIntervals(double min, double max, int numIntervals) {

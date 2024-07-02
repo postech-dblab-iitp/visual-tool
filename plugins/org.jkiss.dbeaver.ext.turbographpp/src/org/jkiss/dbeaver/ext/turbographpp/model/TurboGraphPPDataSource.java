@@ -57,6 +57,7 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
     private final TurboGraphPPMetaModel metaModel;
     private String allObjectsPattern;
     private Set<Neo4jEdge> edges;
+    private boolean isTurboGraph = false;
 
     public TurboGraphPPDataSource(
             DBRProgressMonitor monitor,
@@ -76,6 +77,10 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
             this.allObjectsPattern = "%";
         } else if ("null".equalsIgnoreCase(this.allObjectsPattern)) {
             this.allObjectsPattern = null;
+        }
+
+        if (container.getDriver().getDriverClassName().contains("turbograph")) {
+            isTurboGraph = true;
         }
     }
 
@@ -298,5 +303,9 @@ public class TurboGraphPPDataSource extends JDBCDataSource implements TurboGraph
         final TurboGraphPPDataSourceInfo info = new TurboGraphPPDataSourceInfo(metaData);
         info.setSupportsResultSetScroll(false);
         return info;
+    }
+
+    public boolean isTurboGraph() {
+        return false;
     }
 }
