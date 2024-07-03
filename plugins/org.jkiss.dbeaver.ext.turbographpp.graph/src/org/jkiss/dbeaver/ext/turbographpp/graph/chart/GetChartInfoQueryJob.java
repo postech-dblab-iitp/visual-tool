@@ -28,7 +28,7 @@ public class GetChartInfoQueryJob extends AbstractJob {
     private long min;
     private long max;
 
-    private LinkedHashMap<String, Object> stepData = new LinkedHashMap<>();
+    private LinkedHashMap<String, Long> stepData = new LinkedHashMap<>();
 
     private List<String> retVars = new ArrayList<>();
 
@@ -217,13 +217,13 @@ public class GetChartInfoQueryJob extends AbstractJob {
                     key += String.valueOf(current);
                 }
                 remainder--;
-                stepData.put(key, 0);
+                stepData.put(key, (long) 0);
             }
         } else {
             for (int i = 0; i < totalStep; i++) {
                 key = String.valueOf(current);
                 current += 1;
-                stepData.put(key, 0);
+                stepData.put(key, (long) 0);
             }
         }
     }

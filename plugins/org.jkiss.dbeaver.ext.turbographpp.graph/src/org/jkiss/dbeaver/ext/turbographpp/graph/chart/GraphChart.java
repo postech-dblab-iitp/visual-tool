@@ -1,5 +1,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +64,9 @@ import org.jkiss.dbeaver.runtime.DBWorkbench;
 
 public class GraphChart extends MoveBox {
 
+    public static final String STEP_RANGE_SEPARATOR = "~";
+    public static final int MAX_STEP = 10;
+
     private final FXGraph graph;
 
     private final TabFolder tabFolder;
@@ -90,8 +95,9 @@ public class GraphChart extends MoveBox {
     private Button buttonGraph;
     private Button buttonAll;
 
-    private static final Integer[] SUPPORT_MIN_MAX_TYPE_ID =
-            new Integer[] {2, 4}; // NUMERIC(DECIMAL)(2), INTEGER(4), DATE(91)
+    // min max query support
+    private static final Integer[] TURBOGRAPH_SUPPORT_MIN_MAX_TYPE_ID =
+            new Integer[] {2, 4, 91}; // NUMERIC(DECIMAL)(2), INTEGER(4), DATE(91)
 
     public GraphChart(Control control, FXGraph graph, DBPDataSource dataSource) {
         super(control, GraphMessages.graphbox_title, OVERLAY_WIDTH, OVERLAY_HEIGHT);
@@ -167,16 +173,7 @@ public class GraphChart extends MoveBox {
 
                     @Override
                     public void widgetSelected(SelectionEvent e) {
-                        String label = nodeLableList.getText();
-                        if (buttonGraph.getSelection()) {
-                            updateProperyList(label);
-                        } else {
-                            if (dataSource.getInfo().getDriverName().contains("Neo4j")) {
-                                updatePropertiesInAllForNeo4j(label);
-                            } else {
-                                updatePropertiesInAll(label);
-                            }
-                        }
+                        nodeSelectEvent();
                     }
                 });
 
@@ -232,7 +229,7 @@ public class GraphChart extends MoveBox {
         return barChart;
     }
 
-    public void setSelectNode(Object item) {
+    private void setSelectNode(Object item) {
         int idx = -1;
 
         nodeSelectItem = item;
@@ -247,20 +244,18 @@ public class GraphChart extends MoveBox {
         }
 
         List<String> intProperyList = new ArrayList<>();
+
+        // Support type in Graph
         for (String protype : node.getProperties().keySet()) {
-            if (node.getProperty(protype) instanceof Integer
-                    || node.getProperty(protype) instanceof Long) {
+            Object data = node.getProperty(protype);
+            if (data instanceof Integer
+                    || data instanceof Long
+                    || data instanceof BigDecimal
+                    || data instanceof Date) {
                 intProperyList.add(protype);
             }
         }
         propertyList.setItems(intProperyList.toArray(new String[intProperyList.size()]));
-        if (node.getDisplayProperty() != null) {
-            idx = propertyList.indexOf(node.getDisplayProperty());
-        }
-
-        if (idx != -1) {
-            propertyList.select(idx);
-        }
     }
 
     private void switchWidget(int selected) {
@@ -358,7 +353,7 @@ public class GraphChart extends MoveBox {
         rowCount = count;
     }
 
-    public void runUpdateChart(HashMap<String, Object> data) {
+    public void runUpdateChart(HashMap<String, Long> data) {
         Platform.runLater(
                 new Runnable() {
                     @Override
@@ -368,13 +363,13 @@ public class GraphChart extends MoveBox {
                 });
     }
 
-    public void updateChart(HashMap<String, Object> data) {
+    public void updateChart(HashMap<String, Long> data) {
         barChart = null;
 
         Series series = new Series();
-        int val = 0;
+        long val = 0;
         for (String key : data.keySet()) {
-            val = Integer.valueOf(String.valueOf(data.get(key)));
+            val = Long.valueOf(String.valueOf(data.get(key)));
             Data<Number, String> nodeData = new Data<Number, String>(val, key);
             series.getData().add(nodeData);
             nodeData.nodeProperty()
@@ -479,6 +474,9 @@ public class GraphChart extends MoveBox {
                                             String[] result =
                                                     labelList.toArray(new String[labelList.size()]);
                                             nodeLableList.setItems(result);
+                                            if (nodeLableList.getItemCount() > 0) {
+                                                nodeLableList.select(0);
+                                            }
                                         };
                                     });
                 } catch (Exception e) {
@@ -569,8 +567,8 @@ public class GraphChart extends MoveBox {
                     List<String> list = new ArrayList<>();
 
                     for (TurboGraphPPTableColumn column : listProperties) {
-                        for (int i = 0; i < SUPPORT_MIN_MAX_TYPE_ID.length; i++) {
-                            if (SUPPORT_MIN_MAX_TYPE_ID[i] == column.getTypeID()) {
+                        for (int i = 0; i < TURBOGRAPH_SUPPORT_MIN_MAX_TYPE_ID.length; i++) {
+                            if (TURBOGRAPH_SUPPORT_MIN_MAX_TYPE_ID[i] == column.getTypeID()) {
                                 list.add(column.getName());
                             }
                         }
@@ -634,24 +632,39 @@ public class GraphChart extends MoveBox {
                                     Bounds bounds) {
                                 dataText.setLayoutX(
                                         Math.round(
-                                                bounds.getMinX()
-                                                        + bounds.getWidth() / 2
-                                                        - dataText.prefWidth(-1) / 2) + 20);
+                                                        bounds.getMinX()
+                                                                + bounds.getWidth() / 2
+                                                                - dataText.prefWidth(-1) / 2)
+                                                + 20);
                                 dataText.setLayoutY(
                                         Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5)
                                                 + 25);
                             }
                         });
     }
-    
+
     private void updateNodeCombo() {
         if (buttonGraph.getSelection()) {
             nodeLableList.setItems(graph.getDataModel().getNodeLabelList());
             if (nodeLableList.getItemCount() > 0) {
                 nodeLableList.select(0);
+                nodeSelectEvent();
             }
         } else {
             updateLabelInSource();
+        }
+    }
+
+    private void nodeSelectEvent() {
+        String label = nodeLableList.getText();
+        if (buttonGraph.getSelection()) {
+            updateProperyList(label);
+        } else {
+            if (dataSource.getInfo().getDriverName().contains("Neo4j")) {
+                updatePropertiesInAllForNeo4j(label);
+            } else {
+                updatePropertiesInAll(label);
+            }
         }
     }
 }

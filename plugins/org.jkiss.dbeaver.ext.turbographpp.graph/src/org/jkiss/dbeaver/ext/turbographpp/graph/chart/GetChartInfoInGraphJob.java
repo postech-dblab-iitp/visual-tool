@@ -1,5 +1,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -16,10 +18,10 @@ public class GetChartInfoInGraphJob extends AbstractJob {
     private GraphChart graphChart;
     private String infoLabel;
     private String infoProperty;
-    private long min;
-    private long max;
+    private Object min;
+    private Object max;
 
-    private LinkedHashMap<String, Object> data = new LinkedHashMap<>();
+    private LinkedHashMap<String, Long> data = new LinkedHashMap<>();
 
     public GetChartInfoInGraphJob(
             String jobName, FXGraph graph, GraphChart chart, String label, String property) {
@@ -46,22 +48,8 @@ public class GetChartInfoInGraphJob extends AbstractJob {
 
         monitor.beginTask("Update GraphDB Type info", 1);
         try {
-            String[] temp;
-            long count = 0;
-            min = 0;
-            max = 0;
             data.clear();
-            List<Long> valList = getMinMaxInfo(monitor);
-            for (String key : data.keySet()) {
-                if (key.contains("-")) {
-                    temp = key.split("-");
-                    count = getNumofStepInfo(valList, Long.valueOf(temp[0]), Long.valueOf(temp[1]));
-                    data.put(key, count);
-                } else {
-                    count = getNumofStepInfo(valList, Long.valueOf(key), Long.valueOf(key));
-                    data.put(key, count);
-                }
-            }
+            createChartData();
             graphChart.runUpdateChart(data);
         } finally {
             graphChart.UIUnLock();
@@ -70,30 +58,68 @@ public class GetChartInfoInGraphJob extends AbstractJob {
         return Status.OK_STATUS;
     }
 
-    private List<Long> getMinMaxInfo(DBRProgressMonitor monitor) {
+    private void createChartData() {
+        ArrayList<Long> longValList = new ArrayList<>();
+        ArrayList<BigDecimal> decimalValList = new ArrayList<>();
+        ArrayList<Date> dateValList = new ArrayList<>();
+
         ArrayList<String> nodeList = graph.getDataModel().getNodeLabelList(infoLabel);
-        ArrayList<Long> valList = new ArrayList<>();
         Iterator<String> list = nodeList.iterator();
+
+        long longMin = 0, longmax = 0;
+        BigDecimal decimalMin = BigDecimal.valueOf(0), decimalMax = BigDecimal.valueOf(0);
+        Date dateMin = Date.valueOf("1111-11-11"), dateMax = Date.valueOf("1111-11-11");
 
         try {
             boolean first = true;
             while (list.hasNext()) {
                 CypherNode node = graph.getDataModel().getNode(list.next()).element();
                 if (node != null) {
-                    Object temp = node.getProperty(infoProperty);
-                    if (temp != null) {
-                        long val = Long.valueOf(String.valueOf(temp));
-                        valList.add(val);
-                        if (first) {
-                            min = max = val;
-                            first = false;
-                        }
-                        if (min > val) {
-                            min = val;
-                        }
+                    Object objectVal = node.getProperty(infoProperty);
+                    if (objectVal != null) {
+                        String stringVal = String.valueOf(objectVal);
+                        if (objectVal instanceof Long || objectVal instanceof Integer) {
+                            long longVal = Long.valueOf(stringVal);
+                            longValList.add(longVal);
+                            if (first) {
+                                min = max = longMin = longmax = longVal;
+                                first = false;
+                            }
+                            if (longMin > longVal) {
+                                min = longMin = longVal;
+                            }
 
-                        if (max < val) {
-                            max = val;
+                            if (longmax < longVal) {
+                                max = longmax = longVal;
+                            }
+                        } else if (objectVal instanceof BigDecimal || objectVal instanceof Double) {
+                            BigDecimal decimalVal = BigDecimal.valueOf(Double.valueOf(stringVal));
+                            decimalValList.add(decimalVal);
+                            if (first) {
+                                min = max = decimalMin = decimalMax = decimalVal;
+                                first = false;
+                            }
+                            if (decimalMin.compareTo(decimalVal) > 0) {
+                                min = decimalMin = decimalVal;
+                            }
+
+                            if (decimalMax.compareTo(decimalVal) < 0) {
+                                max = decimalMax = decimalVal;
+                            }
+                        } else if (objectVal instanceof Date) {
+                            Date dateVal = Date.valueOf(stringVal);
+                            dateValList.add(dateVal);
+                            if (first) {
+                                min = max = dateMin = dateMax = dateVal;
+                                first = false;
+                            }
+                            if (dateMin.compareTo(dateVal) > 0) {
+                                min = dateMin = dateVal;
+                            }
+
+                            if (dateMax.compareTo(dateVal) < 0) {
+                                max = dateMax = dateVal;
+                            }
                         }
                     }
                 }
@@ -102,12 +128,45 @@ public class GetChartInfoInGraphJob extends AbstractJob {
             e.printStackTrace();
         }
 
-        calcStep(min, max);
+        CalculateStep.calcStep(min, max, data);
 
-        return valList;
+        int step = 1;
+        String[] temp;
+        long count = 0;
+        String stepMin, stepMax;
+
+        for (String key : data.keySet()) {
+            if (key.contains(GraphChart.STEP_RANGE_SEPARATOR)) {
+                temp = key.split(GraphChart.STEP_RANGE_SEPARATOR);
+                stepMin = temp[0];
+                stepMax = temp[1];
+            } else {
+                stepMin = stepMax = key;
+            }
+
+            if (!longValList.isEmpty()) {
+                count =
+                        getNumofStepInfo(
+                                longValList, Long.valueOf(stepMin), Long.valueOf(stepMax), step);
+            } else if (!decimalValList.isEmpty()) {
+                count =
+                        getNumofStepInfo(
+                                decimalValList,
+                                BigDecimal.valueOf(Double.valueOf(stepMin)),
+                                BigDecimal.valueOf(Double.valueOf(stepMax)),
+                                step);
+            } else if (!dateValList.isEmpty()) {
+                count =
+                        getNumofStepInfo(
+                                dateValList, Date.valueOf(stepMin), Date.valueOf(stepMax), step);
+            }
+
+            data.put(key, count);
+            step++;
+        }
     }
 
-    public long getNumofStepInfo(List<Long> valList, long fromVal, long toVal) {
+    private long getNumofStepInfo(List<Long> valList, Long fromVal, Long toVal, int step) {
         long result = 0;
         Iterator<Long> itr = valList.iterator();
         while (itr.hasNext()) {
@@ -117,40 +176,43 @@ public class GetChartInfoInGraphJob extends AbstractJob {
                 itr.remove();
             }
         }
+
         return result;
     }
 
-    private void calcStep(long min, long max) {
-        final int maxStep = 10;
-        long current = 0;
-        long totalStep = 0, quotient = 0, remainder = 0;
-        String key = "";
-        current = min;
-        if (max != 0) {
-            totalStep = max - min;
-        }
-        quotient = totalStep / 10;
-        remainder = totalStep % 10;
-        if (totalStep >= 10) {
-            for (int i = 0; i < maxStep; i++) {
-                if (remainder > 0) {
-                    key = String.valueOf(current) + "-";
-                    current += quotient + 1;
-                    key += String.valueOf(current);
-                } else {
-                    key = String.valueOf(current) + "-";
-                    current += quotient;
-                    key += String.valueOf(current);
+    private long getNumofStepInfo(
+            List<BigDecimal> valList, BigDecimal fromVal, BigDecimal toVal, int step) {
+        long result = 0;
+        Iterator<BigDecimal> itr = valList.iterator();
+        while (itr.hasNext()) {
+            BigDecimal val = itr.next();
+            if (step == 1) {
+                if (fromVal.compareTo(val) <= 0 && toVal.compareTo(val) >= 0) {
+                    result++;
+                    itr.remove();
                 }
-                remainder--;
-                data.put(key, 0);
-            }
-        } else {
-            for (int i = 0; i < totalStep; i++) {
-                key = String.valueOf(current);
-                current += 1;
-                data.put(key, 0);
+            } else {
+                if (fromVal.compareTo(val) < 0 && toVal.compareTo(val) >= 0) {
+                    result++;
+                    itr.remove();
+                }
             }
         }
+
+        return result;
+    }
+
+    private long getNumofStepInfo(List<Date> valList, Date fromVal, Date toVal, int step) {
+        long result = 0;
+        Iterator<Date> itr = valList.iterator();
+        while (itr.hasNext()) {
+            Date val = itr.next();
+            if (fromVal.compareTo(val) <= 0 && toVal.compareTo(val) >= 0) {
+                result++;
+                itr.remove();
+            }
+        }
+
+        return result;
     }
 }
