@@ -66,8 +66,14 @@ public class GraphBrowser {
         send.addSelectionListener(
                 new SelectionAdapter() {
                     public void widgetSelected(SelectionEvent event) {
-                        graphview.sendJsonData(jsonUrl.getText());
-                        swtBrowser.setUrl(browserUrl.getText());
+                        String jUrl = jsonUrl.getText();
+                        String bUrl = browserUrl.getText();
+                        if (!jUrl.isEmpty()) {
+                            graphview.sendJsonData(jUrl);
+                        }
+                        if (!bUrl.isEmpty()) {
+                            swtBrowser.setUrl(bUrl);
+                        }
                     }
                 });
 

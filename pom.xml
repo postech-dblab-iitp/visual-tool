@@ -54,7 +54,7 @@
         <repository>
             <id>chromeium-repo</id>
             <layout>p2</layout>
-            <url>https://web.buabu.duckdns.org/cubrid/chromium/</url>
+            <url>https://dl.equo.dev/chromium-swt-ce/oss/p2/116</url>
         </repository>
         <repository>
             <id>javafx</id>

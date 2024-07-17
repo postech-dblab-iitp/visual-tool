@@ -430,19 +430,12 @@ public class VisualQuickQueryPanel extends Composite {
     }
 
     private boolean isGraphDB() {
-        String databaseName = "";
-
         if (this.editor != null && this.editor.getDataSourceContainer() != null) {
-            databaseName = this.editor.getDataSourceContainer().getId();
-//            if (databaseName.contains("turbograph_jdbc")) {
-//                return true;
-//            }
-            
-            if (databaseName.contains("cubrid_jdbc")) {
+            String databaseName = this.editor.getDataSourceContainer().getId();
+            if (databaseName != null && databaseName.contains("turbograph_jdbc")) {
             	return true;
             }
         }
-
         return false;
     }
 

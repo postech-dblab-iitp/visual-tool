@@ -949,7 +949,7 @@ public class FXGraph implements GraphBase {
 
                     @Override
                     public void handle(ActionEvent arg0) {
-                        designBox.open((int) contextMenu.getX(), (int) contextMenu.getY());
+                        designEditorShow();
                     }
                 });
     }
@@ -1331,27 +1331,41 @@ public class FXGraph implements GraphBase {
         if (designBox == null) {
             designBox = new DesignBox(canvas, this);
         }
-        designBox.open(
-                Display.getCurrent().getCursorLocation().x,
-                Display.getCurrent().getCursorLocation().y);
+        if (designBox.isShowing()) {
+            designBox.remove();
+        } else {
+            designBox.open(
+                    Display.getCurrent().getCursorLocation().x,
+                    Display.getCurrent().getCursorLocation().y);
+        }
     }
 
     public void chartShow() {
         if (chartBox == null) {
             chartBox = new GraphChart(canvas, this, parentDataSource);
         }
-        chartBox.open(
-                Display.getCurrent().getCursorLocation().x,
-                Display.getCurrent().getCursorLocation().y);
+
+        if (chartBox.isShowing()) {
+            chartBox.remove();
+        } else {
+            chartBox.open(
+                    Display.getCurrent().getCursorLocation().x,
+                    Display.getCurrent().getCursorLocation().y);
+        }
     }
 
     public void valueShow() {
         if (valBox == null) {
             valBox = new ValueBox(canvas);
         }
-        valBox.open(
-                Display.getCurrent().getCursorLocation().x,
-                Display.getCurrent().getCursorLocation().y);
+
+        if (valBox.isShowing()) {
+            valBox.remove();
+        } else {
+            valBox.open(
+                    Display.getCurrent().getCursorLocation().x,
+                    Display.getCurrent().getCursorLocation().y);
+        }
     }
 
     public void createBrowser(Composite composite) {
@@ -1385,7 +1399,10 @@ public class FXGraph implements GraphBase {
     }
 
     public void sendJsonData(String url) {
-        SendHttp.sendPost(url, getDataModel().getNodes(), getDataModel().getEdges());
+        if (url.toLowerCase().startsWith("https")) {
+            SendHttp.sendPost(url, getDataModel().getNodes(), getDataModel().getEdges());
+        } else {
+            SendHttp.sendPostHttp(url, getDataModel().getNodes(), getDataModel().getEdges());
+        }
     }
-    
 }

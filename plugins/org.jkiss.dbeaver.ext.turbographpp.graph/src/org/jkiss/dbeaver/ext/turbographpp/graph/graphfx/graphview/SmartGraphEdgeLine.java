@@ -178,7 +178,9 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     }
 
     private void update() {
-        attachedLabel.setRotate(getAngle());
+        if (attachedLabel != null) {
+            attachedLabel.setRotate(getAngle());
+        }
     }
 
     private void enableListeners() {

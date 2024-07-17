@@ -46,32 +46,9 @@
                 
             </tree>
             <drivers managable="true">
-                <driver
-                    categories="vit_graph"
-                    class="org.neo4j.jdbc.Driver"
-                    defaultPort="7687"
-                    defaultDatabase="neo4j"
-                    defaultUser="neo4j"
-                    description="TurboGraph++ JDBC driver"
-                    icon="icons/turbo_plus_plus_icon_16.png"
-                    iconBig="icons/turbo_plus_plus_icon_64.png"
-                    id="turbograph_jdbc"
-                    label="TurboGraph++"
-                    sampleURL="jdbc:neo4j:bolt://{host}[:{port}]/?database={database}"
-                    webURL="https://github.com/neo4j-contrib/neo4j-jdbc">
-                    <file
-                        path="maven:/org.neo4j:neo4j-jdbc-driver:RELEASE"
-                        type="jar">
-                    </file>
-                    <parameter
-                        name="supports-truncate"
-                        value="false">
-                    </parameter>
-                    <property name="@dbeaver-default-sql.parameter.enabled" value="false"/>
-                </driver>
-                <driver
-                        id="vit_cubrid_jdbc"
-                        label="TurboGraph++(New)"
+            		<driver
+                        id="vit_turbograph_jdbc"
+                        label="TurboGraph++"
                         icon="icons/turbo_plus_plus_icon_16.png"
                         iconBig="icons/turbo_plus_plus_icon_64.png"
                         class="turbograph.jdbc.driver.TURBOGRAPHDriver"
@@ -79,14 +56,15 @@
                         defaultPort="30000"
                         description="TURBOGRAPH JDBC driver"
                         supportedConfigurationTypes="MANUAL,URL"
-                        webURL="https://www.cubrid.org/manual/en/11.2/api/jdbc.html#configuration-connection"
+                        webURL="https://github.com/postech-dblab-iitp/turbograph-jdbc"
+                        promoted="1"
                         categories="vit_graph">
                     <file 
                     	path="maven:/turbograph:turbograph-jdbc:RELEASE"
                     	type="jar">
                     </file>
 
-
+					<parameter name="stored-unquoted-case" value="UPPER"/>
                     <property name="altHosts" value=""/>
                     <property name="rcTime" value="600"/>
                     <property name="loadBalance" value="false"/>
@@ -105,6 +83,32 @@
                     <property name="preparedStmtCacheSize" value="25"/>
                     <property name="preparedStmtCacheSqlLimit" value="256"/>
                     <property name="hold_cursor" value="true"/>
+                </driver>
+                <driver
+                    categories="vit_graph"
+                    class="org.neo4j.jdbc.Driver"
+                    defaultPort="7687"
+                    defaultDatabase="neo4j"
+                    defaultUser="neo4j"
+                    description="Neo4j JDBC driver"
+                    icon="icons/neo4j_icon.png"
+                    iconBig="icons/neo4j_icon_big.png"
+                    id="vit_neo4j_jdbc"
+                    label="Neo4j Graph"
+                    sampleURL="jdbc:neo4j:bolt://{host}[:{port}]/?database={database}"
+                    webURL="https://github.com/neo4j-contrib/neo4j-jdbc">
+                    <file
+                        path="maven:/org.neo4j:neo4j-jdbc-driver:RELEASE"
+                        type="jar">
+                    </file>
+                    <parameter
+                        name="supports-truncate"
+                        value="false">
+                    <parameter 
+                        name="stored-unquoted-case" 
+                        value="UPPER"/>
+                    </parameter>
+                    <property name="@dbeaver-default-sql.parameter.enabled" value="false"/>
                 </driver>
             </drivers>
         </datasource>
