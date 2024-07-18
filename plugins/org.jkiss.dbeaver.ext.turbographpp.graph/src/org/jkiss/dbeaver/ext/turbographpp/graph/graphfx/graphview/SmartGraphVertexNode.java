@@ -30,6 +30,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
 import javafx.scene.shape.Circle;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
@@ -77,6 +78,8 @@ public class SmartGraphVertexNode<T> extends Circle
      */
     public SmartGraphVertexNode(Vertex<T> v, double x, double y, double radius, boolean allowMove) {
         super(x, y, radius);
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
 
         this.underlyingVertex = v;
         this.attachedLabel = null;

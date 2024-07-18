@@ -9,7 +9,20 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
@@ -21,7 +34,67 @@ public class SendHttp {
             String requestUrl,
             HashMap<String, Vertex<CypherNode>> requestNode,
             HashMap<String, FxEdge<CypherEdge, CypherNode>> requestEdge) {
+        try {
+            X509TrustManager trustManager =
+                    new X509TrustManager() {
+                        public void checkClientTrusted(X509Certificate[] xcs, String string)
+                                throws CertificateException {}
 
+                        public void checkServerTrusted(X509Certificate[] xcs, String string)
+                                throws CertificateException {}
+
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+                    };
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new TrustManager[] {trustManager}, new SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(
+                    new HostnameVerifier() {
+                        public boolean verify(String hostname, SSLSession session) {
+                            return true;
+                        }
+                    });
+
+            URL url = new URL(requestUrl);
+            HttpsURLConnection httpConn = null;
+            httpConn = (HttpsURLConnection) url.openConnection();
+            httpConn.setRequestMethod("POST");
+            httpConn.setRequestProperty("Content-Type", "application/json");
+            httpConn.setDoOutput(true);
+
+            OutputStreamWriter wr = null;
+            wr = new OutputStreamWriter(httpConn.getOutputStream(), "UTF-8");
+
+            wr.write(makeJsonData(requestNode, requestEdge));
+            wr.flush();
+            wr.close();
+
+            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream(), "UTF-8");
+            BufferedReader br = new BufferedReader(isr);
+
+            isr.close();
+            br.close();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public static boolean sendPostHttp(
+            String requestUrl,
+            HashMap<String, Vertex<CypherNode>> requestNode,
+            HashMap<String, FxEdge<CypherEdge, CypherNode>> requestEdge) {
         try {
             URL url = new URL(requestUrl);
             HttpURLConnection httpConn = null;
@@ -35,45 +108,13 @@ public class SendHttp {
 
             wr.write(makeJsonData(requestNode, requestEdge));
             wr.flush();
+            wr.close();
 
-            BufferedReader in =
-                    new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "UTF-8"));
-            // System.out.println(in.readLine());
+            InputStreamReader isr = new InputStreamReader(httpConn.getInputStream(), "UTF-8");
+            BufferedReader br = new BufferedReader(isr);
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return true;
-    }
-
-    public static boolean sendGet(String requestUrl) {
-
-        try {
-            URL url = new URL(requestUrl);
-            HttpURLConnection httpConn = null;
-            httpConn = (HttpURLConnection) url.openConnection();
-            httpConn.setRequestMethod("Get");
-            httpConn.setRequestProperty("Content-Type", "application/json");
-            httpConn.setDoOutput(true);
-
-            OutputStreamWriter wr = null;
-            wr = new OutputStreamWriter(httpConn.getOutputStream(), "UTF-8");
-
-            //            String jsonString = "{name : kim, id : id123}";
-            //            JsonObject jsonData = new JsonObject();
-            //            jsonData.addProperty("id", "1");
-
-            // wr.write(new Gson().toJson(makeJsonData(requestNode, requestEdge)));
-            // makeJsonData(requestNode, requestEdge);
-            wr.write("update");
-            wr.flush();
-
-            BufferedReader in =
-                    new BufferedReader(new InputStreamReader(httpConn.getInputStream(), "UTF-8"));
-            // System.out.println(in.readLine());
+            isr.close();
+            br.close();
 
         } catch (MalformedURLException e) {
             e.printStackTrace();

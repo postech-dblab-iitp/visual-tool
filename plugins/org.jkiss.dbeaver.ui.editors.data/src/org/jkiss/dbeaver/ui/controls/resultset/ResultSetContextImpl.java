@@ -66,6 +66,17 @@ class ResultSetContextImpl implements IResultSetContext {
     }
 
     @Override
+    public boolean supportsGraphVisualize() {
+        DBPDataSource dataSource = viewer.getDataSource();
+        if (dataSource != null) {
+            if (dataSource.getDataSource().getSQLDialect().getDialectName().contains("TurboGraph++")) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
     public String getDocumentContentType() {
         DBDAttributeBinding docAttr = viewer.getModel().getDocumentAttribute();
         return docAttr == null ? null : docAttr.getValueHandler().getValueContentType(docAttr);

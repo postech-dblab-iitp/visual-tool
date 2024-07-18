@@ -49,7 +49,7 @@
                 supportsRecordMode="false"
                 supportsMiniMap="true"
                 order="50">
-            <objectType name="org.jkiss.dbeaver.model.exec.DBCResultSet" if="context.supportsAttributes()"/>
+            <objectType name="org.jkiss.dbeaver.model.exec.DBCResultSet" if="context.supportsGraphVisualize()"/>
         </presentation>
     </extension>
    

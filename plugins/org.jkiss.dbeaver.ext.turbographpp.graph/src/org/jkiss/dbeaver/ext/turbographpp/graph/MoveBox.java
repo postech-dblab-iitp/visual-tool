@@ -22,6 +22,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.jkiss.dbeaver.ui.DBeaverIcons;
+import org.jkiss.dbeaver.ui.UIIcon;
 
 public class MoveBox {
 
@@ -129,7 +131,8 @@ public class MoveBox {
                     }
                 });
 
-        Button closeButton = new Button(overlayShell, SWT.ARROW);
+        Button closeButton = new Button(overlayShell, SWT.PUSH);
+        closeButton.setImage(DBeaverIcons.getImage(UIIcon.CLOSE));
         gdata = new GridData();
         gdata.exclude = !isUseClose;
         closeButton.setLayoutData(gdata);

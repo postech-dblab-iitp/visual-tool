@@ -36,6 +36,9 @@ public interface IResultSetContext
 
     @RuntimeAction
     boolean supportsReferences();
+    
+    @RuntimeAction
+    boolean supportsGraphVisualize();
 
     String getDocumentContentType();
 
