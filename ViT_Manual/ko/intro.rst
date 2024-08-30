@@ -2,9 +2,9 @@
 :meta-keywords: install, compatibility, run 
 :meta-description: supported platforms, hardware and software requirements. How to install
 
-***********
+*****************************
 ViT(Visualization Tool) 소개
-***********
+*****************************
 
 ViT는
 
@@ -33,7 +33,7 @@ ViT 구조
 ===========
 
 DBeaver (dbeaver.io)
--------------
+-----------------------
 DBeaver는 다양한 DBMS을 사용하는 개발자와 데이터베이스 관리자를 위한 공개 소프트웨어(Open Source) 데이터베이스 도구이다.
 기본적으로는 JDBC를 이용하여 다수에 Database와 통신하며, NoSQL등 JDBC가 불가능한 데이터베이스는 기타 드라이버를 이용하여 통신한다.
 크로스 플랫폼을 지원하기 위해 Eclipse RCP로 개발되었으며, 본 과제에서는 DBeaver에 시각화 기능들을 추가하여 확장하는 형태로 개발될 예정이다.
@@ -41,7 +41,7 @@ DBeaver는 다양한 DBMS을 사용하는 개발자와 데이터베이스 관리
 .. image:: /images/dbeaver.png
 
 GQL (Graph Query Language)
--------------
+------------------------------
 
 GQL은 속성(Property) 그래프를 위한 질의 언어이다.
 SQL을 보완하기 위한 독립 실행형 그래프 질의 언어로 기존 OpenCypher, PGQL, G-CORE등에 언어에서 입증된 아이디어를 통해 공식 ISO프로젝트로 차세대 선언적 그래프 질의 표준을 개발 진행 중에 있다.
@@ -51,7 +51,7 @@ SQL을 보완하기 위한 독립 실행형 그래프 질의 언어로 기존 Op
 .. image:: /images/gql.png
 
 JavaFX (openjfx.io)
--------------
+---------------------
 
 JavaFX는 공개 소프트웨어 그래프 시각화 플랫폼으로 네트워크를 분석하고 대형 그래프를 시각화를 지원하는 도구이다. 
 
