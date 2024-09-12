@@ -10,12 +10,6 @@ const port = 3000
 
 const jsonfile = '/data.json'
 
-const options = {
-  method: 'POST',
-  key: fs.readFileSync("./cert.key"),
-  cert: fs.readFileSync("./cert.crt"),
-};
-
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/sample.html');
 });
@@ -34,8 +28,4 @@ app.post('/update-graph', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
-
-https.createServer(options, app).listen(3001, () => {
-  console.log(`HTTPS server started on port 3001`);
-});
 
