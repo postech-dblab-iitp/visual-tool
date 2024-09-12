@@ -1,7 +1,7 @@
 ## 3d-force-graph_for_browser (https://github.com/vasturiano/3d-force-graph)
 
 ViT에 표시된 데이터를 Json으로 내보내기 후에 Browser로 표시하기 위한 데모 node.js app입니다.
-build를 완료 후 실행을 하면 ViT에 Brower Tab에 기능을 확인 할 수 있습니다.
+실행 방법을 이용하여  실행을 하면 ViT에 Brower Tab에 기능을 확인 할 수 있습니다.
 
 
 테스트 환경
