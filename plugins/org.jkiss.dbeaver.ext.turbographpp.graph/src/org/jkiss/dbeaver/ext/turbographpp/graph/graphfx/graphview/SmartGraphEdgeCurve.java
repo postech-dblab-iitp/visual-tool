@@ -29,6 +29,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.CacheHint;
 import javafx.scene.shape.QuadCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -87,6 +88,8 @@ public class SmartGraphEdgeCurve<E, V> extends QuadCurve implements SmartGraphEd
             SmartGraphVertexNode inbound,
             SmartGraphVertexNode outbound,
             int edgeIndex) {
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
         this.inbound = inbound;
         this.outbound = outbound;
 

@@ -23,6 +23,7 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 
+import javafx.scene.CacheHint;
 import javafx.scene.text.Text;
 
 /**
@@ -37,6 +38,8 @@ public class SmartLabel extends Text implements SmartStylableNode {
 
     public SmartLabel() {
         this(0, 0, "");
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
     }
 
     public SmartLabel(String text) {

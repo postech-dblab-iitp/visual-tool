@@ -321,6 +321,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                                     visualGraph.miniMapUpdate(
                                             detachDialog.getmainComposite(),
                                             detachDialog.getmainComposite().getShell());
+                                    visualGraph.subDispose();
                                     mainComposite.setParent(detachDialog.getmainComposite());
                                     parentComposite.layout(true, true);
                                     detachDialog.open();
@@ -329,6 +330,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
                                     mainComposite.setParent(parentComposite);
                                     visualGraph.miniMapUpdate(
                                             mainComposite, mainComposite.getShell());
+                                    visualGraph.subDispose();
                                     parentComposite.layout(true, true);
                                     detachDialog.close();
                                 }
@@ -544,7 +546,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
             if (!refreshMetadata && append) {
                 isAddMoreData = true;
             } else {
-                isAddMoreData = false;
+                isAddMoreData = refreshMetadata? true : false; 
             }
         }
     }
