@@ -1,0 +1,121 @@
+{
+  "nodes": [
+    {
+      "id": "10",
+      "label": "station",
+      "display": "종각"
+    },
+    {
+      "id": "12",
+      "label": "station",
+      "display": "신도림"
+    },
+    {
+      "id": "0",
+      "label": "station",
+      "display": "신도림"
+    },
+    {
+      "id": "1",
+      "label": "station",
+      "display": "시청"
+    },
+    {
+      "id": "2",
+      "label": "station",
+      "display": "서울역"
+    },
+    {
+      "id": "3",
+      "label": "station",
+      "display": "남영"
+    },
+    {
+      "id": "8",
+      "label": "station",
+      "display": "영등포"
+    },
+    {
+      "id": "9",
+      "label": "station",
+      "display": "구로"
+    },
+    {
+      "id": "64",
+      "label": "station",
+      "display": "서울역"
+    },
+    {
+      "id": "21",
+      "label": "station",
+      "display": "시청"
+    },
+    {
+      "id": "22",
+      "label": "station",
+      "display": "신도림"
+    }
+  ],
+  "links": [
+    {
+      "id": "10",
+      "type": "[station_route]",
+      "source": "2",
+      "target": "3"
+    },
+    {
+      "id": "0",
+      "type": "[station_route]",
+      "source": "0",
+      "target": "9"
+    },
+    {
+      "id": "3",
+      "type": "[station_route]",
+      "source": "0",
+      "target": "8"
+    },
+    {
+      "id": "4",
+      "type": "[station_route]",
+      "source": "1",
+      "target": "2"
+    },
+    {
+      "id": "7",
+      "type": "[station_route]",
+      "source": "1",
+      "target": "10"
+    },
+    {
+      "id": "8",
+      "type": "[station_route]",
+      "source": "2",
+      "target": "1"
+    },
+    {
+      "id": "45",
+      "type": "[transfer]",
+      "source": "2",
+      "target": "64"
+    },
+    {
+      "id": "53",
+      "type": "[transfer]",
+      "source": "1",
+      "target": "21"
+    },
+    {
+      "id": "61",
+      "type": "[transfer]",
+      "source": "0",
+      "target": "12"
+    },
+    {
+      "id": "64",
+      "type": "[transfer]",
+      "source": "0",
+      "target": "22"
+    }
+  ]
+}

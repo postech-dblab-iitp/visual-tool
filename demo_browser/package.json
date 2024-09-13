@@ -1,0 +1,19 @@
+{
+  "name": "iitp-turbograph-vit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "homepage": "https://github.com/postech-dblab-iitp/visual-tool",
+  "scripts": {
+    "start": "node app.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "3d-force-graph": "^1.73.3",
+    "express": "^4.19.2"
+  }
+}

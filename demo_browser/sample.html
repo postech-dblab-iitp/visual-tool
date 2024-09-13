@@ -1,0 +1,50 @@
+<head>
+  <style> body { margin: 0; } </style>
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/three-spritetext"></script>
+  <script src="//unpkg.com/3d-force-graph"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+</head>
+
+<body>
+  <div id="3d-graph"></div>
+
+  <script type="importmap">{ "imports": { "three": "//unpkg.com/three/build/three.module.js" }}</script>
+  <script type="module">
+    import SpriteText from "//unpkg.com/three-spritetext/dist/three-spritetext.mjs";
+
+    const elem = document.getElementById('3d-graph');
+
+    var gData;
+    $.ajax({
+        url: "/data",
+        async:false,
+        dataType: "json",
+        success: function (data) {
+            gData = data;
+        }
+    });
+
+    const Graph = ForceGraph3D()(elem)
+      .graphData(gData)
+      .nodeLabel(node => `${node.label}: ${node.display}`)
+      .nodeAutoColorBy('label')
+      .linkThreeObjectExtend(true)
+      .linkThreeObject(link => {
+        const sprite = new SpriteText(`${link.type}`);
+        sprite.color = 'lightgrey';
+        sprite.textHeight = 1.5;
+        return sprite;
+      })
+      .linkPositionUpdate((sprite, { start, end }) => {
+        const middlePos = Object.assign(...['x', 'y', 'z'].map(c => ({
+          [c]: start[c] + (end[c] - start[c]) / 2 // calc middle point
+        })));
+
+        Object.assign(sprite.position, middlePos);
+      });
+
+    Graph.d3Force('charge').strength(-120);
+
+  </script>
+</body>
