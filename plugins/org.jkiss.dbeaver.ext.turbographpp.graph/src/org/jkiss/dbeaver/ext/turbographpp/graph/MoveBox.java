@@ -335,4 +335,9 @@ public class MoveBox {
     public int getMoveButtonSizeY() {
         return moveButton.getSize().y;
     }
+    
+    public void dipose() {
+        this.remove();
+        overlayShell.isDisposed();
+    }
 }

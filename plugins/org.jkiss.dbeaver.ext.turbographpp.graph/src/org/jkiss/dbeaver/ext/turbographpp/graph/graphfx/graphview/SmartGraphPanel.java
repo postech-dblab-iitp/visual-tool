@@ -99,6 +99,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final Map<String, SmartGraphEdgeBase> edgeNodesForID;
     private Map<FxEdge<E, V>, Tuple<Vertex<V>>> connections;
     private final Map<Tuple<SmartGraphVertexNode>, Integer> placedEdges = new HashMap<>();
+    private Set<Vertex<V>> visitedVertexList = new HashSet<>();
     private boolean initialized = false;
     private final boolean edgesWithArrows;
 
@@ -129,8 +130,6 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     private double vertexPosionX = 0;
     private double vertexPosionY = 0;
-
-    private Set<Vertex<V>> visitedVertexList = new HashSet<>();
 
     private double initWidth = 0;
     private double initHeight = 0;
@@ -1415,6 +1414,16 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     public void clear() {
         highlighNode = null;
+    }
+    
+    public void free() {
+        theGraph.clearElement();
+        vertexNodes.clear();
+        edgeNodes.clear();
+        edgeNodesForID.clear();
+        connections.clear();
+        placedEdges.clear();
+        visitedVertexList.clear();
     }
 
     public void setSmartPlacementStrategy(SmartPlacementStrategy placementStrategy) {

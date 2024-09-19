@@ -15,6 +15,7 @@ import javafx.embed.swt.FXCanvas;
 import javafx.embed.swt.SWTFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -26,6 +27,8 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -214,6 +217,8 @@ public class FXGraph implements GraphBase {
 
         scrollPane = new ScrollPane();
         scrollPane.setContent(vBox);
+        scrollPane.setCache(true);
+        scrollPane.setCacheHint(CacheHint.SPEED);
 
         scene = new Scene(scrollPane);
 
@@ -249,6 +254,12 @@ public class FXGraph implements GraphBase {
                         if (chartBox != null) {
                             chartBox.remove();
                         }
+                        
+                        dataModel.clear();
+                        graphView.free();
+                        graph.clear();
+                        nodesGroup.clear();
+                        nodesRadiusGroup.clear();
                     }
                 });
 
@@ -498,9 +509,15 @@ public class FXGraph implements GraphBase {
                 new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
+                        int idx = tabFolder.getSelectionIndex();
                         tabIDConsumer.accept(tabFolder.getSelectionIndex());
                         setMiniMapVisible(false);
-                        subClose();
+                        subDispose();
+                        if (idx == GRAPH_TAP) {
+                            setPaneVisible(true);
+                        } else {
+                            setPaneVisible(false);
+                        }
                     };
                 });
     }
@@ -1398,6 +1415,25 @@ public class FXGraph implements GraphBase {
         if (valBox != null) valBox.remove();
     }
 
+    public void subDispose() {
+        if (chartBox != null) {
+            chartBox.dipose();
+            chartBox = null;
+        }
+        if (designBox != null) { 
+            designBox.dipose();
+            designBox = null;
+        }
+        if (guideBox != null) {
+            guideBox.dipose();
+            guideBox = null;
+        }
+        if (valBox != null) { 
+            valBox.dipose();
+            valBox = null;
+        }
+    }
+    
     public void sendJsonData(String url) {
         if (url.toLowerCase().startsWith("https")) {
             SendHttp.sendPost(url, getDataModel().getNodes(), getDataModel().getEdges());
@@ -1405,4 +1441,9 @@ public class FXGraph implements GraphBase {
             SendHttp.sendPostHttp(url, getDataModel().getNodes(), getDataModel().getEdges());
         }
     }
+    
+    public void setPaneVisible(boolean visible) {
+        scrollPane.setVisible(visible);
+    }
+    
 }

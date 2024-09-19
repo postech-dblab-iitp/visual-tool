@@ -24,6 +24,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 
 import javafx.beans.value.ObservableValue;
+import javafx.scene.CacheHint;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -69,6 +70,8 @@ public class SmartGraphEdgeCurveSelf<E, V> extends CubicCurve implements SmartGr
             SmartGraphVertexNode inbound,
             SmartGraphVertexNode outbound,
             int edgeIndex) {
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
         this.inbound = inbound;
         this.outbound = outbound;
 

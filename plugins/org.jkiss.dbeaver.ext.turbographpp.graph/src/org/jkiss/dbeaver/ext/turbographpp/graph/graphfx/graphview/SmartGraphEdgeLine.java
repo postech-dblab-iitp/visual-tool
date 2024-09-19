@@ -24,6 +24,7 @@
 package org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graphview;
 
 import javafx.beans.value.ObservableValue;
+import javafx.scene.CacheHint;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -54,7 +55,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         if (inbound == null || outbound == null) {
             throw new IllegalArgumentException("Cannot connect null vertices.");
         }
-
+        this.setCache(true);
+        this.setCacheHint(CacheHint.SPEED);
         this.inbound = inbound;
         this.outbound = outbound;
 
