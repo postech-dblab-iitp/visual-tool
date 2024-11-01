@@ -98,6 +98,13 @@ public class TurboGraphPPPlanNodePlain extends AbstractExecutionPlanNode {
             String[] values = value.split("\\)");
 
             String[] itemsValue = values[0].split(",");
+            
+            if (itemsValue.length != 2) {
+                nodeProps.put("extra", value.replace(")", ""));
+                type = type + name;
+                return;
+            }
+            
             for (int i = 0; i < itemsValue.length; i++) {
                 String[] items = itemsValue[i].split(":");
                 if (items.length == 2) {
