@@ -1,7 +1,5 @@
 package org.jkiss.dbeaver.ext.turbographpp.model.plan;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +19,6 @@ public class TurboGraphPPExecutionPlan extends AbstractExecutionPlan {
 
     private List<TurboGraphPPPlanNodePlain> rootNodes = null;
 
-    private static final Gson gson = new Gson();
-
     public TurboGraphPPExecutionPlan(JDBCSession session, String query) throws DBCException {
         this.dataSource = (TurboGraphPPDataSource) session.getDataSource();
         this.query = query;
@@ -33,31 +29,27 @@ public class TurboGraphPPExecutionPlan extends AbstractExecutionPlan {
                     new TurboGraphPPStatementProxy(session.getOriginal().createStatement());
 
             plan = proxy.getQueryplan(query);
-            String jsonPlan;
 
-            // delete first("plan :[") and last("]")
-            int idx = 0;
-            idx = plan.indexOf("[");
-            jsonPlan = plan.substring(idx + 1);
-            idx = jsonPlan.lastIndexOf("]");
-            jsonPlan = jsonPlan.substring(0, idx);
-
+            String[] plans = plan.split("plan : ");
             List<TurboGraphPPPlanNodePlain> nodes = new ArrayList<>();
-
-            JsonObject planObject = gson.fromJson(jsonPlan, JsonObject.class);
-            JsonObject queryBlock = planObject.getAsJsonObject("Plan");
-
-            TurboGraphPPPlanNodePlain rootNode =
-                    new TurboGraphPPPlanNodePlain(null, "match", queryBlock);
-
-            if (CommonUtils.isEmpty(rootNode.getNested())
-                    && rootNode.getProperty("message") != null) {
-                throw new DBCException("Can't explain plan: " + rootNode.getProperty("message"));
+            TurboGraphPPPlanNodePlain rootNode;
+            for (int i = 0; i < plans.length; i++) {
+                if (plans[i] != null && !plans[i].equals("")) {
+                    System.out.println("-------------------------------");
+                    System.out.println(plans[i]);
+                    rootNode = new TurboGraphPPPlanNodePlain(null, "plan : ", plans[i]);
+                    if (CommonUtils.isEmpty(rootNode.getNested())
+                            && rootNode.getProperty("message") != null) {
+                        throw new DBCException(
+                                "Can't explain plan: " + rootNode.getProperty("message"));
+                    }
+                    nodes.add(rootNode);
+                }
             }
-            nodes.add(rootNode);
 
-            rootNodes = nodes;
-
+            if (nodes.size() > 0) {
+                rootNodes = nodes;
+            }
         } catch (SQLException e) {
             throw new DBCException(e, session.getExecutionContext());
         }
