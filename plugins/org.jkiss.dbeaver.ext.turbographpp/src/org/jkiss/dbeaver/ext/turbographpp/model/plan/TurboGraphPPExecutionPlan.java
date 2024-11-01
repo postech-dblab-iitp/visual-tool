@@ -35,8 +35,6 @@ public class TurboGraphPPExecutionPlan extends AbstractExecutionPlan {
             TurboGraphPPPlanNodePlain rootNode;
             for (int i = 0; i < plans.length; i++) {
                 if (plans[i] != null && !plans[i].equals("")) {
-                    System.out.println("-------------------------------");
-                    System.out.println(plans[i]);
                     rootNode = new TurboGraphPPPlanNodePlain(null, "plan : ", plans[i]);
                     if (CommonUtils.isEmpty(rootNode.getNested())
                             && rootNode.getProperty("message") != null) {
