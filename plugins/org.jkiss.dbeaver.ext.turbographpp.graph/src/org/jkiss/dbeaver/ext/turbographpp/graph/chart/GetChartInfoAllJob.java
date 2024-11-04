@@ -1,3 +1,19 @@
+/*
+ * DBeaver - Universal Database Manager
+ * Copyright (C) 2010-2024 DBeaver Corp and others
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
 import java.sql.SQLException;
@@ -31,8 +47,6 @@ public class GetChartInfoAllJob extends AbstractJob {
     private Object max = 0;
 
     private LinkedHashMap<String, Long> stepData = new LinkedHashMap<>();
-
-    private List<String> retVars = new ArrayList<>();
 
     private static final String[] SUPPORT_MIN_MAX_TYPE_STRING_NEO4J =
             new String[] {"Double", "Long", "Date"};
@@ -197,7 +211,7 @@ public class GetChartInfoAllJob extends AbstractJob {
 
     private boolean checkSupportType(String simpleTypeName) {
 
-        if (!dataSource.getInfo().getDriverName().contains("Neo4j")) {
+        if (dataSource.isTurboGraph()) {
             return true;
         }
 

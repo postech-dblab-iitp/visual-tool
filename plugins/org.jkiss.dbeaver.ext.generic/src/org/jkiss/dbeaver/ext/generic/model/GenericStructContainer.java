@@ -35,7 +35,7 @@ public interface GenericStructContainer extends DBSObjectContainer, DBSProcedure
     @NotNull
     @Override
     GenericDataSource getDataSource();
-
+ 
     GenericStructContainer getObject();
 
     GenericCatalog getCatalog();

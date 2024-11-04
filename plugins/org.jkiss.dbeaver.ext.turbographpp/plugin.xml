@@ -22,35 +22,34 @@
         <datasource
             class="org.jkiss.dbeaver.ext.turbographpp.TurboGraphPPDataSourceProvider"
             description="TurboGraph JDBC Driver"
-            icon="icons/turbo_plus_plus_icon_16.png"
+            icon="icons/turbograph_16.png"
             id="turbographpp"
             label="turbograph jdbc"
             dialect="turbographpp">
-            <tree path="turbographpp" label="GTurboGraph++ data source" supportsEntityMerge="true">
-                <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTable" label="%tree.table.node.name" icon="#folder_table" description="%tree.tables.node.tip">
-                    <items label="%tree.table.node.name" path="table" property="PhysicalNode" icon="#table">
-                        <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.node.name" icon="#columns" description="%tree.columns.node.name">
-                            <items label="%tree.column.node.name" path="nodeproperties" property="attributes" icon="#column">
-                            </items>
+            <tree path="turbographpp" label="TurboGraph++ data source" supportsEntityMerge="true">
+                    <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTable" label="%tree.table.node.name" icon="#folder_table" description="%tree.tables.node.name">
+	                  <items label="%tree.table.node.name" path="table" property="physicalTables" icon="#table">
+	                    <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.node.name" icon="#columns" description="%tree.columns.node.tip">
+	                        <items label="%tree.column.node.name" path="nodeproperties" property="attributes" icon="#column">
+	                        </items>
+	                    </folder>
+	                  </items>
+                    </folder>
+                    <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPView" label="%tree.table.edge.name" icon="#folder_view" description="%tree.table.edge.name">
+                      <items label="%tree.table.edge.name" path="view" property="views" icon="#view">
+                        <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.edge.name" icon="#columns" description="%tree.column.edge.tip">
+                          <items label="%tree.column.node.name" path="edgeproperties" property="attributes" icon="#column">
+                          </items>
                         </folder>
-                    </items>
-                </folder>
-                <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPView" label="%tree.table.edge.name" icon="#folder_link" description="%tree.tables.edge.tip">
-                            <items label="%tree.table.edge.name" path="view" property="PhysicalEdge" icon="#table_link">
-                                <folder type="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn" label="%tree.column.edge.name" icon="#columns" description="%tree.column.edge.name">
-                                    <items label="%tree.column.edge.name" path="edgeproperties" property="attributes" icon="#column">
-                                    </items>
-                                </folder>
-                            </items>
-				</folder>
-                
+                      </items>
+                    </folder>
             </tree>
             <drivers managable="true">
             		<driver
                         id="vit_turbograph_jdbc"
                         label="TurboGraph++"
-                        icon="icons/turbo_plus_plus_icon_16.png"
-                        iconBig="icons/turbo_plus_plus_icon_64.png"
+                        icon="icons/turbograph_16.png"
+                        iconBig="icons/turbograph_64.png"
                         class="turbograph.jdbc.driver.TURBOGRAPHDriver"
                         sampleURL="jdbc:turbograph:{host}:{port}:{database}:::"
                         defaultPort="30000"
@@ -58,7 +57,8 @@
                         supportedConfigurationTypes="MANUAL,URL"
                         webURL="https://github.com/postech-dblab-iitp/turbograph-jdbc"
                         promoted="1"
-                        categories="vit_graph">
+                        anonymous="true"
+                        categories="graph">
                     <file 
                     	path="maven:/turbograph:turbograph-jdbc:RELEASE"
                     	type="jar">
@@ -85,7 +85,7 @@
                     <property name="hold_cursor" value="true"/>
                 </driver>
                 <driver
-                    categories="vit_graph"
+                    categories="graph"
                     class="org.neo4j.jdbc.Driver"
                     defaultPort="7687"
                     defaultDatabase="neo4j"
@@ -95,6 +95,7 @@
                     iconBig="icons/neo4j_icon_big.png"
                     id="vit_neo4j_jdbc"
                     label="Neo4j Graph"
+                    promoted="1"
                     sampleURL="jdbc:neo4j:bolt://{host}[:{port}]/?database={database}"
                     webURL="https://github.com/neo4j-contrib/neo4j-jdbc">
                     <file
@@ -115,7 +116,7 @@
     </extension>
 
     <extension point="org.jkiss.dbeaver.sqlDialect">
-        <dialect id="turbographpp" parent="basic" class="org.jkiss.dbeaver.ext.turbographpp.model.TurboPPSQLDialect" label="TurboGraph++" description="TurboGraph++ dialect." icon="icons/turbo_plus_plus_icon_16.png">
+        <dialect id="turbographpp" parent="basic" class="org.jkiss.dbeaver.ext.turbographpp.model.TurboPPSQLDialect" label="TurboGraph++" description="TurboGraph++ dialect." icon="turbograph_16.png">
         </dialect>
     </extension>
 
@@ -125,4 +126,11 @@
         </repository>
     </extension>
 
+    <extension point="org.jkiss.dbeaver.objectManager">
+        <manager class="org.jkiss.dbeaver.ext.turbographpp.edit.TurboGraphPPTableManager"         objectType="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTable"/>
+        <manager class="org.jkiss.dbeaver.ext.turbographpp.edit.TurboGraphPPViewManager"          objectType="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPView"/>
+        <manager class="org.jkiss.dbeaver.ext.turbographpp.edit.TurboGraphPPTableColumnManager"   objectType="org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn"/>
+        <manager class="org.jkiss.dbeaver.ext.turbographpp.edit.TurboGraphPPViewManager"          objectType="org.jkiss.dbeaver.ext.turbographpp.model.Neo4jEdge"/>
+        <manager class="org.jkiss.dbeaver.ext.turbographpp.edit.TurboGraphPPTableColumnManager"   objectType="org.jkiss.dbeaver.ext.turbographpp.model.Neo4jProperty"/>
+    </extension>
 </plugin>

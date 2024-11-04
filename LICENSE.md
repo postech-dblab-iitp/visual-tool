@@ -214,3 +214,5 @@ JFreeChart - Apache 2.0
 JTS - EPL
 CTS - LGPL
 JSQLParser - Apache 2.0
+JAVFX - GPL 2.0
+JavaFXSmartGraph - MIT

@@ -1,3 +1,19 @@
+/*
+ * DBeaver - Universal Database Manager
+ * Copyright (C) 2010-2024 DBeaver Corp and others
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jkiss.dbeaver.ext.turbographpp.graph.chart;
 
 import java.math.BigDecimal;
@@ -43,6 +59,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.jkiss.dbeaver.ext.generic.model.GenericTable;
+import org.jkiss.dbeaver.ext.generic.model.GenericTableBase;
+import org.jkiss.dbeaver.ext.generic.model.GenericTableColumn;
 import org.jkiss.dbeaver.ext.turbographpp.graph.FXGraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.MoveBox;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
@@ -50,8 +69,6 @@ import org.jkiss.dbeaver.ext.turbographpp.graph.data.GraphDataModel;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
 import org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphMessages;
 import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPDataSource;
-import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableBase;
-import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPTableColumn;
 import org.jkiss.dbeaver.model.DBPDataSource;
 import org.jkiss.dbeaver.model.DBUtils;
 import org.jkiss.dbeaver.model.exec.DBCException;
@@ -458,11 +475,11 @@ public class GraphChart extends MoveBox {
             @Override
             protected IStatus run(DBRProgressMonitor monitor) {
                 try {
-                    List<? extends TurboGraphPPTableBase> tableList = dataSource.getTables(monitor);
+                    List<? extends GenericTableBase> tableList = dataSource.getTables(monitor);
                     List<String> labelList = new ArrayList<>();
 
-                    for (TurboGraphPPTableBase table : tableList) {
-                        if (!table.isEdge()) {
+                    for (GenericTableBase table : tableList) {
+                        if (!table.isView()) {
                             labelList.add(table.getName());
                         }
                     }
@@ -560,13 +577,13 @@ public class GraphChart extends MoveBox {
             @Override
             protected IStatus run(DBRProgressMonitor monitor) {
                 try {
-                    TurboGraphPPTableBase table = dataSource.getTable(monitor, label);
-                    List<? extends TurboGraphPPTableColumn> listProperties =
+                    GenericTable table = (GenericTable) dataSource.getTable(monitor, label);
+                    List<? extends GenericTableColumn> listProperties =
                             table.getAttributes(monitor);
 
                     List<String> list = new ArrayList<>();
 
-                    for (TurboGraphPPTableColumn column : listProperties) {
+                    for (GenericTableColumn column : listProperties) {
                         for (int i = 0; i < TURBOGRAPH_SUPPORT_MIN_MAX_TYPE_ID.length; i++) {
                             if (TURBOGRAPH_SUPPORT_MIN_MAX_TYPE_ID[i] == column.getTypeID()) {
                                 list.add(column.getName());
