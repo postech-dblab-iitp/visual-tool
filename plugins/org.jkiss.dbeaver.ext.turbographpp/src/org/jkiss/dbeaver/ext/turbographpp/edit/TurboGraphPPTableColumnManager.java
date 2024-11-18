@@ -14,14 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jkiss.dbeaver.ext.turbographpp.graph.data;
+package org.jkiss.dbeaver.ext.turbographpp.edit;
 
-public final class DataRowID {
-    public static final String NODE_EDGE_ID = "_id";
-    public static final String NODE_LABEL = "_labels";
-    public static final String EDGE_TYPE = "_type";
-    public static final String NEO4J_EDGE_START_ID = "_startId";
-    public static final String NEO4J_EDGE_END_ID = "_endId";
-    public static final String TURBOGRAPH_EDGE_START_ID = "_sid";
-    public static final String TURBOGRAPH_EDGE_END_ID = "_tid";
+import org.jkiss.dbeaver.ext.generic.edit.GenericTableColumnManager;
+import org.jkiss.dbeaver.ext.generic.model.GenericTableColumn;
+
+public class TurboGraphPPTableColumnManager extends GenericTableColumnManager
+{
+    @Override
+    public boolean canCreateObject(Object container) {
+        return false;
+    }
+    
+    @Override
+    public boolean canDeleteObject(GenericTableColumn object) {
+        return false;
+    }
+    
+    @Override
+    public boolean canEditObject(GenericTableColumn object) {
+        return true;
+    }
 }

@@ -40,8 +40,7 @@
         <category id="embedded" name="Embedded" description="Embedded (serverless) databases" icon="#folder_database" rank="15" promoted="true"/>
         <category id="hadoop" name="Hadoop / BigData" description="Hadoop based BigData databases" icon="#folder_database" rank="20" promoted="true"/>
         <category id="fulltext" name="Full-text search" description="Full-text search databases" icon="#folder_database" rank="22" promoted="true"/>
-        <category id="graph" name="Graph databases" description="Graph databases" icon="#folder_database" rank="23" promoted="true"/>
-        <category id="vit_graph" name="ViT Graph databases" description="ViT Graph databases" icon="#folder_database" rank="24" promoted="true"/>
+        <category id="graph" name="Graph databases" description="Graph databases" icon="#folder_database" rank="1" promoted="true"/>
     </extension>
 
     <extension point="org.jkiss.dbeaver.networkHandler">

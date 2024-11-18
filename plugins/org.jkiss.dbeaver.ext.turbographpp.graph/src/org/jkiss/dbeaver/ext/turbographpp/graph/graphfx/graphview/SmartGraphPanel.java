@@ -2,7 +2,8 @@
  * The MIT License
  *
  * Copyright 2019 brunomnsilva@gmail.com.
- *
+ * Copyright (C) 2024 CUBRID Corporation.
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -63,7 +64,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.data.CypherNode;
-import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Digraph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.FxEdge;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Graph;
 import org.jkiss.dbeaver.ext.turbographpp.graph.graphfx.graph.Vertex;
@@ -676,8 +676,8 @@ public class SmartGraphPanel<V, E> extends Pane {
             for (FxEdge<E, V> edge : unplottedEdges) {
 
                 Vertex<V>[] vertices = edge.vertices();
-                Vertex<V> u = vertices[0]; // oubound if digraph, by javadoc requirement
-                Vertex<V> v = vertices[1]; // inbound if digraph, by javadoc requirement
+                Vertex<V> u = vertices[0];
+                Vertex<V> v = vertices[1];
 
                 SmartGraphVertexNode<V> graphVertexOut = vertexNodes.get(u);
                 SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(v);

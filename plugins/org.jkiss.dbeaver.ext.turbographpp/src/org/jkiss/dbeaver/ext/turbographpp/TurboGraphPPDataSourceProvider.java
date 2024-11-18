@@ -1,6 +1,6 @@
 /*
  * DBeaver - Universal Database Manager
- * Copyright (C) 2010-2021 DBeaver Corp and others
+ * Copyright (C) 2010-2024 DBeaver Corp and others
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,22 @@ package org.jkiss.dbeaver.ext.turbographpp;
 import org.jkiss.code.NotNull;
 import org.jkiss.dbeaver.DBException;
 import org.jkiss.dbeaver.ext.generic.GenericConstants;
+import org.jkiss.dbeaver.ext.generic.GenericDataSourceProvider;
 import org.jkiss.dbeaver.ext.turbographpp.model.TurboGraphPPDataSource;
+import org.jkiss.dbeaver.ext.turbographpp.model.TurboPPSQLDialect;
 import org.jkiss.dbeaver.ext.turbographpp.model.meta.TurboGraphPPMetaModel;
 import org.jkiss.dbeaver.model.DBPDataSource;
 import org.jkiss.dbeaver.model.DBPDataSourceContainer;
 import org.jkiss.dbeaver.model.connection.DBPConnectionConfiguration;
 import org.jkiss.dbeaver.model.connection.DBPDriver;
 import org.jkiss.dbeaver.model.impl.PropertyDescriptor;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCDataSourceProvider;
 import org.jkiss.dbeaver.model.impl.jdbc.JDBCURL;
 import org.jkiss.dbeaver.model.messages.ModelMessages;
 import org.jkiss.dbeaver.model.preferences.DBPPropertyDescriptor;
 import org.jkiss.dbeaver.model.runtime.DBRProgressMonitor;
 import org.jkiss.utils.CommonUtils;
 
-public class TurboGraphPPDataSourceProvider extends JDBCDataSourceProvider {
+public class TurboGraphPPDataSourceProvider extends GenericDataSourceProvider {
 
     public TurboGraphPPDataSourceProvider() {}
 
@@ -51,7 +52,7 @@ public class TurboGraphPPDataSourceProvider extends JDBCDataSourceProvider {
     public DBPDataSource openDataSource(
             @NotNull DBRProgressMonitor monitor, @NotNull DBPDataSourceContainer container)
             throws DBException {
-        return new TurboGraphPPDataSource(monitor, container, new TurboGraphPPMetaModel());
+        return new TurboGraphPPDataSource(monitor, container, new TurboGraphPPMetaModel(), new TurboPPSQLDialect());
     };
 
     @Override

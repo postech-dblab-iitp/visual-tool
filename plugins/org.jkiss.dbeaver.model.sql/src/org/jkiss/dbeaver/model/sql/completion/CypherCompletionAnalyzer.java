@@ -961,7 +961,8 @@ public class CypherCompletionAnalyzer extends SQLCompletionAnalyzer {
                                     || (prevdelimiter != null
                                             && (prevdelimiter.equals("[:")
                                                     || prevdelimiter.equals(")-[:")))) {
-                                if (child.getClass().getName().endsWith("View")) {
+                                if (child.getClass().getName().endsWith("View") ||
+                                        child.getClass().getName().endsWith("Edge")) {
                                     matchedObjects.add(child);
                                     scoredMatches.put(child.getName(), score);
                                 }

@@ -1,7 +1,6 @@
 /*
  * DBeaver - Universal Database Manager
- * Copyright (C) 2016 Karl Griesser (fullref@gmail.com)
- * Copyright (C) 2010-2021 DBeaver Corp and others
+ * Copyright (C) 2010-2024 DBeaver Corp and others
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +16,16 @@
  */
 package org.jkiss.dbeaver.ext.turbographpp.model;
 
+import org.jkiss.dbeaver.ext.generic.model.GenericDataSourceInfo;
+import org.jkiss.dbeaver.model.connection.DBPDriver;
 import org.jkiss.dbeaver.model.exec.jdbc.JDBCDatabaseMetaData;
-import org.jkiss.dbeaver.model.impl.jdbc.JDBCDataSourceInfo;
 import org.jkiss.dbeaver.model.impl.struct.RelationalObjectType;
 import org.jkiss.dbeaver.model.struct.DBSObjectType;
 
-class TurboGraphPPDataSourceInfo extends JDBCDataSourceInfo {
+class TurboGraphPPDataSourceInfo extends GenericDataSourceInfo {
 
-    public TurboGraphPPDataSourceInfo(JDBCDatabaseMetaData metaData) {
-        super(metaData);
+    public TurboGraphPPDataSourceInfo(DBPDriver driver, JDBCDatabaseMetaData metaData) {
+        super(driver, metaData);
     }
 
     @Override
@@ -36,5 +36,15 @@ class TurboGraphPPDataSourceInfo extends JDBCDataSourceInfo {
             RelationalObjectType.TYPE_TABLE_COLUMN,
             RelationalObjectType.TYPE_VIEW_COLUMN,
         };
+    }
+    
+    @Override
+    public boolean isReadOnlyData() {
+        return true;
+    }
+    
+    @Override
+    public boolean isReadOnlyMetaData() {
+         return true;
     }
 }

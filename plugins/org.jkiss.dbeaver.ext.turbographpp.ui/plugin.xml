@@ -21,7 +21,7 @@
    <extension
          point="org.jkiss.dbeaver.dataSourceView">
       <view
-            class="org.jkiss.dbeaver.ext.turbographpp.ui.views.TurboGraphPPConnectionPage"
+            class="org.jkiss.dbeaver.ext.generic.views.GenericConnectionPage"
             icon="icons/turbo_plus_plus_logo.png"
             dataSource="turbographpp"
             id="org.jkiss.dbeaver.ext.turbographpp.dataSourceWizardView"
@@ -29,7 +29,7 @@
             targetID="org.jkiss.dbeaver.ext.ui.newConnectionWizard">
       </view>
       <view
-            class="org.jkiss.dbeaver.ext.turbographpp.ui.views.TurboGraphPPConnectionPage"
+            class="org.jkiss.dbeaver.ext.generic.views.GenericConnectionPage"
             icon="icons/turbo_plus_plus_logo.png"
             id="org.jkiss.dbeaver.ext.turbographpp.dataSourceEditorView"
             dataSource="turbographpp"
@@ -58,7 +58,7 @@
         id="Text" priority="101" 
         label="%sql.plan.view.text.name" 
         icon="platform:/plugin/org.jkiss.dbeaver.ui/icons/sql/page_explain_plan.png" 
-        description="%sql.plan.view.text.tip" 
+        description="%sql.plan.view.simple.tip" 
         class="org.jkiss.dbeaver.ext.turbographpp.ui.views.TurboGraphPPPlanViewProvider">
         </view>
     </extension>

@@ -872,6 +872,7 @@
                 </driver>
 
                 <!-- Neo4j -->
+<!--                
                 <driver
                     id="neo4j_jdbc"
                     label="Neo4j"
@@ -887,7 +888,7 @@
                     <parameter name="supports-truncate" value="false"/>
                     <property name="@dbeaver-default-sql.parameter.enabled" value="false"/>
                 </driver>
-
+-->
                 <!-- PrestoDB -->
                 <driver
                     id="presto_jdbc"
