@@ -121,7 +121,7 @@
     </extension>
 
 	<extension point="org.jkiss.dbeaver.mavenRepository">
-        <repository id="cubrid-turbograph-maven-repo" name="turbograph Repository" url="https://web.buabu.duckdns.org/cubrid">
+        <repository id="cubrid-turbograph-maven-repo" name="turbograph Repository" url="https://ftp.cubrid.org/iitp/maven">
             <scope group="turbograph"/>
         </repository>
     </extension>
