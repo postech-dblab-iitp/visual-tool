@@ -39,3 +39,11 @@ TurboGraph++ 연결 시 아래 화면에 표시 된 것 처럼 질의편집기 �
 
 .. image:: /images/query_editor/gql_assist1.png
 .. image:: /images/query_editor/gql_assist2.png
+
+질의계획 조회 기능
+================================
+질의계획 조회 기능은 아래 그림에 빨간 사각형으로 표시된 아이콘을 통해 실행 할 수 있습니다.
+질의계획 결과는 결과창에 TableView 또는 Text 형태로 표시 될 수 있으며
+Simple, Text 탭을 통해 이동이 가능합니다.
+
+.. image:: /images/query_editor/query_plan.png
