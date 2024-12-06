@@ -872,12 +872,12 @@ public class FXGraph implements GraphBase {
 
     protected void registerContextMenu() {
         contextMenu = new ContextMenu();
-        redoMenu = new MenuItem("Redo");
-        undoMenu = new MenuItem("Undo");
-        highlightMenu = new MenuItem("Highlight");
-        unHighlightMenu = new MenuItem("unHighlight");
-        deteleMenu = new MenuItem("Delete");
-        designMenu = new MenuItem("Design");
+        redoMenu = new MenuItem(GraphMessages.context_menu_redo);
+        undoMenu = new MenuItem(GraphMessages.context_menu_undo);
+        highlightMenu = new MenuItem(GraphMessages.context_menu_highlight);
+        unHighlightMenu = new MenuItem(GraphMessages.context_menu_unhighlight);
+        deteleMenu = new MenuItem(GraphMessages.context_menu_delete);
+        designMenu = new MenuItem(GraphMessages.context_menu_design);
 
         redoMenu.setDisable(true);
         undoMenu.setDisable(true);

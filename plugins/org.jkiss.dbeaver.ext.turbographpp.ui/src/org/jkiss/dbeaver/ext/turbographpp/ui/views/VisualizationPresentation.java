@@ -424,7 +424,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         button1 = new Button(menuComposite3, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.CHART_BAR));
-        button1.setToolTipText("Chart");
+        button1.setToolTipText(TurboGraphPPUIMessages.visualization_chart_button_tool_tip);
         button1.setData(ImageButton.CHART);
         button1.addSelectionListener(imageButtonListener);
         button1.pack();
@@ -441,7 +441,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         button1 = new Button(menuComposite4, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.PROPERTIES));
-        button1.setToolTipText("Value");
+        button1.setToolTipText(TurboGraphPPUIMessages.visualization_value_button_tool_tip);
         button1.setData(ImageButton.VALUE);
         button1.addSelectionListener(imageButtonListener);
         button1.pack();
@@ -449,7 +449,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         button1 = new Button(menuComposite4, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_DESIGN));
-        button1.setToolTipText("Design Editor");
+        button1.setToolTipText(TurboGraphPPUIMessages.visualization_open_design_edit_button_tool_tip);
         button1.setData(ImageButton.DESIGN);
         button1.addSelectionListener(imageButtonListener);
         button1.pack();
@@ -457,7 +457,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         button1 = new Button(menuComposite4, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CAPTURE));
-        button1.setToolTipText("Visualization Capture");
+        button1.setToolTipText(TurboGraphPPUIMessages.visualization_capture_button_tool_tip);
         button1.setData(ImageButton.CAPTURE);
         button1.addSelectionListener(imageButtonListener);
         button1.pack();
@@ -465,7 +465,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         button1 = new Button(menuComposite4, SWT.PUSH);
         button1.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_CSV_FILE));
-        button1.setToolTipText("To CSV File");
+        button1.setToolTipText(TurboGraphPPUIMessages.visualization_to_csv_file_button_tool_tip);
         button1.setData(ImageButton.TO_CSV);
         button1.addSelectionListener(imageButtonListener);
         button1.pack();
@@ -481,7 +481,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         fetchNextButton = new Button(menuComposite5, SWT.PUSH);
         fetchNextButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_NEXT));
-        fetchNextButton.setToolTipText("Next Data");
+        fetchNextButton.setToolTipText(TurboGraphPPUIMessages.visualization_next_data_button_tool_tip);
         fetchNextButton.setData(ImageButton.NEXT_DATA);
         fetchNextButton.addSelectionListener(imageButtonListener);
         fetchNextButton.setEnabled(false);
@@ -489,7 +489,7 @@ public class VisualizationPresentation extends AbstractPresentation implements I
 
         fetchEndButton = new Button(menuComposite5, SWT.PUSH);
         fetchEndButton.setImage(DBeaverIcons.getImage(UIIcon.BUTTON_FETCH_ALL));
-        fetchEndButton.setToolTipText("All Data");
+        fetchEndButton.setToolTipText(TurboGraphPPUIMessages.visualization_all_data_button_tool_tip);
         fetchEndButton.setData(ImageButton.ALL_DATA);
         fetchEndButton.addSelectionListener(imageButtonListener);
         fetchEndButton.setEnabled(false);

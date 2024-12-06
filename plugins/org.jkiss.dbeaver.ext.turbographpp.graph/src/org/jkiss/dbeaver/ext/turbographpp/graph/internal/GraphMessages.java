@@ -70,6 +70,17 @@ public class GraphMessages extends NLS {
     public static String fxgraph_all_label;
     public static String fxgraph_all_type;
     public static String fxgraph_all_property;
+    public static String context_menu_redo;
+    public static String context_menu_undo;
+    public static String context_menu_highlight;
+    public static String context_menu_unhighlight;
+    public static String context_menu_delete;
+    public static String context_menu_design;
+    public static String layout_horizontal_tree_tool_tip;
+    public static String layout_vertical_tree_tool_tip;
+    public static String layout_grid_tool_tip;
+    public static String layout_circle_tool_tip;
+    public static String layout_spring_tool_tip;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, GraphMessages.class);
