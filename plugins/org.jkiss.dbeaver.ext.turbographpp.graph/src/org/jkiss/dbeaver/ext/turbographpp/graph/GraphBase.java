@@ -27,6 +27,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Layout;
+import org.jkiss.dbeaver.ext.turbographpp.graph.internal.GraphMessages;
 import org.jkiss.dbeaver.ui.DBeaverIcons;
 import org.jkiss.dbeaver.ui.UIIcon;
 
@@ -35,12 +36,12 @@ public interface GraphBase {
     public enum LayoutStyle {
         HORIZONTAL_TREE(
                 DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_HORIZONTAL),
-                "Horizontal-Tree Layout"),
+                GraphMessages.layout_horizontal_tree_tool_tip),
         VERTICAL_TREE(
-                DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_VERTICAL), "Vertical-Tree Layout"),
-        GRID(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_GRID), "Grid Layout"),
-        RADIAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE), "Circle(Radial) Layout"),
-        SPRING(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_FORCE_DIRECTED), "Spring Layout");
+                DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_TREE_VERTICAL),GraphMessages.layout_vertical_tree_tool_tip),
+        GRID(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_GRID), GraphMessages.layout_grid_tool_tip),
+        RADIAL(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_CIRCLE), GraphMessages.layout_circle_tool_tip),
+        SPRING(DBeaverIcons.getImage(UIIcon.BUTTON_LAYOUT_FORCE_DIRECTED), GraphMessages.layout_spring_tool_tip);
 
         LayoutStyle(Image image, String text) {
             this.image = image;

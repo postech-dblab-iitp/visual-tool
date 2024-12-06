@@ -42,6 +42,13 @@ public class TurboGraphPPUIMessages extends NLS {
     public static String visualization_shortest_button_tool_tip;
     public static String visualization_detach_window_button_tool_tip;
     public static String visualization_minimap_window_button_tool_tip;
+    public static String visualization_chart_button_tool_tip;
+    public static String visualization_value_button_tool_tip; 
+    public static String visualization_open_design_edit_button_tool_tip;
+    public static String visualization_capture_button_tool_tip;
+    public static String visualization_to_csv_file_button_tool_tip;
+    public static String visualization_next_data_button_tool_tip;
+    public static String visualization_all_data_button_tool_tip;
 
     static {
         // initialize resource bundle
